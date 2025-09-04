@@ -3,7 +3,7 @@ plugins {
     id 'org.jetbrains.kotlin.android'
     id 'org.jetbrains.kotlin.plugin.serialization' version '2.2.10'
     id 'com.google.devtools.ksp' version '2.2.0-2.0.2'
-    alias(libs.plugins.compose.compiler)
+    id 'org.jetbrains.kotlin.plugin.compose' version '2.2.10'
 
     id "com.vanniktech.maven.publish" version "0.34.0"
 }
