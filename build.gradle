@@ -1,12 +1,14 @@
 
 plugins {
     id 'com.android.library'
+    id 'maven-publish'
+    id 'signing'
     id 'com.google.devtools.ksp' version '2.2.0-2.0.2'
     id 'org.jetbrains.kotlin.android'
     id 'org.jetbrains.kotlin.plugin.serialization' version '2.2.10'
     id 'org.jetbrains.kotlin.plugin.compose' version '2.2.10'
 
-    id "com.vanniktech.maven.publish" version "0.34.0"
+//    id "com.vanniktech.maven.publish" version "0.34.0"
 }
 
 android {
@@ -65,13 +67,31 @@ android {
     }
 }
 
-import com.vanniktech.maven.publish.AndroidSingleVariantLibrary
-mavenPublishing {
-    // the first parameter represennts which variant is published
-    // the second whether to publish a sources jar
-    // the third whether to publish a javadoc jar
-    configure(new AndroidSingleVariantLibrary("release", true, true))
+publishing {
+    publications {
+        release(MavenPublication) {
+            groupId = 'com.afkanerd'
+            artifactId = 'lib_smsmms_android'
+            version = '1.0'
+
+            afterEvaluate {
+                from components.release
+            }
+        }
+    }
 }
+
+signing {
+    sign publishing.publications.release
+}
+
+//import com.vanniktech.maven.publish.AndroidSingleVariantLibrary
+//mavenPublishing {
+//    // the first parameter represennts which variant is published
+//    // the second whether to publish a sources jar
+//    // the third whether to publish a javadoc jar
+//    configure(new AndroidSingleVariantLibrary("release", true, true))
+//}
 
 dependencies {
 
