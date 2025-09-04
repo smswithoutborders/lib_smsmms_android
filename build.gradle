@@ -1,13 +1,13 @@
+
 plugins {
     id 'com.android.library'
+    id 'com.google.devtools.ksp' version '2.2.0-2.0.2'
     id 'org.jetbrains.kotlin.android'
     id 'org.jetbrains.kotlin.plugin.serialization' version '2.2.10'
-    id 'com.google.devtools.ksp' version '2.2.0-2.0.2'
     id 'org.jetbrains.kotlin.plugin.compose' version '2.2.10'
 
     id "com.vanniktech.maven.publish" version "0.34.0"
 }
-//apply plugin: "org.jetbrains.kotlin.plugin.compose"
 
 android {
     namespace 'com.afkanerd.smswithoutborders_libsmsmms'
@@ -49,7 +49,7 @@ android {
         ext.agp_version1 = '8.12.2'
         //....
         dependencies {
-            classpath "com.android.tools.build:gradle:$agp_version1"
+//            classpath "com.android.tools.build:gradle:$agp_version1"
             classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
 
         }
