@@ -1,4 +1,4 @@
-include ':libsmsmms_android'
+include ':lib_smsmms_android'
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
