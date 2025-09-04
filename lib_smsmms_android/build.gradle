@@ -3,7 +3,7 @@ plugins {
     id 'com.android.library'
     id 'maven-publish'
     id 'signing'
-    id 'com.google.devtools.ksp' version '2.2.0-2.0.2'
+    id 'com.google.devtools.ksp' version '2.2.10-2.0.2'
     id 'org.jetbrains.kotlin.android'
     id 'org.jetbrains.kotlin.plugin.serialization' version '2.2.10'
     id 'org.jetbrains.kotlin.plugin.compose' version '2.2.10'
@@ -48,7 +48,7 @@ android {
 
     buildscript {
         ext.kotlin_version = '2.2'
-        ext.agp_version1 = '8.12.2'
+//        ext.agp_version1 = '8.12.2'
         //....
         dependencies {
 //            classpath "com.android.tools.build:gradle:$agp_version1"
@@ -56,14 +56,14 @@ android {
 
         }
 
-        repositories {
-            mavenCentral() // or jcenter()
-
-            google()
-            maven {
-                url = uri("https://jitpack.io/")
-            }
-        }
+//        repositories {
+//            mavenCentral() // or jcenter()
+//
+//            google()
+//            maven {
+//                url = uri("https://jitpack.io/")
+//            }
+//        }
     }
 }
 
