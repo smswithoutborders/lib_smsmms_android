@@ -1,0 +1,10 @@
+[
+    {
+        "merged": "com.afkanerd.lib_smsmms_android-release-71:/mipmap-xxhdpi-v4/ic_launcher.webp",
+        "source": "com.afkanerd.lib_smsmms_android-main-72:/mipmap-xxhdpi/ic_launcher.webp"
+    },
+    {
+        "merged": "com.afkanerd.lib_smsmms_android-release-71:/mipmap-xxhdpi-v4/ic_launcher_round.webp",
+        "source": "com.afkanerd.lib_smsmms_android-main-72:/mipmap-xxhdpi/ic_launcher_round.webp"
+    }
+]

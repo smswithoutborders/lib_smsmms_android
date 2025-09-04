@@ -1,0 +1,34 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.afkanerd.lib_smsmms_android-mergeReleaseResources-69:/values-h720dp-v13/values-h720dp-v13.xml",
+            "map": [
+                {
+                    "source": "/home/sherlock/.gradle/caches/8.13/transforms/78136f87c3293b59b8f466b0f4db54b3/transformed/appcompat-1.7.1/res/values-h720dp-v13/values-h720dp-v13.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "66",
+                        "endOffsets": "117"
+                    }
+                }
+            ]
+        },
+        {
+            "outputFile": "com.afkanerd.lib_smsmms_android-release-71:/values-h720dp-v13/values-h720dp-v13.xml",
+            "map": [
+                {
+                    "source": "/home/sherlock/.gradle/caches/8.13/transforms/78136f87c3293b59b8f466b0f4db54b3/transformed/appcompat-1.7.1/res/values-h720dp-v13/values-h720dp-v13.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "66",
+                        "endOffsets": "117"
+                    }
+                }
+            ]
+        }
+    ]
+}

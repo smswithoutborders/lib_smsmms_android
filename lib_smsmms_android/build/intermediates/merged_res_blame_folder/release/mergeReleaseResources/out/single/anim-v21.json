@@ -1,0 +1,46 @@
+[
+    {
+        "merged": "com.afkanerd.lib_smsmms_android-release-71:/anim-v21/mtrl_bottom_sheet_slide_in.xml",
+        "source": "com.afkanerd.lib_smsmms_android-material-1.12.0-18:/anim-v21/mtrl_bottom_sheet_slide_in.xml"
+    },
+    {
+        "merged": "com.afkanerd.lib_smsmms_android-release-71:/anim-v21/design_bottom_sheet_slide_in.xml",
+        "source": "com.afkanerd.lib_smsmms_android-material-1.12.0-18:/anim-v21/design_bottom_sheet_slide_in.xml"
+    },
+    {
+        "merged": "com.afkanerd.lib_smsmms_android-release-71:/anim-v21/m3_side_sheet_enter_from_left.xml",
+        "source": "com.afkanerd.lib_smsmms_android-material-1.12.0-18:/anim-v21/m3_side_sheet_enter_from_left.xml"
+    },
+    {
+        "merged": "com.afkanerd.lib_smsmms_android-release-71:/anim-v21/mtrl_bottom_sheet_slide_out.xml",
+        "source": "com.afkanerd.lib_smsmms_android-material-1.12.0-18:/anim-v21/mtrl_bottom_sheet_slide_out.xml"
+    },
+    {
+        "merged": "com.afkanerd.lib_smsmms_android-release-71:/anim-v21/m3_side_sheet_exit_to_left.xml",
+        "source": "com.afkanerd.lib_smsmms_android-material-1.12.0-18:/anim-v21/m3_side_sheet_exit_to_left.xml"
+    },
+    {
+        "merged": "com.afkanerd.lib_smsmms_android-release-71:/anim-v21/m3_side_sheet_exit_to_right.xml",
+        "source": "com.afkanerd.lib_smsmms_android-material-1.12.0-18:/anim-v21/m3_side_sheet_exit_to_right.xml"
+    },
+    {
+        "merged": "com.afkanerd.lib_smsmms_android-release-71:/anim-v21/m3_bottom_sheet_slide_in.xml",
+        "source": "com.afkanerd.lib_smsmms_android-material-1.12.0-18:/anim-v21/m3_bottom_sheet_slide_in.xml"
+    },
+    {
+        "merged": "com.afkanerd.lib_smsmms_android-release-71:/anim-v21/m3_bottom_sheet_slide_out.xml",
+        "source": "com.afkanerd.lib_smsmms_android-material-1.12.0-18:/anim-v21/m3_bottom_sheet_slide_out.xml"
+    },
+    {
+        "merged": "com.afkanerd.lib_smsmms_android-release-71:/anim-v21/m3_side_sheet_enter_from_right.xml",
+        "source": "com.afkanerd.lib_smsmms_android-material-1.12.0-18:/anim-v21/m3_side_sheet_enter_from_right.xml"
+    },
+    {
+        "merged": "com.afkanerd.lib_smsmms_android-release-71:/anim-v21/fragment_fast_out_extra_slow_in.xml",
+        "source": "com.afkanerd.lib_smsmms_android-fragment-1.5.4-37:/anim-v21/fragment_fast_out_extra_slow_in.xml"
+    },
+    {
+        "merged": "com.afkanerd.lib_smsmms_android-release-71:/anim-v21/design_bottom_sheet_slide_out.xml",
+        "source": "com.afkanerd.lib_smsmms_android-material-1.12.0-18:/anim-v21/design_bottom_sheet_slide_out.xml"
+    }
+]

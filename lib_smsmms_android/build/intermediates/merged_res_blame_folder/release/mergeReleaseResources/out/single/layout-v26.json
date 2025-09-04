@@ -1,0 +1,10 @@
+[
+    {
+        "merged": "com.afkanerd.lib_smsmms_android-release-71:/layout-v26/abc_screen_toolbar.xml",
+        "source": "com.afkanerd.lib_smsmms_android-appcompat-1.7.1-29:/layout-v26/abc_screen_toolbar.xml"
+    },
+    {
+        "merged": "com.afkanerd.lib_smsmms_android-release-71:/layout-v26/mtrl_calendar_month.xml",
+        "source": "com.afkanerd.lib_smsmms_android-material-1.12.0-18:/layout-v26/mtrl_calendar_month.xml"
+    }
+]

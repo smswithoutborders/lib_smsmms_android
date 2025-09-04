@@ -1,0 +1,34 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.afkanerd.lib_smsmms_android-mergeReleaseResources-69:/values-v30/values-v30.xml",
+            "map": [
+                {
+                    "source": "/home/sherlock/.gradle/caches/8.13/transforms/b44c1fd3854f2b3fcfb6fc3ed2b92bac/transformed/material3-release/res/values-v30/values-v30.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "72",
+                        "endOffsets": "123"
+                    }
+                }
+            ]
+        },
+        {
+            "outputFile": "com.afkanerd.lib_smsmms_android-release-71:/values-v30/values-v30.xml",
+            "map": [
+                {
+                    "source": "/home/sherlock/.gradle/caches/8.13/transforms/b44c1fd3854f2b3fcfb6fc3ed2b92bac/transformed/material3-release/res/values-v30/values-v30.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "72",
+                        "endOffsets": "123"
+                    }
+                }
+            ]
+        }
+    ]
+}

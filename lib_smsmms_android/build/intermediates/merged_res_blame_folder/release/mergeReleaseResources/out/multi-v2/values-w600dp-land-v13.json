@@ -1,0 +1,34 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.afkanerd.lib_smsmms_android-mergeReleaseResources-69:/values-w600dp-land-v13/values-w600dp-land-v13.xml",
+            "map": [
+                {
+                    "source": "/home/sherlock/.gradle/caches/8.13/transforms/4fa66546c993f63d2966d87dd35b3bf2/transformed/material-1.12.0/res/values-w600dp-land-v13/values-w600dp-land-v13.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "54",
+                        "endOffsets": "105"
+                    }
+                }
+            ]
+        },
+        {
+            "outputFile": "com.afkanerd.lib_smsmms_android-release-71:/values-w600dp-land-v13/values-w600dp-land-v13.xml",
+            "map": [
+                {
+                    "source": "/home/sherlock/.gradle/caches/8.13/transforms/4fa66546c993f63d2966d87dd35b3bf2/transformed/material-1.12.0/res/values-w600dp-land-v13/values-w600dp-land-v13.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "54",
+                        "endOffsets": "105"
+                    }
+                }
+            ]
+        }
+    ]
+}

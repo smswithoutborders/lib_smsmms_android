@@ -1,0 +1,10 @@
+[
+    {
+        "merged": "com.afkanerd.lib_smsmms_android-release-71:/layout-sw600dp-v13/mtrl_layout_snackbar.xml",
+        "source": "com.afkanerd.lib_smsmms_android-material-1.12.0-18:/layout-sw600dp-v13/mtrl_layout_snackbar.xml"
+    },
+    {
+        "merged": "com.afkanerd.lib_smsmms_android-release-71:/layout-sw600dp-v13/design_layout_snackbar.xml",
+        "source": "com.afkanerd.lib_smsmms_android-material-1.12.0-18:/layout-sw600dp-v13/design_layout_snackbar.xml"
+    }
+]

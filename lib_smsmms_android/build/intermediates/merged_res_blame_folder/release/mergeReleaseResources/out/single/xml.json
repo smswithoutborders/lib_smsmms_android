@@ -1,0 +1,14 @@
+[
+    {
+        "merged": "com.afkanerd.lib_smsmms_android-release-71:/xml/mms_config.xml",
+        "source": "com.afkanerd.lib_smsmms_android-android-smsmms-c3e678befd-32:/xml/mms_config.xml"
+    },
+    {
+        "merged": "com.afkanerd.lib_smsmms_android-release-71:/xml/apns.xml",
+        "source": "com.afkanerd.lib_smsmms_android-android-smsmms-c3e678befd-32:/xml/apns.xml"
+    },
+    {
+        "merged": "com.afkanerd.lib_smsmms_android-release-71:/xml/locales_config.xml",
+        "source": "com.afkanerd.lib_smsmms_android-main-72:/xml/locales_config.xml"
+    }
+]

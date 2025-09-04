@@ -1,0 +1,36 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.afkanerd.lib_smsmms_android-release-71:/values-watch-v20/values-watch-v20.xml",
+            "map": [
+                {
+                    "source": "/home/sherlock/.gradle/caches/8.13/transforms/78136f87c3293b59b8f466b0f4db54b3/transformed/appcompat-1.7.1/res/values-watch-v20/values-watch-v20.xml",
+                    "from": {
+                        "startLines": "2,5,8",
+                        "startColumns": "4,4,4",
+                        "startOffsets": "55,214,385",
+                        "endLines": "4,7,10",
+                        "endColumns": "12,12,12",
+                        "endOffsets": "209,380,553"
+                    }
+                }
+            ]
+        },
+        {
+            "outputFile": "com.afkanerd.lib_smsmms_android-mergeReleaseResources-69:/values-watch-v20/values-watch-v20.xml",
+            "map": [
+                {
+                    "source": "/home/sherlock/.gradle/caches/8.13/transforms/78136f87c3293b59b8f466b0f4db54b3/transformed/appcompat-1.7.1/res/values-watch-v20/values-watch-v20.xml",
+                    "from": {
+                        "startLines": "2,5,8",
+                        "startColumns": "4,4,4",
+                        "startOffsets": "55,214,385",
+                        "endLines": "4,7,10",
+                        "endColumns": "12,12,12",
+                        "endOffsets": "209,380,553"
+                    }
+                }
+            ]
+        }
+    ]
+}
