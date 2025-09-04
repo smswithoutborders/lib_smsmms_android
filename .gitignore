@@ -10,8 +10,9 @@
 /.idea/assetWizardSettings.xml
 .DS_Store
 /build
-build/*
-build/
+lib_smsmms_android/build/*
+lib_smsmms_android/build/
+lib_smsmms_android/build
 /captures
 .externalNativeBuild
 .cxx
