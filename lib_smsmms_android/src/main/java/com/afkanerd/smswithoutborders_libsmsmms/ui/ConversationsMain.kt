@@ -939,13 +939,14 @@ fun MmsContentView(
                             horizontalArrangement = Arrangement.Center,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Icon(painterResource(R.drawable.ic_alert), "")
-                            filename?.let {
-                                Text(
-                                    it,
-                                    modifier = Modifier.padding(start=16.dp)
-                                )
-                            }
+                            // TODO:
+//                            Icon(painterResource(R.drawable.ic_alert), "")
+//                            filename?.let {
+//                                Text(
+//                                    it,
+//                                    modifier = Modifier.padding(start=16.dp)
+//                                )
+//                            }
                         }
                     }
                 }
