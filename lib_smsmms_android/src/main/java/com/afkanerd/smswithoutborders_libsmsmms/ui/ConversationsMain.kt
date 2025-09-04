@@ -815,13 +815,14 @@ fun ConversationsMainLayout(
                 retryCallback = {
                     highlightedMessage?.let { conversation ->
                         viewModel.delete(context, listOf(conversation)) {
-                            viewModel.sendSms(
-                                context=context,
-                                text=conversation.sms?.body!!,
-                                address= conversation.sms?.address!!,
-                                subscriptionId = conversation.sms?.sub_id!!,
+                            smsManager.sendSms(
+                                context,
+                                text = typingText,
+                                address = address,
+                                subscriptionId = subscriptionId!!,
                                 threadId = threadId,
-                            ) {
+                                data = null
+                            ){
                                 highlightedMessage = null
                             }
                         }
