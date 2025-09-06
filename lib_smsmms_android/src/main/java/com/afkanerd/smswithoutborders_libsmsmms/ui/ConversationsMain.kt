@@ -187,7 +187,7 @@ fun ConversationsMainLayout(
     foldOpen: Boolean = false,
     threadId: Int? = null,
     customComposable: (@Composable (CustomsConversationsViewModel?) -> Unit)? = null,
-    customMenuItems: Map<String, () -> Unit>? = null,
+    customMenuItems: (@Composable ((Boolean) -> Unit) -> Unit)? = null,
     customsConversationsViewModel: CustomsConversationsViewModel? = null,
     _items: List<Conversations>? = null
 ) {

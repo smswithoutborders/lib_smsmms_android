@@ -378,7 +378,7 @@ fun ConversationsMainDropDownMenu(
     isMute: Boolean = false,
     isBlocked: Boolean = false,
     isArchived: Boolean = false,
-    customMenuCallbacks: Map<String, () -> Unit>? = null,
+    customMenuCallbacks: (@Composable ((Boolean) -> Unit) -> Unit)? = null,
     dismissCallback: ((Boolean) -> Unit)? = null,
 ) {
     val expanded = expanded
@@ -390,19 +390,9 @@ fun ConversationsMainDropDownMenu(
             expanded = expanded,
             onDismissRequest = { dismissCallback?.invoke( false )},
         ) {
-            customMenuCallbacks?.forEach { item ->
-                DropdownMenuItem(
-                    text = {
-                        Text(
-                            text=item.key,
-                            color = MaterialTheme.colorScheme.onBackground
-                        )
-                    },
-                    onClick = {
-                        dismissCallback?.invoke( false )
-                        item.value()
-                    }
-                )
+
+            customMenuCallbacks?.invoke {
+                dismissCallback?.invoke(it)
             }
 
             HorizontalDivider()

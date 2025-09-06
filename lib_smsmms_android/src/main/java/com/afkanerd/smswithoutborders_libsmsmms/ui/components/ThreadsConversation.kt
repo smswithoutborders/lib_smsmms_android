@@ -29,6 +29,7 @@ import androidx.compose.material.icons.filled.Block
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Drafts
 import androidx.compose.material.icons.filled.Inbox
+import androidx.compose.material.icons.filled.LogoDev
 import androidx.compose.material.icons.filled.NotificationsOff
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Unarchive
@@ -364,14 +365,19 @@ fun ThreadConversationCard(
 fun ModalDrawerSheetLayout(
     callback: ((ThreadsViewModel.InboxType) -> Unit)? = null,
     selectedItemIndex: ThreadsViewModel.InboxType = ThreadsViewModel.InboxType.INBOX,
+    customComposable: (@Composable () -> Unit)? = null
 ) {
     ModalDrawerSheet {
         Text(
             stringResource(R.string.folders),
             fontSize = 12.sp,
             modifier = Modifier.padding(16.dp))
+
         HorizontalDivider()
+
         Column(modifier = Modifier.padding(16.dp)) {
+            customComposable?.invoke()
+
             NavigationDrawerItem(
                 icon = {
                     Icon(
@@ -480,7 +486,7 @@ fun ThreadsNavMenuItems(
     navController: NavController,
     expanded: Boolean = false,
     threadsViewModel: ThreadsViewModel,
-    threadMenuItems: Map<String, () -> Unit>? = null,
+    threadMenuItems: (@Composable ((Boolean) -> Unit) -> Unit)? = null,
     dismissCallback: ((Boolean) -> Unit)? = null,
 ) {
     val context = LocalContext.current
@@ -589,21 +595,24 @@ fun ThreadsNavMenuItems(
 
             HorizontalDivider()
 
-            threadMenuItems?.let { dropMenuItem ->
-                dropMenuItem.forEach { entry ->
-                    DropdownMenuItem(
-                        text = {
-                            Text(
-                                text= entry.key,
-                                color = MaterialTheme.colorScheme.onBackground
-                            )
-                        },
-                        onClick = {
-                            entry.value()
-                            dismissCallback?.let { it(false) }
-                        }
-                    )
-                }
+//            threadMenuItems?.let { dropMenuItem ->
+//                dropMenuItem.forEach { entry ->
+//                    DropdownMenuItem(
+//                        text = {
+//                            Text(
+//                                text= entry.key,
+//                                color = MaterialTheme.colorScheme.onBackground
+//                            )
+//                        },
+//                        onClick = {
+//                            entry.value()
+//                            dismissCallback?.let { it(false) }
+//                        }
+//                    )
+//                }
+//            }
+            threadMenuItems?.invoke{
+                dismissCallback?.invoke(it)
             }
 
             HorizontalDivider()
@@ -697,6 +706,40 @@ fun ImportDetailsPreview() {
 fun ModalDrawerSheetLayoutPreview() {
     ModalDrawerSheetLayout(
         selectedItemIndex = ThreadsViewModel.InboxType.INBOX,
+        customComposable = {
+            NavigationDrawerItem(
+                icon = {
+                    Icon(
+                        Icons.Default.LogoDev,
+                        contentDescription = stringResource(R.string.blocked_folder)
+                    )
+                },
+                label = {
+                    Text(
+                        stringResource(R.string.conversations_navigation_view_blocked),
+                        fontSize = 14.sp
+                    )
+                },
+                selected = true,
+                onClick = {},
+            )
+            NavigationDrawerItem(
+                icon = {
+                    Icon(
+                        Icons.Default.Android,
+                        contentDescription = stringResource(R.string.blocked_folder)
+                    )
+                },
+                label = {
+                    Text(
+                        stringResource(R.string.conversations_navigation_view_blocked),
+                        fontSize = 14.sp
+                    )
+                },
+                selected = true,
+                onClick = {},
+            )
+        }
     )
 }
 

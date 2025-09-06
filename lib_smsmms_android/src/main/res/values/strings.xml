@@ -453,5 +453,6 @@
     <string name="block_contact">Block contact</string>
     <string name="lib_app_name" translatable="false">DekuSMS</string>
     <string name="text_body_cannot_empty">Text body cannot empty!</string>
+    <string name="secure">Secure</string>
 
 </resources>

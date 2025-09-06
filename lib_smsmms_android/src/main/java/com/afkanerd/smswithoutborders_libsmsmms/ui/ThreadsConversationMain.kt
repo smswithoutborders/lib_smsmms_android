@@ -127,7 +127,7 @@ fun ThreadConversationLayout(
     threadsViewModel: ThreadsViewModel,
     navController: NavController,
     foldOpen: Boolean = false,
-    threadsMainMenuItems: Map<String, () -> Unit>? = null
+    threadsMainMenuItems: (@Composable ((Boolean) -> Unit) -> Unit)? = null,
 ) {
     val inPreviewMode = LocalInspectionMode.current
     val context = LocalContext.current
