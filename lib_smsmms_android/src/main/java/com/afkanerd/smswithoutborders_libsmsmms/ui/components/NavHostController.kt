@@ -54,6 +54,7 @@ fun NavHostControllerInstance(
     customMenuItems: (@Composable ((Boolean) -> Unit) -> Unit)? = null,
     conversationsCustomComposable: (@Composable (CustomsConversationsViewModel?) -> Unit)? = null,
     conversationsCustomViewModel: CustomsConversationsViewModel? = null,
+    startDestination: Any = HomeScreenNav(),
     builder: NavGraphBuilder.() -> Unit,
 ) {
     // TODO: fix folding
@@ -63,7 +64,7 @@ fun NavHostControllerInstance(
     NavHost(
         modifier = Modifier,
         navController = navController,
-        startDestination = HomeScreenNav(),
+        startDestination = startDestination
     ) {
         builder()
 
