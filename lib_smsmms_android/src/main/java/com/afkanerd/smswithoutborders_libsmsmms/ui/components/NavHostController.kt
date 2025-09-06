@@ -122,21 +122,6 @@ fun NavHostControllerInstance(
                 mimeType = imageViewScreen.mimeType
             )
         }
-
-//        if(!isFolded) {
-//
-//        }
-//        else {
-//            composable<HomeScreenNav>{ backStackEntry ->
-//                val homeScreenNav: HomeScreenNav = backStackEntry.toRoute()
-//                FoldOpen(
-//                    threadsViewModel = threadsViewModel,
-//                    homeScreenNav = homeScreenNav,
-//                    navController = navController,
-//                )
-//            }
-//        }
-
     }
 }
 
