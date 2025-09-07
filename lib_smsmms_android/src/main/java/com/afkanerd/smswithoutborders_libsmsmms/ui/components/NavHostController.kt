@@ -56,6 +56,8 @@ fun NavHostControllerInstance(
     conversationsCustomViewModel: CustomsConversationsViewModel? = null,
     modalNavigationModalItems: (@Composable ((ThreadsViewModel.InboxType) -> Unit) -> Unit)? = null,
     startDestination: Any = HomeScreenNav(),
+    customBottomBar: @Composable (() -> Unit)? = null,
+    customThreadsView: @Composable (() -> Unit)? = null,
     builder: NavGraphBuilder.() -> Unit,
 ) {
     // TODO: fix folding
@@ -75,6 +77,8 @@ fun NavHostControllerInstance(
                 navController = navController,
                 threadsMainMenuItems = threadsMainMenuItems,
                 modalNavigationModalItems = modalNavigationModalItems,
+                customBottomBar = customBottomBar,
+                customThreadsView = customThreadsView,
             )
         }
         composable<ConversationsScreenNav> { backStackEntry ->

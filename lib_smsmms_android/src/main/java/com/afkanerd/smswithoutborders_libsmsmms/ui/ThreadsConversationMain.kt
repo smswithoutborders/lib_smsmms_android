@@ -119,6 +119,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
+data class ThreadsConversationParameters(
+    var searchQuery: String? = null,
+)
+
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class,
     ExperimentalFoundationApi::class, ExperimentalPermissionsApi::class
 )
@@ -129,6 +133,8 @@ fun ThreadConversationLayout(
     foldOpen: Boolean = false,
     threadsMainMenuItems: (@Composable ((Boolean) -> Unit) -> Unit)? = null,
     modalNavigationModalItems: (@Composable ((ThreadsViewModel.InboxType) -> Unit) -> Unit)? = null,
+    customBottomBar: @Composable (() -> Unit)? = null,
+    customThreadsView: @Composable (() -> Unit)? = null,
 ) {
     val inPreviewMode = LocalInspectionMode.current
     val context = LocalContext.current
@@ -218,7 +224,7 @@ fun ThreadConversationLayout(
     }
 
     ModalNavigationDrawer(
-        modifier = Modifier.safeDrawingPadding(),
+//        modifier = Modifier.safeDrawingPadding(),
         drawerState = drawerState,
         drawerContent = {
             ModalDrawerSheetLayout(
@@ -441,32 +447,12 @@ fun ThreadConversationLayout(
                     )
                 }
             },
+            bottomBar = customBottomBar ?: {},
             floatingActionButton = {
                 when(inboxType) {
                     ThreadsViewModel.InboxType.INBOX -> {
                         if((isDefault && !messagesAreLoading) || inPreviewMode) {
                             Column {
-                                if(BuildConfig.DEBUG || inPreviewMode) {
-                                    ExtendedFloatingActionButton(
-                                        onClick = {
-                                            context.sendBroadcast(
-                                                Intent(context,
-                                                    MmsReceivedReceiverImplTest::class.java
-                                                ).apply {
-                                                    putExtra("uri", "content://mms/5")
-                                                }
-                                            )
-                                        },
-                                        icon = { Icon(
-                                            Icons.AutoMirrored.Rounded.Chat, "")},
-                                        text = { Text("Send MMS") },
-                                        expanded = true,
-                                        containerColor = MaterialTheme.colorScheme.primaryContainer,
-                                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                                    )
-                                    Spacer(modifier = Modifier.height(16.dp))
-                                }
-
                                 ExtendedFloatingActionButton(
                                     onClick = {
                                         navController.navigate(ComposeNewMessageScreenNav)
@@ -486,131 +472,144 @@ fun ThreadConversationLayout(
             }
         ) { innerPadding ->
             Column(modifier = Modifier.padding(innerPadding)) {
-                if(!isDefault || !readPhoneStatePermission.status.isGranted) {
-                    DefaultCheckMain { isDefault = context.isDefault() }
-                }
-                if(inPreviewMode || messagesAreLoading) {
-                    Column(
-                        modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        LinearProgressIndicator()
-                        Text(
-                            stringResource(R.string.give_it_a_minute),
-                            modifier = Modifier.padding(top=8.dp),
-                            fontSize = 12.sp
-                        )
+                if(customThreadsView != null) {
+                    customThreadsView()
+                } else {
+                    if(!isDefault || !readPhoneStatePermission.status.isGranted) {
+                        DefaultCheckMain { isDefault = context.isDefault() }
                     }
-                }
-                else {
-                    Box(
-                        modifier = Modifier .fillMaxSize()
-                    ) {
-                        when(inboxType) {
-                            ThreadsViewModel.InboxType.ARCHIVED -> {
-                                if(archivedMessagesItems.loadState.refresh != Loading &&
-                                    archivedMessagesItems.itemCount < 1)
-                                    Column(
-                                        modifier = Modifier.fillMaxSize(),
-                                        verticalArrangement = Arrangement.Center,
-                                        horizontalAlignment = Alignment.CenterHorizontally
-                                    ) {
-                                        Text(
-                                            stringResource(R.string.homepage_archive_no_message),
-                                            fontSize = 24.sp
-                                        )
-                                    }
-                            }
-                            else -> {
-                                if(inboxMessagesItems.loadState.refresh != Loading &&
-                                    inboxMessagesItems.itemCount < 1)
-                                    Column(
-                                        modifier = Modifier.fillMaxSize(),
-                                        verticalArrangement = Arrangement.Center,
-                                        horizontalAlignment = Alignment.CenterHorizontally
-                                    ) {
-                                        Text(
-                                            stringResource(R.string.homepage_no_message),
-                                            fontSize = 24.sp
-                                        )
-                                    }
-                            }
-                        }
-
-                        LazyColumn(
+                    if(inPreviewMode || messagesAreLoading) {
+                        Column(
                             modifier = Modifier.fillMaxSize(),
-                            state = listState
-                        )  {
-                            items(
-                                count = displayedInbox.itemCount,
-                                key = displayedInbox.itemKey { it.threadId }
-                            ) { index ->
-                                val thread = displayedInbox[index]
-
-                                val address = thread!!.address
-                                val isBlocked = if(isDefault)
-                                    BlockedNumberContract.isBlocked(context, address)
-                                else false
-
-                                val contactName = if(isDefault)
-                                    context.retrieveContactName(address)
-                                else address
-
-                                var firstName by remember { mutableStateOf(address) }
-                                var lastName by remember { mutableStateOf("") }
-
-                                if (!contactName.isNullOrEmpty()) {
-                                    contactName.split(" ").let {
-                                        firstName = it[0]
-                                        if (it.size > 1)
-                                            lastName = it[1]
-                                    }
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            LinearProgressIndicator()
+                            Text(
+                                stringResource(R.string.give_it_a_minute),
+                                modifier = Modifier.padding(top=8.dp),
+                                fontSize = 12.sp
+                            )
+                        }
+                    }
+                    else {
+                        Box(
+                            modifier = Modifier .fillMaxSize()
+                        ) {
+                            when(inboxType) {
+                                ThreadsViewModel.InboxType.ARCHIVED -> {
+                                    if(archivedMessagesItems.loadState.refresh != Loading &&
+                                        archivedMessagesItems.itemCount < 1)
+                                        Column(
+                                            modifier = Modifier.fillMaxSize(),
+                                            verticalArrangement = Arrangement.Center,
+                                            horizontalAlignment = Alignment.CenterHorizontally
+                                        ) {
+                                            Text(
+                                                stringResource(R.string.homepage_archive_no_message),
+                                                fontSize = 24.sp
+                                            )
+                                        }
                                 }
+                                else -> {
+                                    if(inboxMessagesItems.loadState.refresh != Loading &&
+                                        inboxMessagesItems.itemCount < 1)
+                                        Column(
+                                            modifier = Modifier.fillMaxSize(),
+                                            verticalArrangement = Arrangement.Center,
+                                            horizontalAlignment = Alignment.CenterHorizontally
+                                        ) {
+                                            Text(
+                                                stringResource(R.string.homepage_no_message),
+                                                fontSize = 24.sp
+                                            )
+                                        }
+                                }
+                            }
 
-                                val dismissState = GetSwipeBehaviour(thread, inboxType)
+                            LazyColumn(
+                                modifier = Modifier.fillMaxSize(),
+                                state = listState
+                            )  {
+                                items(
+                                    count = displayedInbox.itemCount,
+                                    key = displayedInbox.itemKey { it.threadId }
+                                ) { index ->
+                                    val thread = displayedInbox[index]
 
-                                val date = if(!inPreviewMode) DateTimeUtils.formatDate(
-                                    context,
-                                    thread.date
-                                ) ?: "" else "Tues"
+                                    val address = thread!!.address
+                                    val isBlocked = if(isDefault)
+                                        BlockedNumberContract.isBlocked(context, address)
+                                    else false
 
-                                SwipeToDismissBox(
-                                    state = dismissState,
-                                    gesturesEnabled = context.settingsGetEnableSwipeBehaviour,
-                                    backgroundContent = {
-                                        SwipeToDeleteBackground(
-                                            dismissState,
-                                            inboxType == ThreadsViewModel.InboxType.ARCHIVED
-                                        )
+                                    val contactName = if(isDefault)
+                                        context.retrieveContactName(address)
+                                    else address
+
+                                    var firstName by remember { mutableStateOf(address) }
+                                    var lastName by remember { mutableStateOf("") }
+
+                                    if (!contactName.isNullOrEmpty()) {
+                                        contactName.split(" ").let {
+                                            firstName = it[0]
+                                            if (it.size > 1)
+                                                lastName = it[1]
+                                        }
                                     }
-                                ) {
-                                    ThreadConversationCard(
-                                        id = thread.threadId,
-                                        firstName = firstName,
-                                        lastName = lastName,
-                                        phoneNumber = address,
-                                        content = thread.snippet,
-                                        date = date,
-                                        isRead = !thread.unread,
-                                        isContact = isDefault && !contactName.isNullOrBlank(),
-                                        isBlocked = isBlocked,
-                                        modifier = Modifier.combinedClickable(
-                                            onClick = {
-                                                if(selectedItems.isEmpty()) {
-                                                    if(!foldOpen) {
-                                                        navController.navigate(
-                                                            ConversationsScreenNav(
-                                                                address,
-                                                                threadId = thread.threadId
-                                                            ))
+
+                                    val dismissState = GetSwipeBehaviour(thread, inboxType)
+
+                                    val date = if(!inPreviewMode) DateTimeUtils.formatDate(
+                                        context,
+                                        thread.date
+                                    ) ?: "" else "Tues"
+
+                                    SwipeToDismissBox(
+                                        state = dismissState,
+                                        gesturesEnabled = context.settingsGetEnableSwipeBehaviour,
+                                        backgroundContent = {
+                                            SwipeToDeleteBackground(
+                                                dismissState,
+                                                inboxType == ThreadsViewModel.InboxType.ARCHIVED
+                                            )
+                                        }
+                                    ) {
+                                        ThreadConversationCard(
+                                            id = thread.threadId,
+                                            firstName = firstName,
+                                            lastName = lastName,
+                                            phoneNumber = address,
+                                            content = thread.snippet,
+                                            date = date,
+                                            isRead = !thread.unread,
+                                            isContact = isDefault && !contactName.isNullOrBlank(),
+                                            isBlocked = isBlocked,
+                                            modifier = Modifier.combinedClickable(
+                                                onClick = {
+                                                    if(selectedItems.isEmpty()) {
+                                                        if(!foldOpen) {
+                                                            navController.navigate(
+                                                                ConversationsScreenNav(
+                                                                    address,
+                                                                    threadId = thread.threadId
+                                                                ))
+                                                        }
+                                                        else {
+                                                            navController
+                                                                .navigate(
+                                                                    HomeScreenNav( address))
+                                                        }
+                                                    } else {
+                                                        threadsViewModel.setSelectedItems(
+                                                            selectedItems.toMutableList().apply {
+                                                                if(selectedItems.contains(thread))
+                                                                    remove(thread)
+                                                                else add(thread)
+                                                            }
+                                                        )
                                                     }
-                                                    else {
-                                                        navController
-                                                            .navigate(
-                                                                HomeScreenNav( address))
-                                                    }
-                                                } else {
+                                                },
+                                                onLongClick = {
                                                     threadsViewModel.setSelectedItems(
                                                         selectedItems.toMutableList().apply {
                                                             if(selectedItems.contains(thread))
@@ -619,45 +618,36 @@ fun ThreadConversationLayout(
                                                         }
                                                     )
                                                 }
-                                            },
-                                            onLongClick = {
-                                                threadsViewModel.setSelectedItems(
-                                                    selectedItems.toMutableList().apply {
-                                                        if(selectedItems.contains(thread))
-                                                            remove(thread)
-                                                        else add(thread)
-                                                    }
-                                                )
-                                            }
-                                        ),
-                                        isSelected = selectedItems.contains(thread),
-                                        isMuted = thread.isMute,
-                                        type = thread.type,
-                                        unreadCount = thread.unreadCount,
-                                        mms = thread.isMms
-                                    )
+                                            ),
+                                            isSelected = selectedItems.contains(thread),
+                                            isMuted = thread.isMute,
+                                            type = thread.type,
+                                            unreadCount = thread.unreadCount,
+                                            mms = thread.isMms
+                                        )
+                                    }
                                 }
                             }
-                        }
 
-                        if(rememberDeleteMenu) {
-                            DeleteConfirmationAlert(
-                                confirmCallback = {
-                                    threadsViewModel.deleteThreads(
-                                        context,
-                                        selectedItems
-                                    )
-                                    threadsViewModel.removeAllSelectedItems()
+                            if(rememberDeleteMenu) {
+                                DeleteConfirmationAlert(
+                                    confirmCallback = {
+                                        threadsViewModel.deleteThreads(
+                                            context,
+                                            selectedItems
+                                        )
+                                        threadsViewModel.removeAllSelectedItems()
+                                        rememberDeleteMenu = false
+                                    }
+                                ) {
                                     rememberDeleteMenu = false
+                                    threadsViewModel.removeAllSelectedItems()
                                 }
-                            ) {
-                                rememberDeleteMenu = false
-                                threadsViewModel.removeAllSelectedItems()
                             }
                         }
                     }
-                }
 
+                }
             }
         }
     }
