@@ -128,6 +128,7 @@ fun ThreadConversationLayout(
     navController: NavController,
     foldOpen: Boolean = false,
     threadsMainMenuItems: (@Composable ((Boolean) -> Unit) -> Unit)? = null,
+    modalNavigationModalItems: (@Composable ((ThreadsViewModel.InboxType) -> Unit) -> Unit)? = null,
 ) {
     val inPreviewMode = LocalInspectionMode.current
     val context = LocalContext.current
@@ -230,6 +231,7 @@ fun ThreadConversationLayout(
                     }
                 },
                 selectedItemIndex = inboxType,
+                customComposable = modalNavigationModalItems
             )
         },
     ) {

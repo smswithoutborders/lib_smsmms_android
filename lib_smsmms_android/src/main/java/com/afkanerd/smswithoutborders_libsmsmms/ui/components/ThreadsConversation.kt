@@ -365,7 +365,7 @@ fun ThreadConversationCard(
 fun ModalDrawerSheetLayout(
     callback: ((ThreadsViewModel.InboxType) -> Unit)? = null,
     selectedItemIndex: ThreadsViewModel.InboxType = ThreadsViewModel.InboxType.INBOX,
-    customComposable: (@Composable () -> Unit)? = null
+    customComposable: (@Composable ((ThreadsViewModel.InboxType) -> Unit) -> Unit)? = null
 ) {
     ModalDrawerSheet {
         Text(
@@ -376,7 +376,9 @@ fun ModalDrawerSheetLayout(
         HorizontalDivider()
 
         Column(modifier = Modifier.padding(16.dp)) {
-            customComposable?.invoke()
+            customComposable?.invoke { inboxType ->
+                callback?.let { it(inboxType) }
+            }
 
             NavigationDrawerItem(
                 icon = {

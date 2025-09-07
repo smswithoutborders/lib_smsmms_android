@@ -54,6 +54,7 @@ fun NavHostControllerInstance(
     customMenuItems: (@Composable ((Boolean) -> Unit) -> Unit)? = null,
     conversationsCustomComposable: (@Composable (CustomsConversationsViewModel?) -> Unit)? = null,
     conversationsCustomViewModel: CustomsConversationsViewModel? = null,
+    modalNavigationModalItems: (@Composable ((ThreadsViewModel.InboxType) -> Unit) -> Unit)? = null,
     startDestination: Any = HomeScreenNav(),
     builder: NavGraphBuilder.() -> Unit,
 ) {
@@ -73,6 +74,7 @@ fun NavHostControllerInstance(
                 threadsViewModel = threadsViewModel,
                 navController = navController,
                 threadsMainMenuItems = threadsMainMenuItems,
+                modalNavigationModalItems = modalNavigationModalItems,
             )
         }
         composable<ConversationsScreenNav> { backStackEntry ->
