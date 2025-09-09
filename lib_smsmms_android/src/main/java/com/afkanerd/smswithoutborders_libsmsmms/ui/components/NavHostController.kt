@@ -58,6 +58,8 @@ fun NavHostControllerInstance(
     startDestination: Any = HomeScreenNav(),
     customBottomBar: @Composable (() -> Unit)? = null,
     customThreadsView: @Composable (() -> Unit)? = null,
+    showThreadsTopBar: Boolean = true,
+    appName: String = stringResource(R.string.lib_app_name),
     builder: NavGraphBuilder.() -> Unit,
 ) {
     // TODO: fix folding
@@ -79,6 +81,8 @@ fun NavHostControllerInstance(
                 modalNavigationModalItems = modalNavigationModalItems,
                 customBottomBar = customBottomBar,
                 customThreadsView = customThreadsView,
+                showTopBar = showThreadsTopBar,
+                appName = appName,
             )
         }
         composable<ConversationsScreenNav> { backStackEntry ->

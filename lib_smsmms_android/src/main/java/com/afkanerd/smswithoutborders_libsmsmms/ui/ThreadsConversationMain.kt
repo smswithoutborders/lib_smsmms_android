@@ -135,6 +135,8 @@ fun ThreadConversationLayout(
     modalNavigationModalItems: (@Composable ((ThreadsViewModel.InboxType) -> Unit) -> Unit)? = null,
     customBottomBar: @Composable (() -> Unit)? = null,
     customThreadsView: @Composable (() -> Unit)? = null,
+    showTopBar: Boolean = true,
+    appName: String = stringResource(R.string.lib_app_name),
 ) {
     val inPreviewMode = LocalInspectionMode.current
     val context = LocalContext.current
@@ -244,212 +246,216 @@ fun ThreadConversationLayout(
         Scaffold (
             modifier = Modifier.nestedScroll(scrollBehaviour.nestedScrollConnection),
             topBar = {
-                if(selectedItems.isEmpty() && inboxType == ThreadsViewModel.InboxType.INBOX) {
-                    CenterAlignedTopAppBar(
-                        title = {
-                            Text(
-                                text = stringResource(R.string.lib_app_name),
-                                style = MaterialTheme.typography.titleLarge
-                            )
-                        },
-                        navigationIcon = {
-                            IconButton(onClick = {
-                                scope.launch {
-                                    drawerState.apply {
-                                        if(isClosed) { open() }
-                                        else { close() }
-                                    }
-                                }
-                            }) {
-                                Icon(
-                                    imageVector = Icons.Filled.Menu,
-                                    contentDescription = stringResource(R.string.open_side_menu)
+                if(showTopBar) {
+
+                    if(selectedItems.isEmpty() && inboxType == ThreadsViewModel.InboxType.INBOX) {
+                        CenterAlignedTopAppBar(
+                            title = {
+                                Text(
+                                    text = appName,
+                                    style = MaterialTheme.typography.titleLarge
                                 )
-                            }
-                        },
-                        actions = {
-                            if(isDefault || inPreviewMode) {
+                            },
+                            navigationIcon = {
                                 IconButton(onClick = {
-                                    navController.navigate(SearchScreenNav())
+                                    scope.launch {
+                                        drawerState.apply {
+                                            if(isClosed) { open() }
+                                            else { close() }
+                                        }
+                                    }
                                 }) {
                                     Icon(
-                                        imageVector = Icons.Filled.Search,
-                                        contentDescription = stringResource(R.string.search_messages)
+                                        imageVector = Icons.Filled.Menu,
+                                        contentDescription = stringResource(R.string.open_side_menu)
                                     )
                                 }
-                            }
-                            IconButton(onClick = {
-                                rememberMenuExpanded = !rememberMenuExpanded
-                            }) {
-                                Icon(
-                                    imageVector = Icons.Filled.MoreVert,
-                                    contentDescription = stringResource(R.string.open_menu)
-                                )
-                            }
-                        },
-                        scrollBehavior = scrollBehaviour
-                    )
-                }
-                else if(selectedItems.isNotEmpty()) {
-                    TopAppBar(
-                        title = {
-                            Text(
-                                text= "${selectedItems.size} ${stringResource(R.string.selected)}",
-                                maxLines =1,
-                                color = selectedIconColors,
-                                overflow = TextOverflow.Ellipsis)
-                        },
-                        navigationIcon = {
-                            IconButton(onClick = {
-                                threadsViewModel.removeAllSelectedItems()
-                            }) {
-                                Icon(
-                                    imageVector = Icons.Filled.Close,
-                                    tint = selectedIconColors,
-                                    contentDescription = stringResource(R.string.cancel_selection)
-                                )
-                            }
-                        },
-                        actions = {
-                            IconButton(onClick = {
-                                if(inboxType == ThreadsViewModel.InboxType.ARCHIVED) {
-                                    threadsViewModel.update(
-                                        context, selectedItems.apply {
-                                            forEach { it.isArchive = false }
+                            },
+                            actions = {
+                                if(isDefault || inPreviewMode) {
+                                    IconButton(onClick = {
+                                        navController.navigate(SearchScreenNav())
+                                    }) {
+                                        Icon(
+                                            imageVector = Icons.Filled.Search,
+                                            contentDescription = stringResource(R.string.search_messages)
+                                        )
+                                    }
+                                }
+                                IconButton(onClick = {
+                                    rememberMenuExpanded = !rememberMenuExpanded
+                                }) {
+                                    Icon(
+                                        imageVector = Icons.Filled.MoreVert,
+                                        contentDescription = stringResource(R.string.open_menu)
+                                    )
+                                }
+                            },
+                            scrollBehavior = scrollBehaviour
+                        )
+                    }
+                    else if(selectedItems.isNotEmpty()) {
+                        TopAppBar(
+                            title = {
+                                Text(
+                                    text= "${selectedItems.size} ${stringResource(R.string.selected)}",
+                                    maxLines =1,
+                                    color = selectedIconColors,
+                                    overflow = TextOverflow.Ellipsis)
+                            },
+                            navigationIcon = {
+                                IconButton(onClick = {
+                                    threadsViewModel.removeAllSelectedItems()
+                                }) {
+                                    Icon(
+                                        imageVector = Icons.Filled.Close,
+                                        tint = selectedIconColors,
+                                        contentDescription = stringResource(R.string.cancel_selection)
+                                    )
+                                }
+                            },
+                            actions = {
+                                IconButton(onClick = {
+                                    if(inboxType == ThreadsViewModel.InboxType.ARCHIVED) {
+                                        threadsViewModel.update(
+                                            context, selectedItems.apply {
+                                                forEach { it.isArchive = false }
+                                            })
+                                        threadsViewModel.removeAllSelectedItems()
+                                    } else {
+                                        threadsViewModel.update(context, selectedItems.apply {
+                                            forEach { it.isArchive = true }
                                         })
-                                    threadsViewModel.removeAllSelectedItems()
-                                } else {
-                                    threadsViewModel.update(context, selectedItems.apply {
-                                        forEach { it.isArchive = true }
-                                    })
-                                    threadsViewModel.removeAllSelectedItems()
-                                }
-                            }) {
-                                if(inboxType == ThreadsViewModel.InboxType.ARCHIVED) {
-                                    Icon(
-                                        imageVector = Icons.Filled.Unarchive,
-                                        tint = selectedIconColors,
-                                        contentDescription =
-                                            stringResource(R.string.unarchive_messages)
-                                    )
-                                } else {
-                                    Icon(
-                                        imageVector = Icons.Filled.Archive,
-                                        tint = selectedIconColors,
-                                        contentDescription =
-                                            stringResource(R.string.messages_threads_menu_archive)
-                                    )
-                                }
-                            }
-
-                            IconButton(onClick = {
-                                rememberDeleteMenu = true
-                            }) {
-                                Icon(
-                                    imageVector = Icons.Rounded.Delete,
-                                    tint = selectedIconColors,
-                                    contentDescription =
-                                        stringResource(R.string.message_threads_menu_delete)
-                                )
-                            }
-
-                            IconButton(onClick = {
-                                val state = inboxType == ThreadsViewModel.InboxType.MUTED
-                                threadsViewModel.update(context, selectedItems.apply {
-                                    forEach { it.isMute = !state }
-                                }) { threadsViewModel.removeAllSelectedItems() }
-                            }) {
-                                Icon(
-                                    imageVector = if(inboxType != ThreadsViewModel.InboxType.MUTED)
-                                        Icons.AutoMirrored.Rounded.VolumeOff
-                                    else Icons.AutoMirrored.Rounded.VolumeUp,
-                                    tint = selectedIconColors,
-                                    contentDescription = stringResource(R.string.thread_muted)
-                                )
-                            }
-
-                            IconButton(onClick = {
-                                val state = inboxType == ThreadsViewModel.InboxType.BLOCKED
-                                threadsViewModel.setIsBlocked(
-                                    context,
-                                    selectedItems.map{ it.address },
-                                    !state
-                                ) {
-                                    CoroutineScope(Dispatchers.IO).launch {
-                                        try {
-                                            if(state) {
-                                                context.unblockContact(selectedItems.map {
-                                                    it.address })
-                                            } else {
-                                                context.blockContact(selectedItems.map {
-                                                    it.address })
-                                            }
-                                        } catch(e: Exception) {
-                                            e.printStackTrace()
-                                            Toast.makeText(
-                                                context,
-                                                "${e.message}",
-                                                Toast.LENGTH_LONG).show()
-                                        }
                                         threadsViewModel.removeAllSelectedItems()
                                     }
-                                }
-                            }) {
-                                Icon(
-                                    imageVector = if(inboxType != ThreadsViewModel.InboxType.BLOCKED)
-                                        Icons.Outlined.Block else Icons.Outlined.Remove,
-                                    tint = selectedIconColors,
-                                    contentDescription = stringResource(R.string.block_contact)
-                                )
-                            }
-                        },
-                        scrollBehavior = scrollBehaviour
-                    )
-                }
-                else {
-                    TopAppBar(
-                        title = {
-                            Text(
-                                text= when(inboxType) {
-                                    ThreadsViewModel.InboxType.ARCHIVED ->
-                                        stringResource(R.string
-                                            .conversations_navigation_view_archived)
-                                    ThreadsViewModel.InboxType.BLOCKED ->
-                                        stringResource(R.string
-                                            .conversations_navigation_view_blocked)
-                                    ThreadsViewModel.InboxType.MUTED ->
-                                        stringResource(R.string
-                                            .conversation_menu_muted_label)
-                                    ThreadsViewModel.InboxType.DRAFTS ->
-                                        stringResource(R.string
-                                            .conversations_navigation_view_drafts)
-                                    else -> ""
-                                },
-                                maxLines =1,
-                                overflow = TextOverflow.Ellipsis)
-                        },
-                        navigationIcon = {
-                            IconButton(onClick = {
-                                scope.launch {
-                                    drawerState.apply {
-                                        if(isClosed) open() else close()
+                                }) {
+                                    if(inboxType == ThreadsViewModel.InboxType.ARCHIVED) {
+                                        Icon(
+                                            imageVector = Icons.Filled.Unarchive,
+                                            tint = selectedIconColors,
+                                            contentDescription =
+                                                stringResource(R.string.unarchive_messages)
+                                        )
+                                    } else {
+                                        Icon(
+                                            imageVector = Icons.Filled.Archive,
+                                            tint = selectedIconColors,
+                                            contentDescription =
+                                                stringResource(R.string.messages_threads_menu_archive)
+                                        )
                                     }
                                 }
-                            }) {
-                                Icon(
-                                    imageVector = Icons.Filled.Menu,
-                                    contentDescription = stringResource(R.string.open_side_menu)
-                                )
-                            }
-                        },
-                        actions = {},
-                        scrollBehavior = scrollBehaviour
-                    )
+
+                                IconButton(onClick = {
+                                    rememberDeleteMenu = true
+                                }) {
+                                    Icon(
+                                        imageVector = Icons.Rounded.Delete,
+                                        tint = selectedIconColors,
+                                        contentDescription =
+                                            stringResource(R.string.message_threads_menu_delete)
+                                    )
+                                }
+
+                                IconButton(onClick = {
+                                    val state = inboxType == ThreadsViewModel.InboxType.MUTED
+                                    threadsViewModel.update(context, selectedItems.apply {
+                                        forEach { it.isMute = !state }
+                                    }) { threadsViewModel.removeAllSelectedItems() }
+                                }) {
+                                    Icon(
+                                        imageVector = if(inboxType != ThreadsViewModel.InboxType.MUTED)
+                                            Icons.AutoMirrored.Rounded.VolumeOff
+                                        else Icons.AutoMirrored.Rounded.VolumeUp,
+                                        tint = selectedIconColors,
+                                        contentDescription = stringResource(R.string.thread_muted)
+                                    )
+                                }
+
+                                IconButton(onClick = {
+                                    val state = inboxType == ThreadsViewModel.InboxType.BLOCKED
+                                    threadsViewModel.setIsBlocked(
+                                        context,
+                                        selectedItems.map{ it.address },
+                                        !state
+                                    ) {
+                                        CoroutineScope(Dispatchers.IO).launch {
+                                            try {
+                                                if(state) {
+                                                    context.unblockContact(selectedItems.map {
+                                                        it.address })
+                                                } else {
+                                                    context.blockContact(selectedItems.map {
+                                                        it.address })
+                                                }
+                                            } catch(e: Exception) {
+                                                e.printStackTrace()
+                                                Toast.makeText(
+                                                    context,
+                                                    "${e.message}",
+                                                    Toast.LENGTH_LONG).show()
+                                            }
+                                            threadsViewModel.removeAllSelectedItems()
+                                        }
+                                    }
+                                }) {
+                                    Icon(
+                                        imageVector = if(inboxType != ThreadsViewModel.InboxType.BLOCKED)
+                                            Icons.Outlined.Block else Icons.Outlined.Remove,
+                                        tint = selectedIconColors,
+                                        contentDescription = stringResource(R.string.block_contact)
+                                    )
+                                }
+                            },
+                            scrollBehavior = scrollBehaviour
+                        )
+                    }
+                    else {
+                        TopAppBar(
+                            title = {
+                                Text(
+                                    text= when(inboxType) {
+                                        ThreadsViewModel.InboxType.ARCHIVED ->
+                                            stringResource(R.string
+                                                .conversations_navigation_view_archived)
+                                        ThreadsViewModel.InboxType.BLOCKED ->
+                                            stringResource(R.string
+                                                .conversations_navigation_view_blocked)
+                                        ThreadsViewModel.InboxType.MUTED ->
+                                            stringResource(R.string
+                                                .conversation_menu_muted_label)
+                                        ThreadsViewModel.InboxType.DRAFTS ->
+                                            stringResource(R.string
+                                                .conversations_navigation_view_drafts)
+                                        else -> ""
+                                    },
+                                    maxLines =1,
+                                    overflow = TextOverflow.Ellipsis)
+                            },
+                            navigationIcon = {
+                                IconButton(onClick = {
+                                    scope.launch {
+                                        drawerState.apply {
+                                            if(isClosed) open() else close()
+                                        }
+                                    }
+                                }) {
+                                    Icon(
+                                        imageVector = Icons.Filled.Menu,
+                                        contentDescription = stringResource(R.string.open_side_menu)
+                                    )
+                                }
+                            },
+                            actions = {},
+                            scrollBehavior = scrollBehaviour
+                        )
+                    }
+
                 }
             },
             bottomBar = customBottomBar ?: {},
             floatingActionButton = {
-                if(customThreadsView == null) null else { @Composable {
+                if(customThreadsView != null) null else { @Composable {
                     when(inboxType) {
                         ThreadsViewModel.InboxType.INBOX -> {
                             if((isDefault && !messagesAreLoading) || inPreviewMode) {
@@ -474,10 +480,11 @@ fun ThreadConversationLayout(
                 }}
             }
         ) { innerPadding ->
-            Column(modifier = Modifier.padding(innerPadding)) {
-                if(customThreadsView != null) {
-                    customThreadsView()
-                } else {
+            if(customThreadsView != null) {
+                customThreadsView()
+            }
+            else {
+                Column(modifier = Modifier.padding(innerPadding)) {
                     if(!isDefault || !readPhoneStatePermission.status.isGranted) {
                         DefaultCheckMain { isDefault = context.isDefault() }
                     }
@@ -649,11 +656,13 @@ fun ThreadConversationLayout(
                             }
                         }
                     }
-
                 }
+
             }
         }
+
     }
+
 }
 
 @Preview
