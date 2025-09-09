@@ -455,29 +455,28 @@ fun ThreadConversationLayout(
             },
             bottomBar = customBottomBar ?: {},
             floatingActionButton = {
-                if(customThreadsView != null) null else { @Composable {
+                if(customThreadsView != null) null
+                else {
                     when(inboxType) {
                         ThreadsViewModel.InboxType.INBOX -> {
                             if((isDefault && !messagesAreLoading) || inPreviewMode) {
-                                Column {
-                                    ExtendedFloatingActionButton(
-                                        onClick = {
-                                            navController.navigate(ComposeNewMessageScreenNav)
-                                        },
-                                        icon = { Icon( Icons.Default.ChatBubbleOutline,
-                                            stringResource(R.string.compose_new_message)) },
-                                        text = { Text(text = stringResource(R.string.compose)) },
-                                        expanded = listState.isScrollingUp(),
-                                        containerColor = MaterialTheme.colorScheme.primaryContainer,
-                                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                                    )
-                                }
+                                ExtendedFloatingActionButton(
+                                    onClick = {
+                                        navController.navigate(ComposeNewMessageScreenNav)
+                                    },
+                                    icon = { Icon( Icons.Default.ChatBubbleOutline,
+                                        stringResource(R.string.compose_new_message)) },
+                                    text = { Text(text = stringResource(R.string.compose)) },
+                                    expanded = listState.isScrollingUp(),
+                                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                                )
                             }
                         }
 
                         else -> {}
                     }
-                }}
+                }
             }
         ) { innerPadding ->
             if(customThreadsView != null) {
