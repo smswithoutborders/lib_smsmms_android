@@ -449,26 +449,29 @@ fun ThreadConversationLayout(
             },
             bottomBar = customBottomBar ?: {},
             floatingActionButton = {
-                when(inboxType) {
-                    ThreadsViewModel.InboxType.INBOX -> {
-                        if((isDefault && !messagesAreLoading) || inPreviewMode) {
-                            Column {
-                                ExtendedFloatingActionButton(
-                                    onClick = {
-                                        navController.navigate(ComposeNewMessageScreenNav)
-                                    },
-                                    icon = { Icon( Icons.Default.ChatBubbleOutline,
-                                        stringResource(R.string.compose_new_message)) },
-                                    text = { Text(text = stringResource(R.string.compose)) },
-                                    expanded = listState.isScrollingUp(),
-                                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                                )
+                if(customThreadsView == null) null else { @Composable {
+                    when(inboxType) {
+                        ThreadsViewModel.InboxType.INBOX -> {
+                            if((isDefault && !messagesAreLoading) || inPreviewMode) {
+                                Column {
+                                    ExtendedFloatingActionButton(
+                                        onClick = {
+                                            navController.navigate(ComposeNewMessageScreenNav)
+                                        },
+                                        icon = { Icon( Icons.Default.ChatBubbleOutline,
+                                            stringResource(R.string.compose_new_message)) },
+                                        text = { Text(text = stringResource(R.string.compose)) },
+                                        expanded = listState.isScrollingUp(),
+                                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                                    )
+                                }
                             }
                         }
+
+                        else -> {}
                     }
-                    else -> {}
-                }
+                }}
             }
         ) { innerPadding ->
             Column(modifier = Modifier.padding(innerPadding)) {
