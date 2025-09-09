@@ -1,6 +1,7 @@
 package com.afkanerd.smswithoutborders_libsmsmms.data
 
 import android.content.Context
+import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -24,7 +25,12 @@ abstract class DatabaseImpl : RoomDatabase() {
     companion object {
         @Volatile
         private var datastore: DatabaseImpl? = null
-        var databaseName: String = "lib_DekuSMS"
+        private var databaseName: String = "afkanerd.DekuSms"
+
+        @Synchronized
+        fun setDatabaseName(databaseName: String) {
+            this.databaseName = databaseName
+        }
 
         @Synchronized
         fun getDatabaseImpl(context: Context): DatabaseImpl {

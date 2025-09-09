@@ -96,11 +96,10 @@ interface ConversationsDao {
             "Conversations.mms_thread_id = :threadId AND read = 0")
     fun unreadCount(threadId: Int): Int
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertConversation(conversation: Conversations): Long
 
-//    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertConversations(conversation: List<Conversations>)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
