@@ -64,7 +64,6 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
@@ -89,7 +88,6 @@ import androidx.core.net.toUri
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
@@ -126,10 +124,10 @@ import com.afkanerd.smswithoutborders_libsmsmms.ui.components.SearchTopAppBarTex
 import com.afkanerd.smswithoutborders_libsmsmms.ui.components.ShortCodeAlert
 import com.afkanerd.smswithoutborders_libsmsmms.ui.components.SimChooser
 import com.afkanerd.smswithoutborders_libsmsmms.ui.components.getConversationType
-import com.afkanerd.smswithoutborders_libsmsmms.ui.screens.ContactDetailsScreenNav
-import com.afkanerd.smswithoutborders_libsmsmms.ui.screens.HomeScreenNav
-import com.afkanerd.smswithoutborders_libsmsmms.ui.screens.ImageViewScreenNav
-import com.afkanerd.smswithoutborders_libsmsmms.ui.screens.SearchScreenNav
+import com.afkanerd.smswithoutborders_libsmsmms.ui.navigation.ContactDetailsScreenNav
+import com.afkanerd.smswithoutborders_libsmsmms.ui.navigation.HomeScreenNav
+import com.afkanerd.smswithoutborders_libsmsmms.ui.navigation.ImageViewScreenNav
+import com.afkanerd.smswithoutborders_libsmsmms.ui.navigation.SearchScreenNav
 import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.ConversationsViewModel
 import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.CustomsConversationsViewModel
 import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.ThreadsViewModel

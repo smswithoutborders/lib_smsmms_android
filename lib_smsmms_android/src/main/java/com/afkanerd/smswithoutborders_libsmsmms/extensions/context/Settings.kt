@@ -3,7 +3,7 @@ package com.afkanerd.smswithoutborders_libsmsmms.extensions.context
 import android.content.Context
 import androidx.core.content.edit
 
-object Settings {
+private object Settings {
     const val FILENAME: String = "com.afkanerd.deku.settings"
     const val SETTINGS_CAN_SWIPE = "SETTINGS_CAN_SWIPE"
     const val SETTINGS_STORE_IN_TELEPHONY = "SETTINGS_STORE_IN_TELEPHONY"

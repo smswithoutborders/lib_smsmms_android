@@ -48,7 +48,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -71,7 +70,7 @@ import com.afkanerd.lib_smsmms_android.R
 import com.afkanerd.smswithoutborders_libsmsmms.data.entities.Threads
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.exportRawWithColumnGuesses
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.retrieveContactPhoto
-import com.afkanerd.smswithoutborders_libsmsmms.ui.screens.SettingsScreenNav
+import com.afkanerd.smswithoutborders_libsmsmms.ui.navigation.SettingsScreenNav
 import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.ThreadsViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted

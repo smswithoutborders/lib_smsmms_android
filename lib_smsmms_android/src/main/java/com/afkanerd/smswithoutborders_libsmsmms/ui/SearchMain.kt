@@ -41,7 +41,7 @@ import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getThreadId
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.isDefault
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.retrieveContactName
 import com.afkanerd.smswithoutborders_libsmsmms.ui.components.ThreadConversationCard
-import com.afkanerd.smswithoutborders_libsmsmms.ui.screens.ConversationsScreenNav
+import com.afkanerd.smswithoutborders_libsmsmms.ui.navigation.ConversationsScreenNav
 import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.SearchViewModel
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)

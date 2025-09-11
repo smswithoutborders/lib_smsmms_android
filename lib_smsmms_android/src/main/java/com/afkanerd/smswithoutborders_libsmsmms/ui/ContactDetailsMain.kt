@@ -39,7 +39,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -48,7 +47,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.stringResource
@@ -62,12 +60,10 @@ import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import coil3.Uri
 import coil3.compose.AsyncImage
 import com.afkanerd.lib_smsmms_android.R
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.blockContact
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.copyItemToClipboard
-import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getDefaultRegion
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.isDefault
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.isShortCode
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.retrieveContactName
@@ -75,13 +71,9 @@ import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.retrieveConta
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.retrieveContactUri
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.unblockContact
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.toHslColor
-import com.afkanerd.smswithoutborders_libsmsmms.ui.screens.SearchScreenNav
+import com.afkanerd.smswithoutborders_libsmsmms.ui.navigation.SearchScreenNav
 import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.ConversationsViewModel
-import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.SearchViewModel
 import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.ThreadsViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalMaterial3Api::class)

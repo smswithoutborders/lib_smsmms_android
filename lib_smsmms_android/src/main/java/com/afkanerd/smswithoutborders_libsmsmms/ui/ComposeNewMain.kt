@@ -53,10 +53,8 @@ import androidx.navigation.compose.rememberNavController
 import com.afkanerd.lib_smsmms_android.R
 import com.afkanerd.smswithoutborders_libsmsmms.data.data.models.Contacts
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.toHslColor
-import com.afkanerd.smswithoutborders_libsmsmms.ui.screens.ConversationsScreenNav
-import com.afkanerd.smswithoutborders_libsmsmms.ui.screens.HomeScreenNav
+import com.afkanerd.smswithoutborders_libsmsmms.ui.navigation.ConversationsScreenNav
 import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.ContactsViewModel
-import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.ConversationsViewModel
 
 @Preview
 @Composable

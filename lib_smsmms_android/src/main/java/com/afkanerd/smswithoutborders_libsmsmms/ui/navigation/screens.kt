@@ -1,4 +1,4 @@
-package com.afkanerd.smswithoutborders_libsmsmms.ui.screens
+package com.afkanerd.smswithoutborders_libsmsmms.ui.navigation
 
 import android.net.Uri
 import kotlinx.serialization.Serializable
