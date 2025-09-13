@@ -409,5 +409,6 @@
     <string name="enable_24_hours_time_format">Включить 24-часовой формат времени</string>
     <string name="block_contact">Блокировать контакт</string>
     <string name="text_body_cannot_empty">Текстовое поле не может быть пустым!</string>
+    <string name="secure">Безопасный</string>
 
 </resources>

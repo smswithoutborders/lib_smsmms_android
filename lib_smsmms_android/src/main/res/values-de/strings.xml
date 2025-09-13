@@ -390,6 +390,7 @@
     <string name="enable_24_hours_time_format">24-Stunden-Zeitformat aktivieren</string>
     <string name="block_contact">Kontakt blockieren</string>
     <string name="text_body_cannot_empty">Textkörper darf nicht leer sein!</string>
+    <string name="secure">Sicher</string>
 
 
 </resources>

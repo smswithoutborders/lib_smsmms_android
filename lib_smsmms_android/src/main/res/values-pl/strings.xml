@@ -452,6 +452,7 @@
     <string name="enable_24_hours_time_format">Włącz format czasu 24-godzinnego</string>
     <string name="block_contact">Zablokuj kontakt</string>
     <string name="text_body_cannot_empty">Treść tekstu nie może być pusta!</string>
+    <string name="secure">Bezpieczny</string>
 
 
 </resources>
