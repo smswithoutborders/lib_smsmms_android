@@ -2,6 +2,7 @@ package com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels
 
 import android.content.Context
 import android.net.Uri
+import android.os.Bundle
 import android.provider.BlockedNumberContract
 import android.provider.Telephony
 import android.widget.Toast
@@ -204,6 +205,7 @@ class ConversationsViewModel : ViewModel(),  CustomConversationServices {
         subscriptionId: Long,
         threadId: Int,
         data: ByteArray?,
+        bundle: Bundle,
         callback: (Conversations?) -> Unit
     ) {
         viewModelScope.launch {
@@ -215,6 +217,7 @@ class ConversationsViewModel : ViewModel(),  CustomConversationServices {
                         threadId = threadId,
                         subscriptionId = subscriptionId,
                         data = data,
+                        bundle = bundle
                     )?.let { conversation ->
                         callback(conversation)
                     }

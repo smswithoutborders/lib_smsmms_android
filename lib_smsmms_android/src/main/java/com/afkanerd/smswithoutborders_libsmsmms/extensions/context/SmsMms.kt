@@ -8,6 +8,7 @@ import android.content.Intent
 import android.database.Cursor
 import android.net.Uri
 import android.os.Build
+import android.os.Bundle
 import android.provider.Telephony
 import android.telephony.SmsManager
 import android.util.Base64
@@ -170,6 +171,7 @@ fun Context.sendSms(
     threadId: Int,
     subscriptionId: Long,
     data: ByteArray? = null,
+    bundle: Bundle
 ): Conversations? {
     if(text.isEmpty() && data == null) {
         CoroutineScope(Dispatchers.Main).launch {
@@ -201,7 +203,7 @@ fun Context.sendSms(
         ), sms_data = data)
 
         insertSms(conversation)?.let { uri ->
-            val pendingIntents = getSmsPendingIntents(uri, conversation)
+            val pendingIntents = getSmsPendingIntents(uri, conversation, bundle)
 
             sendSms(
                 address = address,
@@ -288,7 +290,8 @@ private fun Context.sendSms(
 
 private fun Context.getSmsPendingIntents(
     uri: Uri?,
-    conversation: Conversations
+    conversation: Conversations,
+    bundle: Bundle
 ): Pair<PendingIntent, PendingIntent> {
     val sentPendingIntent = PendingIntent.getBroadcast(
         this,
@@ -304,6 +307,7 @@ private fun Context.getSmsPendingIntents(
             this.putExtra("thread_id", conversation.sms?.thread_id)
             this.putExtra("sub_id", conversation.sms?.sub_id)
             this.putExtra("uri", uri?.toString())
+            this.putExtras(bundle)
         },
         PendingIntent.FLAG_IMMUTABLE
     )

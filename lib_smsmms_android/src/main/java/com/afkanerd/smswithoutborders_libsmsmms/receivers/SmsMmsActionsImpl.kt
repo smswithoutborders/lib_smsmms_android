@@ -14,6 +14,7 @@ import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getDefaultSim
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.sendNotificationBroadcast
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.sendSms
 import com.afkanerd.smswithoutborders_libsmsmms.receivers.SmsTextReceivedReceiver.Companion.SMS_SENT_BROADCAST_INTENT_LIB
+import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.ConversationsViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -68,14 +69,17 @@ class SmsMmsActionsImpl : BroadcastReceiver() {
                     } else {
                         CoroutineScope(Dispatchers.IO).launch {
                             try {
-                                context.sendSms(
+                                SmsManager(ConversationsViewModel()).sendSms(
+                                    context = context,
                                     text = reply.toString(),
                                     address = address!!,
+                                    subscriptionId = subscriptionId,
                                     threadId = threadId,
-                                    subscriptionId = subscriptionId
-                                )?.let { conversation ->
-                                    context.sendNotificationBroadcast(
-                                        conversation, self=true, type = NotificationTxType.TEXT)
+                                ){ conversation ->
+                                    conversation?.let {
+                                        context.sendNotificationBroadcast(
+                                            conversation, self=true, type = NotificationTxType.TEXT)
+                                    }
                                 }
                             } catch(e: Exception) {
                                 e.printStackTrace()

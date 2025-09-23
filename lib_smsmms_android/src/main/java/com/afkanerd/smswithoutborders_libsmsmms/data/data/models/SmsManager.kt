@@ -1,6 +1,7 @@
 package com.afkanerd.smswithoutborders_libsmsmms.data.data.models
 
 import android.content.Context
+import android.os.Bundle
 import com.afkanerd.smswithoutborders_libsmsmms.data.entities.Conversations
 import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.CustomConversationServices
 
@@ -12,6 +13,7 @@ class SmsManager(private val smsSender: CustomConversationServices) {
         subscriptionId: Long,
         threadId: Int,
         data: ByteArray? = null,
+        bundle: Bundle = Bundle(),
         callback: (Conversations?) -> Unit
     ) {
         smsSender.sendSms(
@@ -21,7 +23,8 @@ class SmsManager(private val smsSender: CustomConversationServices) {
             subscriptionId = subscriptionId,
             threadId = threadId,
             data = data,
-            callback = callback
+            callback = callback,
+            bundle = bundle
         )
     }
 }
