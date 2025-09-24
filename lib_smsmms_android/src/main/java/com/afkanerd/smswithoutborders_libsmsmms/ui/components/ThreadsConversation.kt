@@ -627,7 +627,11 @@ fun ThreadsNavMenuItems(
                 },
                 onClick = {
                     dismissCallback?.invoke(false)
-                    threadsViewModel.loadNatives(context, true){
+//                    threadsViewModel.loadNatives(context, true){
+//                        Toast.makeText(context,
+//                            context.getString(R.string.reset_complete), Toast.LENGTH_LONG).show()
+//                    }
+                    threadsViewModel.loadNativesAsync(context, true) {
                         Toast.makeText(context,
                             context.getString(R.string.reset_complete), Toast.LENGTH_LONG).show()
                     }

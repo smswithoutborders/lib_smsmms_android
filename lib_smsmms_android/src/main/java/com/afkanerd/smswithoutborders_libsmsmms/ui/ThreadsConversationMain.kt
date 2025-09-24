@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -130,6 +131,7 @@ fun ThreadConversationLayout(
     var isDefault by remember{ mutableStateOf(inPreviewMode || context.isDefault()) }
 
     val messagesAreLoading = threadsViewModel.messagesLoading
+    val secondaryMessagesAreLoading = threadsViewModel.secondaryMessagesLoading
 
     var inboxType by remember { mutableStateOf(ThreadsViewModel.InboxType.INBOX )}
     DisposableEffect(lifeCycleOwner) {
@@ -208,7 +210,6 @@ fun ThreadConversationLayout(
     }
 
     ModalNavigationDrawer(
-//        modifier = Modifier.safeDrawingPadding(),
         drawerState = drawerState,
         drawerContent = {
             ModalDrawerSheetLayout(
@@ -466,6 +467,9 @@ fun ThreadConversationLayout(
             }
             else {
                 Column(modifier = Modifier.padding(innerPadding)) {
+                    if(secondaryMessagesAreLoading || inPreviewMode)
+                        LinearProgressIndicator(Modifier.fillMaxWidth())
+
                     if(!isDefault || !readPhoneStatePermission.status.isGranted) {
                         DefaultCheckMain { isDefault = context.isDefault() }
                     }

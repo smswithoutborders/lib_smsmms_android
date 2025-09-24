@@ -126,6 +126,35 @@ interface ConversationsDao {
         return id
     }
 
+    @Query("DELETE FROM Conversations WHERE thread_id = :threadId")
+    fun deleteAllConversationsSorted(threadId: Int)
+
+    @Query("DELETE FROM Threads WHERE threadId = :threadId")
+    fun deleteAllThreadsSorted(threadId: Int)
+
+    @Transaction
+    fun insertAllSorted(conversationsList: List<Conversations>, deleteDb: Boolean = false) {
+        val conversation = conversationsList.firstOrNull()
+        if(conversation == null) return
+
+        val threadId = conversation.mms?.thread_id ?: conversation.sms!!.thread_id
+        if(deleteDb) {
+            deleteAllConversationsSorted(threadId)
+            deleteAllThreadsSorted(threadId)
+        }
+
+        insertConversations(conversationsList)
+        conversation.sms?.let {
+            insertUpdateThread(
+                it,
+                false,
+                !conversationsList.first().mms_content_uri.isNullOrEmpty(),
+                conversation.mms,
+                conversation.id
+            )
+        }
+    }
+
     @Transaction
     fun insertAll(conversationsList: List<Conversations>, deleteDb: Boolean = false) {
         if(deleteDb) {

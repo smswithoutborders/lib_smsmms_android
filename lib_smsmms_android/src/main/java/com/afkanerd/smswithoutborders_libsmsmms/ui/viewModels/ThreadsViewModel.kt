@@ -18,7 +18,9 @@ import androidx.paging.cachedIn
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getDatabase
 import com.afkanerd.smswithoutborders_libsmsmms.data.entities.Threads
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getThreadId
+import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.loadNativesForThread
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.loadRawSmsMmsDb
+import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.loadRawThreads
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.makeE16PhoneNumber
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -30,6 +32,7 @@ import kotlinx.coroutines.withContext
 
 class ThreadsViewModel: ViewModel() {
     var messagesLoading by mutableStateOf(false)
+    var secondaryMessagesLoading by mutableStateOf(false)
     var foldOpenConversation by mutableStateOf("")
 
     enum class InboxType {
@@ -192,6 +195,36 @@ class ThreadsViewModel: ViewModel() {
             withContext(Dispatchers.IO) {
                 val count = context.getDatabase().threadsDao()?.update(threads)
                 callback(count != 0)
+            }
+        }
+    }
+
+    fun loadNativesAsync(
+        context: Context,
+        deleteDb: Boolean = false,
+        completeCallback: () -> Unit,
+    ) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                messagesLoading = true
+
+                try {
+                    val threads = context.loadRawThreads()
+                    threads.forEach { threadId ->
+                        val conversations = context.loadNativesForThread(threadId)
+                        context.getDatabase().conversationsDao()
+                            ?.insertAllSorted(conversations, deleteDb)
+                        messagesLoading = false
+                        secondaryMessagesLoading = true
+                    }
+                } catch(e: Exception) {
+                    e.printStackTrace()
+                } finally {
+                    withContext(Dispatchers.Main) {
+                        secondaryMessagesLoading = false
+                        completeCallback()
+                    }
+                }
             }
         }
     }

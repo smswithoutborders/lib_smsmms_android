@@ -448,6 +448,93 @@ fun Context.registerIncomingSms(intent: Intent): Conversations {
 
 
 @Throws
+fun Context.loadRawThreads() : List<String>{
+    val threadIds = mutableListOf<String>()
+
+    try {
+        val cursor = contentResolver.query(
+            Telephony.Threads.CONTENT_URI,
+            arrayOf(Telephony.Threads._ID, Telephony.Threads.DATE),
+            null,
+            null,
+            "date asc",
+        )
+        if(cursor != null && cursor.moveToFirst()) {
+            do {
+                if(!threadIds.contains(cursor.getString(0)))
+                    threadIds.add(cursor.getString(0))
+            } while(cursor.moveToNext())
+            cursor.close()
+        }
+    } catch(e: Exception) {
+        e.printStackTrace()
+        contentResolver.query(
+            Telephony.Sms.CONTENT_URI,
+            null,
+            "1) GROUP BY (thread_id",
+            null,
+            "date desc"
+        )?.let { cursor ->
+            if(cursor.moveToFirst()) {
+                do {
+                    if(!threadIds.contains(cursor.getString(0)))
+                        threadIds.add(cursor.getString(0))
+                } while(cursor.moveToNext())
+            }
+            cursor.close()
+        }
+
+        contentResolver.query(
+            Telephony.Mms.CONTENT_URI,
+            null,
+            "1) GROUP BY (thread_id",
+            null,
+            "date desc"
+        )?.let { cursor ->
+            if(cursor.moveToFirst()) {
+                do {
+                    if(!threadIds.contains(cursor.getString(0)))
+                        threadIds.add(cursor.getString(0))
+                } while(cursor.moveToNext())
+            }
+            cursor.close()
+        }
+    }
+
+    return threadIds
+}
+
+fun Context.loadNativesForThread(threadId: String) : List<Conversations> {
+    val conversationsList = arrayListOf<Conversations>()
+
+    try {
+        // SMS
+        contentResolver.query(
+            Telephony.Sms.CONTENT_URI,
+            null,
+            "thread_id = ?",
+            arrayOf(threadId),
+            "date asc"
+        )?.let { cursor ->
+            if (cursor.moveToFirst()) {
+                do {
+                    parseRawSmsContents(cursor)?.let { it ->
+                        conversationsList.add(Conversations(sms = it.apply {
+                            this.thread_id = getThreadId(this.address!!)
+                        }))
+                    }
+                } while (cursor.moveToNext())
+            }
+            cursor.close()
+        }
+    } catch(e: Exception) {
+        throw e
+    }
+    return conversationsList
+}
+
+
+@Throws
 fun Context.loadRawSmsMmsDb() : List<Conversations>{
     val conversationsList = arrayListOf<Conversations>()
 
