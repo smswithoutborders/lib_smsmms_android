@@ -160,7 +160,6 @@ fun Context.isDualSim(): Boolean {
 
 
 fun Context.getDefaultSimSubscription(): Long? {
-    // TODO: check if there's even a simcard and handle it accordingly
     val subId = SubscriptionManager.getDefaultSmsSubscriptionId()
     if (subId == SubscriptionManager.INVALID_SUBSCRIPTION_ID)  //            return getSimCardInformation(context).get(0).getSubscriptionId();
         return null

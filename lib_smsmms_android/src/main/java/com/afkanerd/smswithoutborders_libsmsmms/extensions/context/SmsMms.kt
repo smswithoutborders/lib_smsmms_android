@@ -426,7 +426,6 @@ fun Context.registerIncomingSms(intent: Intent): Conversations {
     }
     val body = bodyBuffer.toString()
 
-    // TODO: process encrypted message
     val conversation = Conversations(
         sms = SmsMmsNatives.Sms(
             body = body,

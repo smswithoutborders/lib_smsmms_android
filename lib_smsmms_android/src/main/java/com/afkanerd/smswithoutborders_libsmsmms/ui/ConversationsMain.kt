@@ -488,6 +488,7 @@ fun ConversationsMainLayout(
             if(selectedItems.isNotEmpty()) {
                 ConversationCrudBottomBar(
                     viewModel,
+                    navController,
                     onInfoRequested = {
                         openInfoAlert = true
                         highlightedMessage = it

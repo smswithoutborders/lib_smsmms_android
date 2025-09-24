@@ -223,9 +223,11 @@ class ConversationsViewModel : ViewModel(),  CustomConversationServices {
                     }
                 } catch(e: Exception) {
                     e.printStackTrace()
-                    Toast.makeText(context,
-                        context.getString(R.string.something_went_wrong_with_sending),
-                        Toast.LENGTH_LONG).show()
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(context,
+                            context.getString(R.string.something_went_wrong_with_sending),
+                            Toast.LENGTH_LONG).show()
+                    }
                 }
             }
         }
