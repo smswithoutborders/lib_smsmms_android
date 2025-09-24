@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -20,6 +21,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.AlertDialog
+import androidx.compose.material.IconButton
 import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.VolumeOff
@@ -67,7 +69,6 @@ import coil3.compose.AsyncImage
 import com.afkanerd.lib_smsmms_android.BuildConfig
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.toHslColor
 import com.afkanerd.lib_smsmms_android.R
-import com.afkanerd.smswithoutborders_libsmsmms.data.entities.Threads
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.exportRawWithColumnGuesses
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.retrieveContactPhoto
 import com.afkanerd.smswithoutborders_libsmsmms.ui.navigation.SettingsScreenNav
@@ -641,44 +642,49 @@ fun ThreadsNavMenuItems(
     }
 }
 
+@Preview
 @Composable
 fun SwipeToDeleteBackground(
-    dismissState: SwipeToDismissBoxState? = null,
-    inArchive: Boolean = false
+    inArchive: Boolean = false,
+    onArchiveCallback: () -> Unit = {},
+    onDeleteCallback: () -> Unit = {},
 ) {
-    var arrangement = Arrangement.End
-    val color = when(dismissState?.dismissDirection) {
-        SwipeToDismissBoxValue.StartToEnd -> {
-            arrangement = Arrangement.Start
-            MaterialTheme.colorScheme.error
-        }
-        SwipeToDismissBoxValue.EndToStart -> {
-            MaterialTheme.colorScheme.primary
-        }
-        SwipeToDismissBoxValue.Settled -> Color.Transparent
-        else -> Color.Transparent
-    }
     Row(
         modifier = Modifier
-            .fillMaxSize()
-            .background(color)
-            .padding(12.dp, 8.dp),
+            .fillMaxSize(),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = arrangement
+        horizontalArrangement = Arrangement.End
     ) {
-        Icon(
-            when(dismissState?.dismissDirection) {
-                SwipeToDismissBoxValue.StartToEnd -> Icons.Default.Delete
-                else -> {
-                    when {
-                        inArchive -> Icons.Default.Unarchive
-                        else -> Icons.Default.Archive
-                    }
-                }
-            },
-            tint = MaterialTheme.colorScheme.onPrimary,
-            contentDescription = stringResource(R.string.messages_threads_menu_archive)
-        )
+        Column(Modifier
+            .fillMaxHeight()
+            .background( color = MaterialTheme.colorScheme.primary ),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            IconButton(onClick = onArchiveCallback) {
+                Icon(
+                    imageVector = if (inArchive) Icons.Default.Unarchive else Icons.Default.Archive,                tint = MaterialTheme.colorScheme.onPrimary,
+                    contentDescription = stringResource(R.string.messages_threads_menu_archive),
+                    modifier = Modifier.padding(20.dp)
+                )
+            }
+        }
+
+        Column(Modifier
+            .fillMaxHeight()
+            .background( color = MaterialTheme.colorScheme.error ),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            IconButton(onClick = onDeleteCallback) {
+                Icon(
+                    Icons.Default.Delete,
+                    tint = MaterialTheme.colorScheme.onError,
+                    contentDescription = stringResource(R.string.messages_thread_delete_confirmation_text),
+                    modifier = Modifier.padding(16.dp)
+                )
+            }
+        }
     }
 }
 
@@ -782,30 +788,27 @@ fun ThreadConversationCard_Preview() {
 
 
 @Composable
-fun GetSwipeBehaviour(
-    thread: Threads,
-    inboxType: ThreadsViewModel.InboxType
+fun getSwipeBehaviour(
+    inboxType: ThreadsViewModel.InboxType,
+    initialValue: SwipeToDismissBoxValue = SwipeToDismissBoxValue.Settled,
 ): SwipeToDismissBoxState {
     return rememberSwipeToDismissBoxState(
+        initialValue = initialValue,
         confirmValueChange = {
             when(it) {
-                SwipeToDismissBoxValue.StartToEnd -> {
-                    TODO()
-                    return@rememberSwipeToDismissBoxState false
-                }
                 SwipeToDismissBoxValue.EndToStart -> {
-                    TODO()
-                    when(inboxType) {
-                        ThreadsViewModel.InboxType.ARCHIVED -> TODO()
-                        else -> TODO()
-                    }
-                    return@rememberSwipeToDismissBoxState true
-                }
-                SwipeToDismissBoxValue.Settled ->
+//                    when(inboxType) {
+//                        ThreadsViewModel.InboxType.ARCHIVED -> TODO()
+//                        else -> TODO()
+//                    }
                     return@rememberSwipeToDismissBoxState false
+                }
+                SwipeToDismissBoxValue.Settled -> return@rememberSwipeToDismissBoxState false
+                else -> return@rememberSwipeToDismissBoxState false
             }
         },
-        positionalThreshold = { it * .85f }
+//        positionalThreshold = { it * .85f },
+        positionalThreshold = { 0f }
     )
 
 }
