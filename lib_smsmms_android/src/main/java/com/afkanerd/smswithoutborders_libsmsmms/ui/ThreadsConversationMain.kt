@@ -461,7 +461,8 @@ fun ThreadConversationLayout(
                             if((isDefault && !messagesAreLoading) || inPreviewMode) {
                                 ExtendedFloatingActionButton(
                                     onClick = {
-                                        navController.navigate(ComposeNewMessageScreenNav)
+                                        navController.navigate(
+                                            ComposeNewMessageScreenNav())
                                     },
                                     icon = { Icon( Icons.Default.ChatBubbleOutline,
                                         stringResource(R.string.compose_new_message)) },
