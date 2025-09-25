@@ -178,6 +178,14 @@ fun ComposeNewMessage(
                                     }
                                 }
                             }
+                        } else {
+                            navController.navigate(ConversationsScreenNav(
+                                address = contact.address
+                            )) {
+                                popUpTo(navController.graph.startDestinationId) {
+                                    inclusive = true
+                                }
+                            }
                         }
                     },
                     Modifier.fillMaxWidth(),

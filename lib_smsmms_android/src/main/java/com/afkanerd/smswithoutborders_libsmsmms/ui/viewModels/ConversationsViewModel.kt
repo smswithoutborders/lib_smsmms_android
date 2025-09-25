@@ -133,6 +133,34 @@ class ConversationsViewModel : ViewModel(),  CustomConversationServices {
         }
     }
 
+    fun mute(context: Context, threadId: Int, callback: (Boolean) -> Unit) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                context.getDatabase().threadsDao()?.get(threadId)?.let { thread ->
+                    ThreadsViewModel().update(context, listOf(thread.apply {
+                        isMute = true
+                    })) {
+                        callback(it)
+                    }
+                }
+            }
+        }
+    }
+
+    fun unMute(context: Context, threadId: Int, callback: (Boolean) -> Unit) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                context.getDatabase().threadsDao()?.get(threadId)?.let { thread ->
+                    ThreadsViewModel().update(context, listOf(thread.apply {
+                        isMute = false
+                    })) {
+                        callback(it)
+                    }
+                }
+            }
+        }
+    }
+
     fun unArchive(context: Context, threadId: Int, callback: (Boolean) -> Unit) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {

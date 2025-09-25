@@ -33,6 +33,8 @@ import androidx.compose.material.icons.filled.ChatBubbleOutline
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.NotificationsOff
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Unarchive
 import androidx.compose.material.icons.outlined.Block
@@ -356,19 +358,22 @@ fun ThreadConversationLayout(
                                     )
                                 }
 
-                                IconButton(onClick = {
-                                    val state = inboxType == ThreadsViewModel.InboxType.MUTED
-                                    threadsViewModel.update(context, selectedItems.apply {
-                                        forEach { it.isMute = !state }
-                                    }) { threadsViewModel.removeAllSelectedItems() }
-                                }) {
-                                    Icon(
-                                        imageVector = if(inboxType != ThreadsViewModel.InboxType.MUTED)
-                                            Icons.AutoMirrored.Rounded.VolumeOff
-                                        else Icons.AutoMirrored.Rounded.VolumeUp,
-                                        tint = selectedIconColors,
-                                        contentDescription = stringResource(R.string.thread_muted)
-                                    )
+                                if(selectedItems.size == 1) {
+                                    IconButton(onClick = {
+                                        val state = inboxType == ThreadsViewModel.InboxType.MUTED
+                                                || selectedItems.first().isMute
+                                        threadsViewModel.update(context, selectedItems.apply {
+                                            forEach { it.isMute = !state }
+                                        }) { threadsViewModel.removeAllSelectedItems() }
+                                    }) {
+                                        Icon(
+                                            imageVector = if(selectedItems.first().isMute)
+                                                Icons.Default.Notifications
+                                            else Icons.Default.NotificationsOff,
+                                            tint = selectedIconColors,
+                                            contentDescription = stringResource(R.string.thread_muted)
+                                        )
+                                    }
                                 }
 
                                 IconButton(onClick = {

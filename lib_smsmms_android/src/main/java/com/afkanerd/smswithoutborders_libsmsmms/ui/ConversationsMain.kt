@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -31,6 +32,7 @@ import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.NotificationsOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -90,6 +92,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.rememberNavController
 import coil3.compose.AsyncImage
 import coil3.video.VideoFrameDecoder
 import com.afkanerd.lib_smsmms_android.R
@@ -222,7 +225,9 @@ fun ConversationsMainLayout(
     var searchQuery by remember { mutableStateOf(searchQuery) }
     var searchIndex by remember { mutableIntStateOf(0) }
 
-    var threadId by remember { mutableIntStateOf(threadId ?: context.getThreadId(address)) }
+    var threadId by remember { mutableIntStateOf(
+        if(inPreviewMode) 0 else { threadId ?: context.getThreadId(address) })
+    }
 
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
@@ -404,7 +409,13 @@ fun ConversationsMainLayout(
             )
         },
         muteCallback = {
-            TODO("Implement unmute")
+            if(isMute) {
+                viewModel.unMute(context, threadId) {}
+                isMute = false
+            } else {
+                viewModel.mute(context, threadId) {}
+                isMute = true
+            }
         },
         customMenuCallbacks = customMenuItems,
     ) {
@@ -422,11 +433,24 @@ fun ConversationsMainLayout(
                         TextButton(onClick = {
                             navController.navigate(ContactDetailsScreenNav(address))
                         }) {
-                            Text(
-                                if(LocalInspectionMode.current) "Template" else contactName,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                Text(
+                                    if(LocalInspectionMode.current) "Template" else contactName,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                                if(isMute || inPreviewMode) {
+                                    Spacer(Modifier.padding(4.dp))
+                                    Icon(
+                                        Icons.Filled.NotificationsOff,
+                                        "muted",
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                }
+                            }
                         }
                     }
                     else {
@@ -1011,4 +1035,14 @@ fun PreviewMmsImage_filepath() {
             onClickCallback = {}) {
         }
     }
+}
+
+@Preview
+@Composable
+fun ConversationsMainPreview() {
+    ConversationsMainLayout(
+        navController = rememberNavController(),
+        address = "+1234567",
+        _items = emptyList()
+    )
 }
