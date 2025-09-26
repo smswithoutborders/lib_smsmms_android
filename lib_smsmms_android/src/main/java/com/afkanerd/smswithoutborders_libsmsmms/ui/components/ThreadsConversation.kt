@@ -55,6 +55,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.stringResource
@@ -645,11 +646,15 @@ fun ThreadsNavMenuItems(
 @Composable
 fun SwipeToDeleteBackground(
     inArchive: Boolean = false,
+    sizeChangeCallback: (Int) -> Unit = {},
     onArchiveCallback: () -> Unit = {},
     onDeleteCallback: () -> Unit = {},
 ) {
     Row(
         modifier = Modifier
+            .onSizeChanged { size ->
+                sizeChangeCallback(size.width)
+            }
             .fillMaxSize(),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.End
@@ -662,7 +667,8 @@ fun SwipeToDeleteBackground(
         ) {
             IconButton(onClick = onArchiveCallback) {
                 Icon(
-                    imageVector = if (inArchive) Icons.Default.Unarchive else Icons.Default.Archive,                tint = MaterialTheme.colorScheme.onPrimary,
+                    imageVector = if (inArchive) Icons.Default.Unarchive else Icons.Default.Archive,
+                    tint = MaterialTheme.colorScheme.onPrimary,
                     contentDescription = stringResource(R.string.messages_threads_menu_archive),
                     modifier = Modifier.padding(20.dp)
                 )

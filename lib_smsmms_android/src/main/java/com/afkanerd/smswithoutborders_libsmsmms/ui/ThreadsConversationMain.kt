@@ -74,6 +74,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.stringResource
@@ -600,7 +601,7 @@ fun ThreadConversationLayout(
 //                                    ) {
                                     val scope = rememberCoroutineScope()
                                     val offsetX = remember { Animatable(0f) }
-                                    val threshold = 310f
+                                    val threshold = 300f
 
                                     Box {
                                         Box(
@@ -626,7 +627,7 @@ fun ThreadConversationLayout(
                                                 onDeleteCallback = {
                                                     threadsViewModel.setSelectedItems(listOf(thread))
                                                     rememberDeleteMenu = true
-                                                }
+                                                },
                                             )
                                         }
 
