@@ -243,7 +243,9 @@ private fun Context.getNotificationMarkAsReadAction(
         .build()
 }
 
-private fun Context.getNotificationMuteAction(conversation: Conversations): NotificationCompat.Action {
+private fun Context.getNotificationMuteAction(
+    conversation: Conversations
+): NotificationCompat.Action {
     val muteLabel = resources.getString(R.string.conversation_menu_mute)
 
     val pendingIntent: PendingIntent = PendingIntent.getBroadcast(
