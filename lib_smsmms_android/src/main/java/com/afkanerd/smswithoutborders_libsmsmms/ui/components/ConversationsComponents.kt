@@ -8,7 +8,6 @@ import android.provider.Telephony
 import android.telephony.SmsManager
 import android.telephony.SubscriptionManager
 import android.util.Base64
-import android.util.Log
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -826,7 +825,6 @@ fun mmsImagePicker(
         if (uri != null) {
             callback(uri)
         } else {
-            Log.d("PhotoPicker", "No media selected")
         }
     }
 }
@@ -859,7 +857,6 @@ fun ComposeMmsImage(
 //                    )
                 }
                 else {
-                    println("Rendering MMS: $uri")
                     AsyncImage(
                         model = uri,
                         contentDescription = stringResource(R.string.mms_selected_image),

@@ -118,7 +118,6 @@ fun Context.notify(
 const val NotificationsDelAction = "NOTIFICATION_DEL_ACTION"
 class NotificationsDelImpl: BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
-        println(intent)
         intent?.let {
             if(intent.action == NotificationsDelAction) {
                 val threadId = intent.getIntExtra("thread_id", -1)

@@ -496,7 +496,6 @@ fun ThreadsNavMenuItems(
 
     val exportLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.CreateDocument("application/json")) { uri ->
-        println(uri)
         uri?.let {
             CoroutineScope(Dispatchers.IO).launch {
                 with(context.contentResolver.openFileDescriptor(uri, "w")) {
