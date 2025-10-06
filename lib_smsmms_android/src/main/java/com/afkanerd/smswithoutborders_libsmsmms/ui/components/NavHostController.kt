@@ -113,8 +113,13 @@ fun NavHostControllerInstance(
             )
         }
 
-        composable<ComposeNewMessageScreenNav>{
-            ComposeNewMessage(navController = navController)
+        composable<ComposeNewMessageScreenNav>{ backStackEntry ->
+            val composeDetailsScreen: ComposeNewMessageScreenNav = backStackEntry.toRoute()
+            ComposeNewMessage(
+                navController = navController,
+                text = composeDetailsScreen.text,
+                subscriptionId = composeDetailsScreen.subscriptionId,
+            )
         }
 
         composable<SettingsScreenNav>{

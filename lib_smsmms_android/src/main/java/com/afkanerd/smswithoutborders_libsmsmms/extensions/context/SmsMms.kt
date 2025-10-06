@@ -8,6 +8,7 @@ import android.content.Intent
 import android.database.Cursor
 import android.net.Uri
 import android.os.Build
+import android.os.Bundle
 import android.provider.Telephony
 import android.telephony.SmsManager
 import android.util.Base64
@@ -170,6 +171,7 @@ fun Context.sendSms(
     threadId: Int,
     subscriptionId: Long,
     data: ByteArray? = null,
+    bundle: Bundle
 ): Conversations? {
     if(text.isEmpty() && data == null) {
         CoroutineScope(Dispatchers.Main).launch {
@@ -201,7 +203,7 @@ fun Context.sendSms(
         ), sms_data = data)
 
         insertSms(conversation)?.let { uri ->
-            val pendingIntents = getSmsPendingIntents(uri, conversation)
+            val pendingIntents = getSmsPendingIntents(uri, conversation, bundle)
 
             sendSms(
                 address = address,
@@ -288,7 +290,8 @@ private fun Context.sendSms(
 
 private fun Context.getSmsPendingIntents(
     uri: Uri?,
-    conversation: Conversations
+    conversation: Conversations,
+    bundle: Bundle
 ): Pair<PendingIntent, PendingIntent> {
     val sentPendingIntent = PendingIntent.getBroadcast(
         this,
@@ -304,6 +307,7 @@ private fun Context.getSmsPendingIntents(
             this.putExtra("thread_id", conversation.sms?.thread_id)
             this.putExtra("sub_id", conversation.sms?.sub_id)
             this.putExtra("uri", uri?.toString())
+            this.putExtras(bundle)
         },
         PendingIntent.FLAG_IMMUTABLE
     )
@@ -422,7 +426,6 @@ fun Context.registerIncomingSms(intent: Intent): Conversations {
     }
     val body = bodyBuffer.toString()
 
-    // TODO: process encrypted message
     val conversation = Conversations(
         sms = SmsMmsNatives.Sms(
             body = body,
@@ -440,6 +443,93 @@ fun Context.registerIncomingSms(intent: Intent): Conversations {
 
     insertSms(conversation)
     return conversation
+}
+
+
+@Throws
+fun Context.loadRawThreads() : List<String>{
+    val threadIds = mutableListOf<String>()
+
+    try {
+        val cursor = contentResolver.query(
+            Telephony.Threads.CONTENT_URI,
+            arrayOf(Telephony.Threads._ID, Telephony.Threads.DATE),
+            null,
+            null,
+            "date asc",
+        )
+        if(cursor != null && cursor.moveToFirst()) {
+            do {
+                if(!threadIds.contains(cursor.getString(0)))
+                    threadIds.add(cursor.getString(0))
+            } while(cursor.moveToNext())
+            cursor.close()
+        }
+    } catch(e: Exception) {
+        e.printStackTrace()
+        contentResolver.query(
+            Telephony.Sms.CONTENT_URI,
+            null,
+            "1) GROUP BY (thread_id",
+            null,
+            "date desc"
+        )?.let { cursor ->
+            if(cursor.moveToFirst()) {
+                do {
+                    if(!threadIds.contains(cursor.getString(0)))
+                        threadIds.add(cursor.getString(0))
+                } while(cursor.moveToNext())
+            }
+            cursor.close()
+        }
+
+        contentResolver.query(
+            Telephony.Mms.CONTENT_URI,
+            null,
+            "1) GROUP BY (thread_id",
+            null,
+            "date desc"
+        )?.let { cursor ->
+            if(cursor.moveToFirst()) {
+                do {
+                    if(!threadIds.contains(cursor.getString(0)))
+                        threadIds.add(cursor.getString(0))
+                } while(cursor.moveToNext())
+            }
+            cursor.close()
+        }
+    }
+
+    return threadIds
+}
+
+fun Context.loadNativesForThread(threadId: String) : List<Conversations> {
+    val conversationsList = arrayListOf<Conversations>()
+
+    try {
+        // SMS
+        contentResolver.query(
+            Telephony.Sms.CONTENT_URI,
+            null,
+            "thread_id = ?",
+            arrayOf(threadId),
+            "date asc"
+        )?.let { cursor ->
+            if (cursor.moveToFirst()) {
+                do {
+                    parseRawSmsContents(cursor)?.let { it ->
+                        conversationsList.add(Conversations(sms = it.apply {
+                            this.thread_id = getThreadId(this.address!!)
+                        }))
+                    }
+                } while (cursor.moveToNext())
+            }
+            cursor.close()
+        }
+    } catch(e: Exception) {
+        throw e
+    }
+    return conversationsList
 }
 
 

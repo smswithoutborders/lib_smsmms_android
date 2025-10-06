@@ -1,6 +1,7 @@
 package com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels
 
 import android.content.Context
+import android.os.Bundle
 import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -20,11 +21,15 @@ interface CustomConversationServices {
         subscriptionId: Long,
         threadId: Int,
         data: ByteArray? = null,
+        bundle: Bundle = Bundle(),
         callback: (Conversations?) -> Unit
     )
 }
 
 open class CustomsConversationsViewModel : ViewModel(), CustomConversationServices {
+    var rememberMenuExpanded by mutableStateOf(false)
+        private set
+
     var trigger by mutableStateOf(false)
         private set
 
@@ -47,11 +52,11 @@ open class CustomsConversationsViewModel : ViewModel(), CustomConversationServic
 
     fun setConversationSubscriptionId(subscriptionId: Long?) {
         this.subscriptionId = subscriptionId
-
     }
 
     fun setModal(show: Boolean) {
         trigger = show
+        rememberMenuExpanded = !show
     }
 
     override fun sendSms(
@@ -61,6 +66,7 @@ open class CustomsConversationsViewModel : ViewModel(), CustomConversationServic
         subscriptionId: Long,
         threadId: Int,
         data: ByteArray?,
+        bundle: Bundle,
         callback: (Conversations?) -> Unit
     ) {
         ConversationsViewModel().sendSms(
@@ -71,6 +77,7 @@ open class CustomsConversationsViewModel : ViewModel(), CustomConversationServic
             threadId = threadId,
             data = data,
             callback = callback,
+            bundle = bundle
         )
     }
 }

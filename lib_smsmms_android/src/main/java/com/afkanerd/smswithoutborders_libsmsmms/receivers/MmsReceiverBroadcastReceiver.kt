@@ -43,7 +43,6 @@ class MmsReceiverBroadcastReceiver : BroadcastReceiver() {
             e.printStackTrace()
         }
 
-        println(location)
 
         var transactionId: String?
         try {

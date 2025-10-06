@@ -75,7 +75,6 @@ fun ImageViewMain(
 
     val downloadLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.CreateDocument(mimeType)) { uri ->
-        println(uri)
         uri?.let {
             CoroutineScope(Dispatchers.IO).launch {
                 with(context.contentResolver.openFileDescriptor(uri, "w")) {

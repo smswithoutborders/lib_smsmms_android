@@ -2,6 +2,7 @@ package com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels
 
 import android.content.Context
 import android.net.Uri
+import android.os.Bundle
 import android.provider.BlockedNumberContract
 import android.provider.Telephony
 import android.widget.Toast
@@ -132,6 +133,34 @@ class ConversationsViewModel : ViewModel(),  CustomConversationServices {
         }
     }
 
+    fun mute(context: Context, threadId: Int, callback: (Boolean) -> Unit) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                context.getDatabase().threadsDao()?.get(threadId)?.let { thread ->
+                    ThreadsViewModel().update(context, listOf(thread.apply {
+                        isMute = true
+                    })) {
+                        callback(it)
+                    }
+                }
+            }
+        }
+    }
+
+    fun unMute(context: Context, threadId: Int, callback: (Boolean) -> Unit) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                context.getDatabase().threadsDao()?.get(threadId)?.let { thread ->
+                    ThreadsViewModel().update(context, listOf(thread.apply {
+                        isMute = false
+                    })) {
+                        callback(it)
+                    }
+                }
+            }
+        }
+    }
+
     fun unArchive(context: Context, threadId: Int, callback: (Boolean) -> Unit) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
@@ -204,6 +233,7 @@ class ConversationsViewModel : ViewModel(),  CustomConversationServices {
         subscriptionId: Long,
         threadId: Int,
         data: ByteArray?,
+        bundle: Bundle,
         callback: (Conversations?) -> Unit
     ) {
         viewModelScope.launch {
@@ -215,14 +245,17 @@ class ConversationsViewModel : ViewModel(),  CustomConversationServices {
                         threadId = threadId,
                         subscriptionId = subscriptionId,
                         data = data,
+                        bundle = bundle
                     )?.let { conversation ->
                         callback(conversation)
                     }
                 } catch(e: Exception) {
                     e.printStackTrace()
-                    Toast.makeText(context,
-                        context.getString(R.string.something_went_wrong_with_sending),
-                        Toast.LENGTH_LONG).show()
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(context,
+                            context.getString(R.string.something_went_wrong_with_sending),
+                            Toast.LENGTH_LONG).show()
+                    }
                 }
             }
         }

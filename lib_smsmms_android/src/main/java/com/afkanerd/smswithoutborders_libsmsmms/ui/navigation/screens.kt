@@ -24,7 +24,10 @@ data class SearchScreenNav(val address: String? = null)
 data class ContactDetailsScreenNav(val address: String)
 
 @Serializable
-object ComposeNewMessageScreenNav
+data class ComposeNewMessageScreenNav(
+    var text: String? = null,
+    var subscriptionId: Long? = null,
+)
 
 @Serializable
 object SettingsScreenNav

@@ -1,5 +1,6 @@
 package com.afkanerd.smswithoutborders_libsmsmms.ui
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -52,9 +53,17 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.afkanerd.lib_smsmms_android.R
 import com.afkanerd.smswithoutborders_libsmsmms.data.data.models.Contacts
+import com.afkanerd.smswithoutborders_libsmsmms.data.data.models.SmsManager
+import com.afkanerd.smswithoutborders_libsmsmms.data.entities.Conversations
+import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getThreadId
+import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.makeE16PhoneNumber
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.toHslColor
 import com.afkanerd.smswithoutborders_libsmsmms.ui.navigation.ConversationsScreenNav
 import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.ContactsViewModel
+import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.ConversationsViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @Preview
 @Composable
@@ -79,6 +88,8 @@ fun ContactAvatar(
 @Composable
 fun ComposeNewMessage(
     navController: NavController,
+    text: String? = null,
+    subscriptionId: Long? = null,
     _items: List<Contacts>? = null
 ) {
     val context = LocalContext.current
@@ -90,6 +101,9 @@ fun ComposeNewMessage(
     var userInput by remember { mutableStateOf("") }
 
     val scrollBehaviour = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
+    BackHandler {
+        navController.popBackStack()
+    }
     Scaffold (
         modifier = Modifier.nestedScroll(scrollBehaviour.nestedScrollConnection),
         topBar = {
@@ -144,17 +158,37 @@ fun ComposeNewMessage(
             items(_items ?: items) { contact ->
                 Card(
                     onClick = {
-                        navController.navigate(ConversationsScreenNav(
-                            address = contact.address
-                        )) {
-                            popUpTo(navController.graph.startDestinationId) {
-                                inclusive = true
+                        val address = context.makeE16PhoneNumber(contact.address)
+                        val threadId = context.getThreadId(address)
+                        if(!text.isNullOrEmpty() && subscriptionId != null) {
+                            SmsManager(ConversationsViewModel()).sendSms(
+                                context = context,
+                                text = text,
+                                address = address,
+                                subscriptionId = subscriptionId,
+                                threadId = threadId
+                            ) {
+                                CoroutineScope(Dispatchers.Main).launch {
+                                    navController.navigate(ConversationsScreenNav(
+                                        address = contact.address
+                                    )) {
+                                        popUpTo(navController.graph.startDestinationId) {
+                                            inclusive = true
+                                        }
+                                    }
+                                }
+                            }
+                        } else {
+                            navController.navigate(ConversationsScreenNav(
+                                address = contact.address
+                            )) {
+                                popUpTo(navController.graph.startDestinationId) {
+                                    inclusive = true
+                                }
                             }
                         }
                     },
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp),
+                    Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(Color.Transparent),
                 ) {
                     Row(modifier = Modifier.padding(8.dp)) {

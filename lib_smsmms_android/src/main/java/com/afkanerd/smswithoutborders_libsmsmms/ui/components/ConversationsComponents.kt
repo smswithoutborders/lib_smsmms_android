@@ -6,8 +6,8 @@ import android.net.Uri
 import android.os.Build
 import android.provider.Telephony
 import android.telephony.SmsManager
+import android.telephony.SubscriptionManager
 import android.util.Base64
-import android.util.Log
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -94,13 +94,16 @@ import androidx.compose.ui.tooling.preview.datasource.LoremIpsum
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import coil3.compose.AsyncImage
+import com.afkanerd.lib_smsmms_android.BuildConfig
 import com.afkanerd.lib_smsmms_android.R
 import com.afkanerd.smswithoutborders_libsmsmms.data.entities.Conversations
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.copyItemToClipboard
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getSimCardInformation
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getSubscriptionBitmap
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.shareItem
+import com.afkanerd.smswithoutborders_libsmsmms.ui.navigation.ComposeNewMessageScreenNav
 import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.ConversationsViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -241,6 +244,10 @@ fun ChatCompose(
         imageUri = uri
     }
 
+    val smsManager = if(Build.VERSION.SDK_INT > Build.VERSION_CODES.Q)
+        context.getSystemService(SmsManager::class.java)
+    else SmsManager.getSmsManagerForSubscriptionId(subscriptionId.toInt())
+
     Column(
         modifier = Modifier
             .imePadding()
@@ -329,7 +336,11 @@ fun ChatCompose(
                 ) {
                     if(value.isNotBlank() || inPreviewMode) {
                         val length = if(inPreviewMode) "10/140"
-                        else getSMSCount(context, value)
+                        else getSMSCount(
+                            context,
+                            value,
+                            smsManager
+                        )
                         Text(
                             length,
                             color= MaterialTheme.colorScheme.secondary,
@@ -394,10 +405,13 @@ fun ChatCompose(
     }
 }
 
-fun getSMSCount(context: Context, text: String?): String {
+fun getSMSCount(
+    context: Context,
+    text: String?,
+    smsManager: SmsManager,
+): String {
     if(text.isNullOrBlank()) return ""
-    val smsManager = context.getSystemService(SmsManager::class.java)
-    val messages: List<String> = smsManager.divideMessage(text)
+    val messages = smsManager.divideMessage(text)
     val segmentCount = messages[messages.size - 1].length
     return segmentCount.toString() + "/" + messages.size
 }
@@ -631,6 +645,7 @@ fun SimChooser(
 @Composable
 fun ConversationCrudBottomBar(
     viewModel: ConversationsViewModel = ConversationsViewModel(),
+    navController: NavController? = null,
     onInfoRequested: (Conversations) -> Unit = {},
     onCompleted: (() -> Unit)? = null,
     onCancel: (() -> Unit)? = null,
@@ -677,7 +692,12 @@ fun ConversationCrudBottomBar(
                     }
 
                     IconButton(onClick = {
-                        TODO("Implement forward message")
+                        selectedItems.firstOrNull()?.let { conversation ->
+                            navController?.navigate(ComposeNewMessageScreenNav(
+                                text = conversation.sms?.body,
+                                subscriptionId = conversation.sms?.sub_id
+                            ))
+                        }
                     }) {
                         Icon(painter= painterResource(id= R.drawable.rounded_forward_24),
                             stringResource(R.string.forward_message)
@@ -805,7 +825,6 @@ fun mmsImagePicker(
         if (uri != null) {
             callback(uri)
         } else {
-            Log.d("PhotoPicker", "No media selected")
         }
     }
 }
@@ -838,7 +857,6 @@ fun ComposeMmsImage(
 //                    )
                 }
                 else {
-                    println("Rendering MMS: $uri")
                     AsyncImage(
                         model = uri,
                         contentDescription = stringResource(R.string.mms_selected_image),

@@ -4,16 +4,26 @@ import android.provider.BlockedNumberContract
 import android.provider.Telephony
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.VolumeOff
@@ -23,6 +33,8 @@ import androidx.compose.material.icons.filled.ChatBubbleOutline
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.NotificationsOff
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Unarchive
 import androidx.compose.material.icons.outlined.Block
@@ -40,6 +52,8 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxDefaults
+import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -50,18 +64,23 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Observer
@@ -84,7 +103,7 @@ import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.settingsGetEn
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.unblockContact
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.isScrollingUp
 import com.afkanerd.smswithoutborders_libsmsmms.ui.components.DeleteConfirmationAlert
-import com.afkanerd.smswithoutborders_libsmsmms.ui.components.GetSwipeBehaviour
+import com.afkanerd.smswithoutborders_libsmsmms.ui.components.getSwipeBehaviour
 import com.afkanerd.smswithoutborders_libsmsmms.ui.components.ModalDrawerSheetLayout
 import com.afkanerd.smswithoutborders_libsmsmms.ui.components.SwipeToDeleteBackground
 import com.afkanerd.smswithoutborders_libsmsmms.ui.components.ThreadConversationCard
@@ -100,6 +119,7 @@ import com.google.accompanist.permissions.rememberPermissionState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 
 data class ThreadsConversationParameters(
     var searchQuery: String? = null,
@@ -130,6 +150,7 @@ fun ThreadConversationLayout(
     var isDefault by remember{ mutableStateOf(inPreviewMode || context.isDefault()) }
 
     val messagesAreLoading = threadsViewModel.messagesLoading
+    val secondaryMessagesAreLoading = threadsViewModel.secondaryMessagesLoading
 
     var inboxType by remember { mutableStateOf(ThreadsViewModel.InboxType.INBOX )}
     DisposableEffect(lifeCycleOwner) {
@@ -208,7 +229,6 @@ fun ThreadConversationLayout(
     }
 
     ModalNavigationDrawer(
-//        modifier = Modifier.safeDrawingPadding(),
         drawerState = drawerState,
         drawerContent = {
             ModalDrawerSheetLayout(
@@ -339,19 +359,22 @@ fun ThreadConversationLayout(
                                     )
                                 }
 
-                                IconButton(onClick = {
-                                    val state = inboxType == ThreadsViewModel.InboxType.MUTED
-                                    threadsViewModel.update(context, selectedItems.apply {
-                                        forEach { it.isMute = !state }
-                                    }) { threadsViewModel.removeAllSelectedItems() }
-                                }) {
-                                    Icon(
-                                        imageVector = if(inboxType != ThreadsViewModel.InboxType.MUTED)
-                                            Icons.AutoMirrored.Rounded.VolumeOff
-                                        else Icons.AutoMirrored.Rounded.VolumeUp,
-                                        tint = selectedIconColors,
-                                        contentDescription = stringResource(R.string.thread_muted)
-                                    )
+                                if(selectedItems.size == 1) {
+                                    IconButton(onClick = {
+                                        val state = inboxType == ThreadsViewModel.InboxType.MUTED
+                                                || selectedItems.first().isMute
+                                        threadsViewModel.update(context, selectedItems.apply {
+                                            forEach { it.isMute = !state }
+                                        }) { threadsViewModel.removeAllSelectedItems() }
+                                    }) {
+                                        Icon(
+                                            imageVector = if(selectedItems.first().isMute)
+                                                Icons.Default.Notifications
+                                            else Icons.Default.NotificationsOff,
+                                            tint = selectedIconColors,
+                                            contentDescription = stringResource(R.string.thread_muted)
+                                        )
+                                    }
                                 }
 
                                 IconButton(onClick = {
@@ -444,7 +467,8 @@ fun ThreadConversationLayout(
                             if((isDefault && !messagesAreLoading) || inPreviewMode) {
                                 ExtendedFloatingActionButton(
                                     onClick = {
-                                        navController.navigate(ComposeNewMessageScreenNav)
+                                        navController.navigate(
+                                            ComposeNewMessageScreenNav())
                                     },
                                     icon = { Icon( Icons.Default.ChatBubbleOutline,
                                         stringResource(R.string.compose_new_message)) },
@@ -466,6 +490,9 @@ fun ThreadConversationLayout(
             }
             else {
                 Column(modifier = Modifier.padding(innerPadding)) {
+                    if(secondaryMessagesAreLoading || inPreviewMode)
+                        LinearProgressIndicator(Modifier.fillMaxWidth())
+
                     if(!isDefault || !readPhoneStatePermission.status.isGranted) {
                         DefaultCheckMain { isDefault = context.isDefault() }
                     }
@@ -548,49 +575,127 @@ fun ThreadConversationLayout(
                                         }
                                     }
 
-                                    val dismissState = GetSwipeBehaviour(thread, inboxType)
+                                    val initialValue = remember{ mutableStateOf(
+                                        SwipeToDismissBoxValue.Settled ) }
+
+                                    val dismissState = getSwipeBehaviour(
+                                        inboxType,
+                                        initialValue.value
+                                    )
 
                                     val date = if(!inPreviewMode) DateTimeUtils.formatDate(
                                         context,
                                         thread.date
                                     ) ?: "" else "Tues"
 
-                                    SwipeToDismissBox(
-                                        state = dismissState,
-                                        gesturesEnabled = context.settingsGetEnableSwipeBehaviour,
-                                        backgroundContent = {
+//                                    SwipeToDismissBox(
+//                                        state = dismissState,
+//                                        gesturesEnabled = context.settingsGetEnableSwipeBehaviour,
+//                                        enableDismissFromStartToEnd = false,
+//                                        backgroundContent = {
+//                                            SwipeToDeleteBackground(
+//                                                inboxType == ThreadsViewModel
+//                                                    .InboxType.ARCHIVED
+//                                            )
+//                                        }
+//                                    ) {
+                                    val scope = rememberCoroutineScope()
+                                    val offsetX = remember { Animatable(0f) }
+                                    val threshold = 300f
+
+                                    Box {
+                                        Box(
+                                            modifier = Modifier
+                                                .matchParentSize()
+                                                .background(
+                                                    MaterialTheme.colorScheme.background
+                                                ),
+                                            contentAlignment = Alignment.CenterEnd
+                                        ) {
                                             SwipeToDeleteBackground(
-                                                dismissState,
-                                                inboxType == ThreadsViewModel.InboxType.ARCHIVED
+                                                inboxType ==
+                                                        ThreadsViewModel.InboxType.ARCHIVED,
+                                                onArchiveCallback = {
+                                                    threadsViewModel.update(
+                                                        context,
+                                                        listOf(thread.apply {
+                                                            this.isArchive = true
+                                                        })
+                                                    )
+                                                    threadsViewModel.removeAllSelectedItems()
+                                                },
+                                                onDeleteCallback = {
+                                                    threadsViewModel.setSelectedItems(listOf(thread))
+                                                    rememberDeleteMenu = true
+                                                },
                                             )
                                         }
-                                    ) {
-                                        ThreadConversationCard(
-                                            id = thread.threadId,
-                                            firstName = firstName,
-                                            lastName = lastName,
-                                            phoneNumber = address,
-                                            content = thread.snippet,
-                                            date = date,
-                                            isRead = !thread.unread,
-                                            isContact = isDefault && !contactName.isNullOrBlank(),
-                                            isBlocked = isBlocked,
-                                            modifier = Modifier.combinedClickable(
-                                                onClick = {
-                                                    if(selectedItems.isEmpty()) {
-                                                        if(!foldOpen) {
-                                                            navController.navigate(
-                                                                ConversationsScreenNav(
-                                                                    address,
-                                                                    threadId = thread.threadId
-                                                                ))
+
+                                        Box(
+                                            modifier = Modifier
+                                                .offset { IntOffset(offsetX.value.roundToInt(), 0) }
+                                                .fillMaxSize()
+                                                .background(Color.White)
+                                                .draggable(
+                                                    orientation = Orientation.Horizontal,
+                                                    state = rememberDraggableState { delta ->
+                                                        scope.launch {
+                                                            offsetX.snapTo(offsetX.value + delta)
                                                         }
-                                                        else {
-                                                            navController
-                                                                .navigate(
-                                                                    HomeScreenNav( address))
+                                                    },
+                                                    onDragStopped = {
+                                                        scope.launch {
+                                                            val target = when {
+                                                                offsetX.value < -threshold -> -threshold
+                                                                offsetX.value > threshold -> threshold
+                                                                else -> 0f
+                                                            }
+                                                            offsetX.animateTo(
+                                                                target,
+                                                                animationSpec =
+                                                                    spring(dampingRatio =
+                                                                        Spring.DampingRatioMediumBouncy)
+                                                            )
                                                         }
-                                                    } else {
+                                                    }
+                                                )
+                                        ) {
+                                            ThreadConversationCard(
+                                                id = thread.threadId,
+                                                firstName = firstName,
+                                                lastName = lastName,
+                                                phoneNumber = address,
+                                                content = thread.snippet,
+                                                date = date,
+                                                isRead = !thread.unread,
+                                                isContact = isDefault && !contactName.isNullOrBlank(),
+                                                isBlocked = isBlocked,
+                                                modifier = Modifier.combinedClickable(
+                                                    onClick = {
+                                                        if(selectedItems.isEmpty()) {
+                                                            if(!foldOpen) {
+                                                                navController.navigate(
+                                                                    ConversationsScreenNav(
+                                                                        address,
+                                                                        threadId = thread.threadId
+                                                                    ))
+                                                            }
+                                                            else {
+                                                                navController
+                                                                    .navigate(
+                                                                        HomeScreenNav( address))
+                                                            }
+                                                        } else {
+                                                            threadsViewModel.setSelectedItems(
+                                                                selectedItems.toMutableList().apply {
+                                                                    if(selectedItems.contains(thread))
+                                                                        remove(thread)
+                                                                    else add(thread)
+                                                                }
+                                                            )
+                                                        }
+                                                    },
+                                                    onLongClick = {
                                                         threadsViewModel.setSelectedItems(
                                                             selectedItems.toMutableList().apply {
                                                                 if(selectedItems.contains(thread))
@@ -599,23 +704,14 @@ fun ThreadConversationLayout(
                                                             }
                                                         )
                                                     }
-                                                },
-                                                onLongClick = {
-                                                    threadsViewModel.setSelectedItems(
-                                                        selectedItems.toMutableList().apply {
-                                                            if(selectedItems.contains(thread))
-                                                                remove(thread)
-                                                            else add(thread)
-                                                        }
-                                                    )
-                                                }
-                                            ),
-                                            isSelected = selectedItems.contains(thread),
-                                            isMuted = thread.isMute,
-                                            type = thread.type,
-                                            unreadCount = thread.unreadCount,
-                                            mms = thread.isMms
-                                        )
+                                                ),
+                                                isSelected = selectedItems.contains(thread),
+                                                isMuted = thread.isMute,
+                                                type = thread.type,
+                                                unreadCount = thread.unreadCount,
+                                                mms = thread.isMms
+                                            )
+                                        }
                                     }
                                 }
                             }
