@@ -27,6 +27,9 @@ interface CustomConversationServices {
 }
 
 open class CustomsConversationsViewModel : ViewModel(), CustomConversationServices {
+    var rememberMenuExpanded by mutableStateOf(false)
+        private set
+
     var trigger by mutableStateOf(false)
         private set
 
@@ -49,11 +52,11 @@ open class CustomsConversationsViewModel : ViewModel(), CustomConversationServic
 
     fun setConversationSubscriptionId(subscriptionId: Long?) {
         this.subscriptionId = subscriptionId
-
     }
 
     fun setModal(show: Boolean) {
         trigger = show
+        rememberMenuExpanded = !show
     }
 
     override fun sendSms(

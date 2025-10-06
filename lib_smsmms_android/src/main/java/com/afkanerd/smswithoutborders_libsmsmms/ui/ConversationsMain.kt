@@ -278,7 +278,7 @@ fun ConversationsMainLayout(
     val messages = viewModel.getConversations(context, threadId)
 
     var showFailedRetryModal by rememberSaveable { mutableStateOf(false) }
-    var rememberMenuExpanded by remember { mutableStateOf( false) }
+    var rememberMenuExpanded by remember{ mutableStateOf(false) }
     var openSimCardChooser by remember { mutableStateOf(inPreviewMode) }
     var searchIndexes by remember { mutableStateOf(emptyList<Int>())}
 
