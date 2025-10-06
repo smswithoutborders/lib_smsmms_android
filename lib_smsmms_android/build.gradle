@@ -95,6 +95,8 @@ dependencies {
     implementation "androidx.navigation:navigation-compose:2.9.3"
     implementation "androidx.compose.material3:material3:1.3.2"
     implementation "androidx.compose.animation:animation:1.9.0"
+    implementation libs.androidx.work.runtime.ktx
+    implementation libs.androidx.datastore.core
     testImplementation "junit:junit:4.13.2"
     androidTestImplementation "androidx.test.ext:junit:1.3.0"
     androidTestImplementation "androidx.test.espresso:espresso-core:3.7.0"
@@ -181,4 +183,8 @@ dependencies {
     implementation("com.google.code.gson:gson:2.13.1")
 
     implementation("sh.calvin.autolinktext:autolinktext:2.0.2")
+
+    implementation "androidx.datastore:datastore-preferences:1.1.7"
+    implementation "androidx.datastore:datastore-preferences-core:1.1.7"
+    implementation "androidx.work:work-runtime-ktx:2.10.5"
 }

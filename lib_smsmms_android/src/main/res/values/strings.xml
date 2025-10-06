@@ -454,5 +454,24 @@
     <string name="lib_app_name" translatable="false">DekuSMS</string>
     <string name="text_body_cannot_empty">Text body cannot empty!</string>
     <string name="secure">Secure</string>
+    <string name="image_transmission_service">Image Transmission Service</string>
+
+    <string name="aspect_ratio_is_locked_width_and_height_will_be_adjusted_proportionally">Aspect ratio is locked. Width and height will be adjusted proportionally.</string>
+    <string name="quality">Quality</string>
+    <string name="resize">Resize</string>
+    <string name="compression">Compression</string>
+    <string name="_100">100%</string>
+    <string name="_0">0%</string>
+    <string name="apply">Apply</string>
+    <string name="size">Size</string>
+    <string name="edit_image">Edit image</string>
+    <string name="width">Width</string>
+    <string name="height">Height</string>
+    <string name="kb">%1$d KB</string>
+    <string name="sms_est">SMS Est.</string>
+    <string name="sending_images">Sending images...</string>
+    <string name="of_sent">%1$d of %2$d sent...</string>
+    <string name="stop">Stop</string>
+    <string name="pause">Pause</string>
 
 </resources>

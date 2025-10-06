@@ -39,6 +39,7 @@ object NotificationsInitializer {
         createNotificationChannelRunningGatewayListeners(context, notificationManager)
         createNotificationChannelReconnectGatewayListeners(context, notificationManager)
         createNotificationChannelFailedMessages(context, notificationManager)
+        createImageTransmissionChannel(context, notificationManager)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -93,8 +94,9 @@ object NotificationsInitializer {
 
 
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun createNotificationChannelFailedMessages(context: Context,
-                                                        notificationManager: NotificationManager
+    private fun createNotificationChannelFailedMessages(
+        context: Context,
+        notificationManager: NotificationManager
     ) {
         val importance = NotificationManager.IMPORTANCE_DEFAULT
         val channel = NotificationChannel(
@@ -104,6 +106,25 @@ object NotificationsInitializer {
         )
         channel.description = context.getString(R.string.message_failed_notifications_descriptions)
         channel.lockscreenVisibility = Notification.DEFAULT_ALL
+        notificationManager.createNotificationChannel(channel)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun createImageTransmissionChannel(
+        context: Context,
+        notificationManager: NotificationManager
+    ) {
+        val TRANSMISSION_SERVICE_NOTIF_ID = "4"
+        val importance = NotificationManager.IMPORTANCE_HIGH
+
+        val channel = NotificationChannel(
+            TRANSMISSION_SERVICE_NOTIF_ID,
+            context.getString(R.string.image_transmission_service),
+            importance
+        )
+        channel.enableLights(true)
+        channel.lockscreenVisibility = Notification.VISIBILITY_PRIVATE
+
         notificationManager.createNotificationChannel(channel)
     }
 }
