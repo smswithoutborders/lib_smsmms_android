@@ -94,6 +94,10 @@ class ImageTransmissionService : Service() {
 
                         startForeground(notificationId, notification)
                     }
+
+                    if(workInfo?.state == WorkInfo.State.CANCELLED) {
+                        stopSelf()
+                    }
                 }
         }
 
@@ -129,48 +133,29 @@ class ImageTransmissionService : Service() {
         startForeground(notificationId, notification)
 
         sendMessage(
-            sessionId = sessionId,
             address = address,
             subscriptionId = subscriptionId,
-            intent = intent,
-            icon = icon
+            transmissionIndex = 0
         )
 
         return START_STICKY
     }
 
     fun sendMessage(
-        sessionId: Byte,
         address: String,
         subscriptionId: Long,
-        intent: Intent,
-        icon: Int
+        transmissionIndex: Int,
     ) {
-        CoroutineScope(Dispatchers.Default).launch {
-            val transmissionIndex: Int = ImageTransmissionProtocol
-                .getTransmissionIndex(applicationContext, sessionId).run {
-                    if(this == null) {
-                        ImageTransmissionProtocol.storeTransmissionSessionIndex(
-                            applicationContext,
-                            sessionId,
-                            0
-                        )
-                        0
-                    }
-                    else this
-                }
-
-            SmsManager(ConversationsViewModel()).sendSms(
-                context = applicationContext,
-                text = dividedMessages[transmissionIndex],
-                address = address,
-                subscriptionId = subscriptionId,
-                threadId = getThreadId(address),
-                bundle = Bundle().apply {
-                    putBoolean(SmsWorkManager.ITP_TRANSMISSION_REQUEST, true)
-                }
-            ) { }
-        }
+        SmsManager(ConversationsViewModel()).sendSms(
+            context = applicationContext,
+            text = dividedMessages[transmissionIndex],
+            address = address,
+            subscriptionId = subscriptionId,
+            threadId = getThreadId(address),
+            bundle = Bundle().apply {
+                putBoolean(SmsWorkManager.ITP_TRANSMISSION_REQUEST, true)
+            }
+        ) { }
     }
 
     private fun createForegroundNotification(
@@ -325,28 +310,27 @@ class ImageTransmissionService : Service() {
                 ) {
                     if (resultCode == Activity.RESULT_OK) {
                         CoroutineScope(Dispatchers.Default).launch {
-                            val transmissionIndex = ImageTransmissionProtocol
+                            var transmissionIndex = ImageTransmissionProtocol
                                 .getTransmissionIndex(applicationContext, sessionId) ?: return@launch
 
+                            transmissionIndex += 1
                             if(transmissionIndex >= dividedMessages.size) {
                                 stopSelf()
+                                return@launch
                             }
-                            else {
-                                ImageTransmissionProtocol.storeTransmissionSessionIndex(
-                                    context = applicationContext,
-                                    sessionId = sessionId,
-                                    index = transmissionIndex + 1
-                                )
-                                Thread.sleep(5000)
 
-                                sendMessage(
-                                    sessionId = sessionId,
-                                    address = address,
-                                    subscriptionId = subscriptionId,
-                                    intent = intent,
-                                    icon = icon
-                                )
-                            }
+                            ImageTransmissionProtocol.storeTransmissionSessionIndex(
+                                context = applicationContext,
+                                sessionId = sessionId,
+                                index = transmissionIndex + 1
+                            )
+                            Thread.sleep(5000)
+
+                            sendMessage(
+                                address = address,
+                                subscriptionId = subscriptionId,
+                                transmissionIndex = transmissionIndex,
+                            )
                         }
                     } else {
                         // TODO: could depend on the type of failure
@@ -372,7 +356,7 @@ class ImageTransmissionService : Service() {
             }
         }
         ContextCompat.registerReceiver(
-            applicationContext,
+            this,
             messageStateChangedBroadcast,
             intentFilter,
             ContextCompat.RECEIVER_EXPORTED
