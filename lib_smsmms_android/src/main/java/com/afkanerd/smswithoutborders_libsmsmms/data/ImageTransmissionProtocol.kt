@@ -35,13 +35,16 @@ data class ImageTransmissionProtocol(
     val image: ByteArray,
     val text: ByteArray // follows std platform formatting
 ) {
-    fun getSegNumberNumberSegment(segmentNumber: Int): Byte {
-        val hi = (segmentNumber and 0x0F) shl 4
-        val low = (numberSegments and 0x0F)
-        return (hi or low).toByte()
-    }
-
     companion object {
+        fun getSegNumberNumberSegment(
+            segmentNumber: Int,
+            numberSegments: Int
+        ): Byte {
+            val hi = (segmentNumber and 0x0F) shl 4
+            val low = (numberSegments and 0x0F)
+            return (hi or low).toByte()
+        }
+
         fun startWorkManager(
             context: Context,
             formattedPayload: ByteArray,
@@ -99,34 +102,14 @@ data class ImageTransmissionProtocol(
 
         }
 
-        suspend fun getNextTransmission(
+        suspend fun getTransmissionIndex(
             context: Context,
             sessionId: Byte,
-        ) : Pair<Int, ByteArray?> {
-            val index = getNextTransmissionIndex(context, sessionId) + 1
-            val key = byteArrayPreferencesKey("session_data_$sessionId:$index")
-            return Pair(index, context.dataStore.data.first()[key])
-        }
-
-        suspend fun hasTransmissionSession(
-            context: Context,
-            sessionId: Byte,
-        ) : Boolean {
+        ) : Int? {
             val key = intPreferencesKey("session_index_$sessionId")
-            return context.dataStore.data.firstOrNull()?.get(key) != null
+            return context.dataStore.data.firstOrNull()?.get(key)
         }
 
-        suspend fun getNextTransmissionIndex(
-            context: Context,
-            sessionId: Byte,
-        ) : Int {
-            val key = intPreferencesKey("session_index_$sessionId")
-            return context.dataStore.data.first()[key]!!
-        }
-
-        /**
-         * The index store
-         */
         suspend fun storeTransmissionSessionIndex(
             context: Context,
             sessionId: Byte,
@@ -135,19 +118,6 @@ data class ImageTransmissionProtocol(
             val key = intPreferencesKey("session_index_$sessionId")
             context.dataStore.edit { session ->
                 session[key] = index
-            }
-        }
-
-        suspend fun storeTransmissionSession(
-            context: Context,
-            sessionId: Byte,
-            data: List<ByteArray>
-        ) {
-            data.forEachIndexed { index, segment ->
-                val key = byteArrayPreferencesKey("session_data_$sessionId:$index")
-                context.dataStore.edit { session ->
-                    session[key] = segment
-                }
             }
         }
 

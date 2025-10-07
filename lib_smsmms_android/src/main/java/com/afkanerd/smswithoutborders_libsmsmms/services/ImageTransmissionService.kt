@@ -1,5 +1,6 @@
 package com.afkanerd.smswithoutborders_libsmsmms.services
 
+import android.app.Activity
 import android.app.PendingIntent
 import android.app.Service
 import android.content.BroadcastReceiver
@@ -11,15 +12,18 @@ import android.os.Binder
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
+import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
 import androidx.core.content.ContextCompat
 import androidx.work.ForegroundInfo
+import androidx.work.ListenableWorker
 import com.afkanerd.lib_smsmms_android.R
 import com.afkanerd.smswithoutborders_libsmsmms.data.ImageTransmissionProtocol
 import com.afkanerd.smswithoutborders_libsmsmms.data.SmsWorkManager
 import com.afkanerd.smswithoutborders_libsmsmms.data.data.models.SmsManager
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getThreadId
+import com.afkanerd.smswithoutborders_libsmsmms.extensions.toByteArray
 import com.afkanerd.smswithoutborders_libsmsmms.receivers.NotificationActionImpl
 import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.ConversationsViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -28,9 +32,11 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
+import java.nio.charset.StandardCharsets
 
 class ImageTransmissionService : Service() {
-    lateinit var dividedPayload: List<ByteArray>
+    private lateinit var dividedMessages: MutableList<String>
+    private lateinit var messageStateChangedBroadcast: BroadcastReceiver
 
     override fun onBind(intent: Intent?): IBinder? {
         TODO("Implement binder")
@@ -42,17 +48,20 @@ class ImageTransmissionService : Service() {
             return START_NOT_STICKY
         }
 
-        val address  = intent?.getStringExtra(SmsWorkManager.ITP_TRANSMISSION_ADDRESS)
+        val payload  = intent?.getByteArrayExtra(SmsWorkManager.ITP_PAYLOAD)
             ?: return START_NOT_STICKY
 
-        val itpFailed  = intent.getBooleanExtra(SmsWorkManager.ITP_IS_FAILED,
-            false)
+        val address  = intent.getStringExtra(SmsWorkManager.ITP_TRANSMISSION_ADDRESS)
+            ?: return START_NOT_STICKY
 
-        val itpRetry  = intent.getBooleanExtra(SmsWorkManager.ITP_IS_RETRY,
-            false)
+        val version  = intent.getByteExtra(SmsWorkManager.ITP_VERSION, -1)
+            .also { if(it.toInt() == -1) return START_NOT_STICKY }
 
-        val itpSuccess  = intent.getBooleanExtra(SmsWorkManager.ITP_IS_SUCCESS,
-            false)
+        val imageLength  = intent.getShortExtra(SmsWorkManager.ITP_IMAGE_LENGTH,
+            -1).also { if(it.toInt() == -1) return START_NOT_STICKY }
+
+        val textLength  = intent.getShortExtra(SmsWorkManager.ITP_TEXT_LENGTH,
+            -1).also { if(it.toInt() == -1) return START_NOT_STICKY }
 
         val sessionId  = intent.getByteExtra(SmsWorkManager.ITP_SESSION_ID, -1)
 
@@ -60,43 +69,96 @@ class ImageTransmissionService : Service() {
         val subscriptionId = intent.getLongExtra(SmsWorkManager
             .ITP_TRANSMISSION_SUBSCRIPTION_ID, -1)
 
-        if(!itpFailed) {
-            CoroutineScope(Dispatchers.Default).launch {
-                val payload = ImageTransmissionProtocol.getNextTransmission(
-                    applicationContext,
-                    sessionId,
-                )
-                val transmissionIndex = payload.first + 1
+        handleBroadcast(
+            sessionId = sessionId,
+            address = address,
+            subscriptionId = subscriptionId,
+            icon = icon
+        )
 
-                SmsManager(ConversationsViewModel()).sendSms(
-                    context = applicationContext,
-                    text = TODO("This should be transmitted in b64"),
-                    address = address,
-                    subscriptionId = subscriptionId,
-                    threadId = getThreadId(address),
-                    bundle = Bundle()
-                ) {
-                    CoroutineScope(Dispatchers.Main).launch {
-                        try {
-                            startForeground(1,
-                                createForegroundNotification(
-                                    this@ImageTransmissionService,
-                                    intent,
-                                    icon = icon,
-                                    progress = transmissionIndex,
-                                    maxProgress = dividedPayload.size
-                                ).notification
-                            )
-                        } catch(e: Exception) {
-                            e.printStackTrace()
-                        }
+        dividedMessages = divideImagePayload(
+            payload,
+            version,
+            sessionId,
+            imageLength,
+            textLength
+        ).apply {
+            forEachIndexed { index, data ->
+                val segNumSeg = ImageTransmissionProtocol
+                    .getSegNumberNumberSegment(index, this.size)
+                this[index] = data.replaceRange(2, 4,
+                    segNumSeg.toHexString())
+            }
+        }
+
+        startForeground(1,
+            createForegroundNotification(
+                this@ImageTransmissionService,
+                intent,
+                icon = icon,
+                progress = 0,
+                maxProgress = dividedMessages.size
+            ).notification
+        )
+
+        sendMessage(
+            sessionId = sessionId,
+            address = address,
+            subscriptionId = subscriptionId,
+            intent = intent,
+            icon = icon
+        )
+
+        return START_STICKY
+    }
+
+    fun sendMessage(
+        sessionId: Byte,
+        address: String,
+        subscriptionId: Long,
+        intent: Intent,
+        icon: Int
+    ) {
+        CoroutineScope(Dispatchers.Default).launch {
+            val transmissionIndex: Int = ImageTransmissionProtocol
+                .getTransmissionIndex(applicationContext, sessionId).run {
+                    if(this == null) {
+                        ImageTransmissionProtocol.storeTransmissionSessionIndex(
+                            applicationContext,
+                            sessionId,
+                            0
+                        )
+                        0
+                    }
+                    else this
+                }
+
+            SmsManager(ConversationsViewModel()).sendSms(
+                context = applicationContext,
+                text = dividedMessages[transmissionIndex],
+                address = address,
+                subscriptionId = subscriptionId,
+                threadId = getThreadId(address),
+                bundle = Bundle()
+            ) {
+                CoroutineScope(Dispatchers.Main).launch {
+                    try {
+                        startForeground(1,
+                            createForegroundNotification(
+                                this@ImageTransmissionService,
+                                intent,
+                                icon = icon,
+                                progress = transmissionIndex,
+                                maxProgress = dividedMessages.size
+                            ).notification
+                        )
+                    } catch(e: Exception) {
+                        e.printStackTrace()
                     }
                 }
             }
         }
-        return START_STICKY
     }
-
 
     private fun createForegroundNotification(
         context: Context,
@@ -130,11 +192,11 @@ class ImageTransmissionService : Service() {
         val notification = builder.build()
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             ForegroundInfo(
-                0, notification,
+                1, notification,
                 ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
             )
         } else {
-            ForegroundInfo(0, notification)
+            ForegroundInfo(1, notification)
         }
     }
 
@@ -186,9 +248,107 @@ class ImageTransmissionService : Service() {
         stopSelf()
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        TODO("update sending caches")
+    private fun handleBroadcast(
+        sessionId: Byte,
+        icon: Int,
+        address: String,
+        subscriptionId: Long,
+    ) {
+        val action = "com.afkanerd.deku.SMS_SENT_BROADCAST_INTENT"
+        val intentFilter = IntentFilter()
+        intentFilter.addAction(action)
+        messageStateChangedBroadcast = object : BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent) {
+                if (intent.action != null && intentFilter.hasAction(intent.action)) {
+//                    TODO("Check bundles")
+                    if (resultCode == Activity.RESULT_OK) {
+                        CoroutineScope(Dispatchers.Default).launch {
+                            val transmissionIndex = ImageTransmissionProtocol
+                                .getTransmissionIndex(applicationContext, sessionId) ?: return@launch
+
+                            if(transmissionIndex >= dividedMessages.size) {
+                                TODO("Broadcast last message has been sent")
+                            }
+                            else {
+                                ImageTransmissionProtocol.storeTransmissionSessionIndex(
+                                    context = applicationContext,
+                                    sessionId = sessionId,
+                                    index = transmissionIndex + 1
+                                )
+                                Thread.sleep(5000)
+
+                                sendMessage(
+                                    sessionId = sessionId,
+                                    address = address,
+                                    subscriptionId = subscriptionId,
+                                    intent = intent,
+                                    icon = icon
+                                )
+                            }
+                        }
+                    } else {
+                        TODO("Broadcast message failed")
+                    }
+                }
+            }
+        }
+        ContextCompat.registerReceiver(
+            applicationContext,
+            messageStateChangedBroadcast,
+            intentFilter,
+            ContextCompat.RECEIVER_EXPORTED
+        )
     }
+
+    /**
+     * Message type
+     * 	Character limit per message	Bytes for text	Bytes for UDH
+     * Single SMS	160	140 bytes	0 bytes
+     * Concatenated SMS	153	134 bytes	6 bytes
+     */
+    @Throws
+    private fun divideImagePayload(
+        payload: ByteArray,
+        version: Byte,
+        sessionId: Byte,
+        imageLength: Short,
+        textLength: Short,
+    ): MutableList<String> {
+        var encodedPayload = payload
+        val standardSegmentSize = 153
+        val dividedImage = mutableListOf<String>()
+
+        var segmentNumber = 0
+        val segNumberNumberOfSegments: Byte = 0
+        do {
+            var metaData = version.toHexString() +
+                    sessionId.toHexString() +
+                    segNumberNumberOfSegments.toHexString()
+
+            if(segmentNumber == 0) {
+                metaData += imageLength.toHexString() + textLength.toHexString()
+            }
+
+            val size = (standardSegmentSize - metaData.length)
+                .coerceAtMost(encodedPayload.size)
+
+            val buffer = metaData + String(encodedPayload.take(size).toByteArray(),
+                StandardCharsets.UTF_8)
+            if(buffer.length > standardSegmentSize) {
+                throw Exception("Buffer size > $standardSegmentSize")
+            }
+            encodedPayload = encodedPayload.drop(size).toByteArray()
+
+            segmentNumber += 1
+            if(segmentNumber >= 256 / 2) {
+                throw Exception("Segment number > ${256 /2 }")
+            }
+
+            dividedImage.add(buffer)
+        } while(encodedPayload.isNotEmpty())
+
+        return dividedImage
+    }
+
 
 }
