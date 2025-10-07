@@ -16,6 +16,7 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.Operation
 import androidx.work.WorkManager
 import androidx.work.WorkRequest
+import coil3.network.NetworkRequest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.serialization.Serializable
@@ -57,7 +58,6 @@ data class ImageTransmissionProtocol(
             subscriptionId: Long,
         ): Operation {
             val constraints : Constraints = Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED)
                 .build();
 
             val workManager = WorkManager.getInstance(context)
