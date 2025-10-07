@@ -10,10 +10,13 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.work.CoroutineWorker
 import androidx.work.Data
+import androidx.work.ListenableWorker
 import androidx.work.WorkerParameters
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.toByteArray
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.toShortLittleEndian
+import com.afkanerd.smswithoutborders_libsmsmms.receivers.SmsTextReceivedReceiver
 import com.afkanerd.smswithoutborders_libsmsmms.services.ImageTransmissionService
+import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -82,22 +85,7 @@ class SmsWorkManager(
                             .build()) )
         }
 
-        val filter = IntentFilter(ITP_SERVICE_COMPLETION)
-
-        val receiver = object : BroadcastReceiver() {
-            override fun onReceive(context: Context?, intent: Intent?) {
-                // Service says it's finished
-                applicationContext.unregisterReceiver(this)
-                cont.resume(Result.success())
-            }
-        }
-
-        ContextCompat.registerReceiver(
-            applicationContext,
-            receiver,
-            filter,
-            ContextCompat.RECEIVER_NOT_EXPORTED
-        )
+        registerReceivers(cont)
 
         startService(
             itp!!,
@@ -109,6 +97,51 @@ class SmsWorkManager(
             textLength = textLength!!.toShortLittleEndian(),
             subscriptionId = subscriptionId
         )
+    }
+
+    private lateinit var messageStateChangedBroadcast: BroadcastReceiver
+    private lateinit var completedSendingBroadcast: BroadcastReceiver
+    fun registerReceivers(
+        cont: CancellableContinuation<Result>
+    ) {
+        val filter = IntentFilter(ITP_SERVICE_COMPLETION)
+        completedSendingBroadcast = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                // Service says it's finished
+                applicationContext.unregisterReceiver(this)
+                cont.resume(Result.success())
+            }
+        }
+        ContextCompat.registerReceiver(
+            applicationContext,
+            completedSendingBroadcast,
+            filter,
+            ContextCompat.RECEIVER_NOT_EXPORTED
+        )
+
+        val intentFilter = IntentFilter()
+        intentFilter.addAction(SmsTextReceivedReceiver.SMS_SENT_BROADCAST_INTENT)
+
+//        messageStateChangedBroadcast = object : BroadcastReceiver() {
+//            override fun onReceive(context: Context, intent: Intent) {
+//                if (intent.action != null &&
+//                    intentFilter.hasAction(intent.action) &&
+//                    intent.hasExtra(ITP_TRANSMISSION_REQUEST)
+//                ) {
+//                    if (resultCode != Activity.RESULT_OK) {
+//                        cont.resume(Result.failure())
+//                        context.unregisterReceiver(messageStateChangedBroadcast)
+//                    }
+//                }
+//            }
+//        }
+//
+//        ContextCompat.registerReceiver(
+//            applicationContext,
+//            messageStateChangedBroadcast,
+//            intentFilter,
+//            ContextCompat.RECEIVER_EXPORTED
+//        )
     }
 
     fun startService(
@@ -159,6 +192,8 @@ class SmsWorkManager(
         const val ITP_STOP_SERVICE = "ITP_STOP_SERVICE"
         const val IMAGE_TRANSMISSION_WORK_MANAGER_TAG = "IMAGE_TRANSMISSION_WORK_MANAGER_TAG"
         const val ITP_SERVICE_COMPLETION = "ITP_IS_SUCCESS"
+        const val ITP_SERVICE_RETRY_REQUEST = "ITP_SERVICE_RETRY_REQUEST"
+        const val ITP_TRANSMISSION_REQUEST = "ITP_TRANSMISSION_REQUEST"
     }
 
 }

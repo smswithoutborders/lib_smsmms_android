@@ -25,6 +25,7 @@ import com.afkanerd.smswithoutborders_libsmsmms.data.data.models.SmsManager
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getThreadId
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.toByteArray
 import com.afkanerd.smswithoutborders_libsmsmms.receivers.NotificationActionImpl
+import com.afkanerd.smswithoutborders_libsmsmms.receivers.SmsTextReceivedReceiver
 import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.ConversationsViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -37,12 +38,14 @@ import java.nio.charset.StandardCharsets
 class ImageTransmissionService : Service() {
     private lateinit var dividedMessages: MutableList<String>
     private lateinit var messageStateChangedBroadcast: BroadcastReceiver
+    private var notificationId: Int = -1
 
     override fun onBind(intent: Intent?): IBinder? {
         TODO("Implement binder")
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        notificationId = getString(R.string.foreground_service_image_transmission_notification_id).toInt()
         if(intent?.hasExtra(SmsWorkManager.ITP_STOP_SERVICE) == true) {
             stopSelf()
             return START_NOT_STICKY
@@ -91,15 +94,14 @@ class ImageTransmissionService : Service() {
             }
         }
 
-        startForeground(1,
-            createForegroundNotification(
-                this@ImageTransmissionService,
-                intent,
-                icon = icon,
-                progress = 0,
-                maxProgress = dividedMessages.size
-            ).notification
-        )
+        val notification = createForegroundNotification(
+            intent,
+            icon = icon,
+            progress = 0,
+            maxProgress = dividedMessages.size,
+        ).notification
+
+        startForeground(notificationId, notification)
 
         sendMessage(
             sessionId = sessionId,
@@ -139,19 +141,20 @@ class ImageTransmissionService : Service() {
                 address = address,
                 subscriptionId = subscriptionId,
                 threadId = getThreadId(address),
-                bundle = Bundle()
+                bundle = Bundle().apply {
+                    putBoolean(SmsWorkManager.ITP_TRANSMISSION_REQUEST, true)
+                }
             ) {
                 CoroutineScope(Dispatchers.Main).launch {
+                    val notification = createForegroundNotification(
+                        intent,
+                        icon = icon,
+                        progress = transmissionIndex,
+                        maxProgress = dividedMessages.size,
+                    ).notification
+
                     try {
-                        startForeground(1,
-                            createForegroundNotification(
-                                this@ImageTransmissionService,
-                                intent,
-                                icon = icon,
-                                progress = transmissionIndex,
-                                maxProgress = dividedMessages.size
-                            ).notification
-                        )
+                        startForeground( notificationId, notification, )
                     } catch(e: Exception) {
                         e.printStackTrace()
                     }
@@ -161,22 +164,27 @@ class ImageTransmissionService : Service() {
     }
 
     private fun createForegroundNotification(
-        context: Context,
         intent: Intent,
         icon: Int,
         maxProgress: Int,
         progress: Int = 0,
+        isRetry: Boolean = false,
     ) : ForegroundInfo {
         val pendingIntent = PendingIntent
-            .getActivity(context,
+            .getActivity(applicationContext,
                 0,
                 intent,
                 PendingIntent.FLAG_IMMUTABLE)
 
-        val title = getString(R.string.sending_images)
-        val description = getString(R.string.of_sent, progress, maxProgress)
+        val title = if(isRetry) getString(R.string.sending_stop)
+        else getString(R.string.sending_images)
 
-        val builder = NotificationCompat.Builder(context, "4")
+        val description = if(isRetry)
+            getString(R.string.waiting_to_send_of, progress, maxProgress)
+        else getString(R.string.of_sent, progress, maxProgress)
+
+        val builder = NotificationCompat.Builder(applicationContext,
+            getString(R.string.foreground_service_image_transmission_channel_id))
             .setContentTitle(title)
             .setContentText(description)
             .setSmallIcon(icon)
@@ -184,7 +192,7 @@ class ImageTransmissionService : Service() {
             .setRequestPromotedOngoing(true)
             .setContentIntent(pendingIntent)
             .setProgress(maxProgress, progress, false).apply {
-                getActions(context).forEach {
+                getActions(applicationContext).forEach {
                     this.addAction(it)
                 }
             }
@@ -192,11 +200,15 @@ class ImageTransmissionService : Service() {
         val notification = builder.build()
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             ForegroundInfo(
-                1, notification,
+                notificationId,
+                notification,
                 ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
             )
         } else {
-            ForegroundInfo(1, notification)
+            ForegroundInfo(
+                notificationId,
+                notification
+            )
         }
     }
 
@@ -254,20 +266,21 @@ class ImageTransmissionService : Service() {
         address: String,
         subscriptionId: Long,
     ) {
-        val action = "com.afkanerd.deku.SMS_SENT_BROADCAST_INTENT"
         val intentFilter = IntentFilter()
-        intentFilter.addAction(action)
+        intentFilter.addAction(SmsTextReceivedReceiver.SMS_SENT_BROADCAST_INTENT)
         messageStateChangedBroadcast = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
-                if (intent.action != null && intentFilter.hasAction(intent.action)) {
-//                    TODO("Check bundles")
+                if (intent.action != null &&
+                    intentFilter.hasAction(intent.action) &&
+                    intent.hasExtra(SmsWorkManager.ITP_TRANSMISSION_REQUEST)
+                ) {
                     if (resultCode == Activity.RESULT_OK) {
                         CoroutineScope(Dispatchers.Default).launch {
                             val transmissionIndex = ImageTransmissionProtocol
                                 .getTransmissionIndex(applicationContext, sessionId) ?: return@launch
 
                             if(transmissionIndex >= dividedMessages.size) {
-                                TODO("Broadcast last message has been sent")
+                                stopSelf()
                             }
                             else {
                                 ImageTransmissionProtocol.storeTransmissionSessionIndex(
@@ -287,7 +300,24 @@ class ImageTransmissionService : Service() {
                             }
                         }
                     } else {
-                        TODO("Broadcast message failed")
+                        // TODO: could depend on the type of failure
+                        CoroutineScope(Dispatchers.Default).launch {
+                            val transmissionIndex = ImageTransmissionProtocol
+                                .getTransmissionIndex(applicationContext, sessionId) ?: return@launch
+                            val notification = createForegroundNotification(
+                                intent,
+                                icon = icon,
+                                progress = transmissionIndex,
+                                maxProgress = dividedMessages.size,
+                                isRetry = true
+                            ).notification
+
+                            try {
+                                startForeground( notificationId, notification, )
+                            } catch(e: Exception) {
+                                e.printStackTrace()
+                            }
+                        }
                     }
                 }
             }
@@ -350,5 +380,16 @@ class ImageTransmissionService : Service() {
         return dividedImage
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        sendBroadcast(Intent(SmsWorkManager.ITP_SERVICE_COMPLETION))
+        if(::messageStateChangedBroadcast.isInitialized) {
+            try {
+                unregisterReceiver(messageStateChangedBroadcast)
+            } catch(e: IllegalArgumentException) {
+                e.printStackTrace()
+            }
+        }
+    }
 
 }

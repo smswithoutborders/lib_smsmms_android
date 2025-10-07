@@ -35,6 +35,9 @@ object NotificationsInitializer {
         notificationsChannelIds.add(context.getString(R.string.message_failed_channel_id))
         notificationsChannelNames.add(context.getString(R.string.message_failed_channel_name))
 
+        notificationsChannelIds.add(context.getString(R.string.foreground_service_image_transmission_channel_id))
+        notificationsChannelNames.add(context.getString(R.string.image_transmission_service))
+
         createNotificationChannelIncomingMessage(context, notificationManager)
         createNotificationChannelRunningGatewayListeners(context, notificationManager)
         createNotificationChannelReconnectGatewayListeners(context, notificationManager)
@@ -114,16 +117,15 @@ object NotificationsInitializer {
         context: Context,
         notificationManager: NotificationManager
     ) {
-        val TRANSMISSION_SERVICE_NOTIF_ID = "4"
         val importance = NotificationManager.IMPORTANCE_HIGH
 
         val channel = NotificationChannel(
-            TRANSMISSION_SERVICE_NOTIF_ID,
-            context.getString(R.string.image_transmission_service),
+            notificationsChannelIds[4],
+            notificationsChannelNames[4],
             importance
         )
-        channel.enableLights(true)
-        channel.lockscreenVisibility = Notification.VISIBILITY_PRIVATE
+        channel.description = context.getString(R.string.foreground_service_image_transmission_descriptions)
+        channel.lockscreenVisibility = Notification.DEFAULT_ALL
 
         notificationManager.createNotificationChannel(channel)
     }
