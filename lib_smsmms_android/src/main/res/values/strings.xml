@@ -418,8 +418,8 @@
     <string name="send_mms_photo">Send MMS photo</string>
     <string name="mms_selected_image">MMS selected image</string>
     <string name="unknown_error_sending_mms">"Unknown error sending MMS: "</string>
-    <string name="mms_image">MMS image...</string>
-    <string name="mms_video">MMS video...</string>
+    <string name="mms_image">MMS image…</string>
+    <string name="mms_video">MMS video…</string>
     <string name="export_sms_mms_database">Export SMS/MMS database</string>
     <string name="this_exports_all_sms_and_mms_databases_can_be_useful_if_you_need_to_capture_all_fields_as_stored_by_the_default_sms_apps">This exports all SMS and MMS databases. Can be useful if you need to capture all fields as stored by the default SMS apps.</string>
     <string name="developer_options">Developer options</string>
@@ -431,7 +431,7 @@
     <string name="set_default_sms_app">Set default SMS app</string>
     <string name="to_use_deku_sms_make_it_your_default_sms_app">To use Deku SMS, make it your default SMS app</string>
     <string name="reset_complete">Reset complete!</string>
-    <string name="give_it_a_minute">Give it a minute...</string>
+    <string name="give_it_a_minute">Give it a minute…</string>
     <string name="general_settings">General settings</string>
     <string name="save_messages_to_system_s_database">Save messages to system\'s database</string>
     <string name="other_messaging_apps_would_have_access_to_the_system_s_database">Other messaging apps would have access to the system\'s database</string>
@@ -446,7 +446,7 @@
     <string name="image">Image</string>
     <string name="download_for_offline">Download for offline</string>
     <string name="share_mms_content">Share MMS content</string>
-    <string name="waiting_to_send">waiting to send...</string>
+    <string name="waiting_to_send">waiting to send…</string>
     <string name="language">Language</string>
     <string name="light">Light</string>
     <string name="dark">Dark</string>
@@ -473,15 +473,15 @@
     <string name="height">Height</string>
     <string name="kb">%1$d KB</string>
     <string name="sms_est">SMS Est.</string>
-    <string name="sending_images">Sending images...</string>
-    <string name="of_sent">%1$d of %2$d sent...</string>
+    <string name="sending_images">Sending images…</string>
+    <string name="of_sent">%1$d of %2$d sent…</string>
     <string name="stop">Stop</string>
     <string name="pause">Pause</string>
-    <string name="sending_stop">Sending stop...</string>
+    <string name="sending_stop">Sending stopped…</string>
     <string name="waiting_to_send_of">Waiting to send %1$d of %2$d</string>
     <string name="failed_to_send_message">Failed to send message</string>
     <string name="retry">Retry</string>
-    <string name="queued_for_sending">Queued for sending...</string>
-    <string name="will_resume_sending_shortly">Will resume sending shortly...</string>
+    <string name="queued_for_sending">Queued for sending…</string>
+    <string name="will_resume_sending_shortly">Will resume sending shortly…</string>
 
 </resources>
