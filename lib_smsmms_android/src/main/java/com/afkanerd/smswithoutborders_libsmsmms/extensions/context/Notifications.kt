@@ -80,22 +80,6 @@ fun Context.notify(
         builder.setStyle(style)
     }
     else {
-//        style.addMessage(
-//            if(Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
-//                NotificationCompat.MessagingStyle.Message(
-//                    text ?: conversation.sms?.body,
-//                    System.currentTimeMillis(),
-//                    sender.name
-//                )
-//            } else {
-//                NotificationCompat.MessagingStyle.Message(
-//                    text ?: conversation.sms?.body,
-//                    System.currentTimeMillis(),
-//                    sender
-//                )
-//            }
-//        )
-//        .setConversationTitle(title ?: (contactName ?: conversation.sms?.address!!))
         builder.setContentTitle(title ?: (contactName ?: conversation.sms?.address!!))
         builder.setContentText(text ?: conversation.sms?.body)
     }

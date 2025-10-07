@@ -18,6 +18,8 @@ import androidx.core.app.ServiceCompat
 import androidx.core.content.ContextCompat
 import androidx.work.ForegroundInfo
 import androidx.work.ListenableWorker
+import androidx.work.WorkInfo
+import androidx.work.WorkManager
 import com.afkanerd.lib_smsmms_android.R
 import com.afkanerd.smswithoutborders_libsmsmms.data.ImageTransmissionProtocol
 import com.afkanerd.smswithoutborders_libsmsmms.data.SmsWorkManager
@@ -34,6 +36,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import java.nio.charset.StandardCharsets
+import java.util.UUID
+import kotlin.uuid.Uuid
 
 class ImageTransmissionService : Service() {
     private lateinit var dividedMessages: MutableList<String>
@@ -46,6 +50,7 @@ class ImageTransmissionService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         notificationId = getString(R.string.foreground_service_image_transmission_notification_id).toInt()
+
         if(intent?.hasExtra(SmsWorkManager.ITP_STOP_SERVICE) == true) {
             stopSelf()
             return START_NOT_STICKY
@@ -71,6 +76,26 @@ class ImageTransmissionService : Service() {
         val icon = intent.getIntExtra(SmsWorkManager.ITP_SERVICE_ICON, -1)
         val subscriptionId = intent.getLongExtra(SmsWorkManager
             .ITP_TRANSMISSION_SUBSCRIPTION_ID, -1)
+
+        val workId = intent.getStringExtra(SmsWorkManager.ITP_WORK_MANAGER_UUID)
+
+        CoroutineScope(Dispatchers.Default).launch {
+            WorkManager.getInstance(applicationContext)
+                .getWorkInfoByIdFlow(UUID.fromString(workId))
+                .collect { workInfo ->
+                    if(workInfo?.state == WorkInfo.State.ENQUEUED) {
+                        val notification = createForegroundNotification(
+                            intent,
+                            icon = icon,
+                            progress = 0,
+                            maxProgress = dividedMessages.size,
+                            isQueue = true
+                        ).notification
+
+                        startForeground(notificationId, notification)
+                    }
+                }
+        }
 
         handleBroadcast(
             sessionId = sessionId,
@@ -144,22 +169,7 @@ class ImageTransmissionService : Service() {
                 bundle = Bundle().apply {
                     putBoolean(SmsWorkManager.ITP_TRANSMISSION_REQUEST, true)
                 }
-            ) {
-                CoroutineScope(Dispatchers.Main).launch {
-                    val notification = createForegroundNotification(
-                        intent,
-                        icon = icon,
-                        progress = transmissionIndex,
-                        maxProgress = dividedMessages.size,
-                    ).notification
-
-                    try {
-                        startForeground( notificationId, notification, )
-                    } catch(e: Exception) {
-                        e.printStackTrace()
-                    }
-                }
-            }
+            ) { }
         }
     }
 
@@ -169,19 +179,27 @@ class ImageTransmissionService : Service() {
         maxProgress: Int,
         progress: Int = 0,
         isRetry: Boolean = false,
+        isQueue: Boolean = false
     ) : ForegroundInfo {
+        val progress = progress + 1
         val pendingIntent = PendingIntent
             .getActivity(applicationContext,
                 0,
                 intent,
                 PendingIntent.FLAG_IMMUTABLE)
 
-        val title = if(isRetry) getString(R.string.sending_stop)
-        else getString(R.string.sending_images)
+        val title = when {
+            isRetry -> getString(R.string.sending_stop)
+            isQueue -> getString(R.string.queued_for_sending)
+            else -> getString(R.string.sending_images)
+        }
 
-        val description = if(isRetry)
-            getString(R.string.waiting_to_send_of, progress, maxProgress)
-        else getString(R.string.of_sent, progress, maxProgress)
+        val description = when {
+            isRetry -> getString(R.string.waiting_to_send_of, progress,
+                maxProgress)
+            isQueue -> getString(R.string.will_resume_sending_shortly)
+            else -> getString(R.string.of_sent, progress, maxProgress)
+        }
 
         val builder = NotificationCompat.Builder(applicationContext,
             getString(R.string.foreground_service_image_transmission_channel_id))
@@ -191,9 +209,11 @@ class ImageTransmissionService : Service() {
             .setOngoing(true)
             .setRequestPromotedOngoing(true)
             .setContentIntent(pendingIntent)
-            .setProgress(maxProgress, progress, false).apply {
-                getActions(applicationContext).forEach {
-                    this.addAction(it)
+            .setProgress(maxProgress, progress, isQueue).apply {
+                if(!isQueue) {
+                    getActions(applicationContext, isRetry).forEach {
+                        this.addAction(it)
+                    }
                 }
             }
 
@@ -212,47 +232,76 @@ class ImageTransmissionService : Service() {
         }
     }
 
-    private fun getActions(context: Context) : List<NotificationCompat.Action> {
+    private fun getActions(
+        context: Context,
+        isRetry: Boolean
+    ) : List<NotificationCompat.Action> {
         val stopLabel = getString(R.string.stop)
         val pauseLabel = getString(R.string.pause)
+        val retryLabel = getString(R.string.retry)
 
-        val stopPendingIntent: PendingIntent = PendingIntent.getBroadcast(
-            context,
-            0, // Or a unique request code
-            Intent(
-                this,
-                NotificationActionImpl::class.java
-            ).apply {
-                action = NotificationActionImpl.NOTIFICATION_STOP_ACTION_INTENT_ACTION
-            },
-            PendingIntent.FLAG_MUTABLE // Flags for the PendingIntent
-        )
+        val notifications = mutableListOf<NotificationCompat.Action>()
 
-        val pausePendingIntent: PendingIntent = PendingIntent.getBroadcast(
-            context,
-            1, // Or a unique request code
-            Intent(
-                this,
-                NotificationActionImpl::class.java
-            ).apply {
-                action = NotificationActionImpl.NOTIFICATION_PAUSE_ACTION_INTENT_ACTION
-            },
-            PendingIntent.FLAG_MUTABLE // Flags for the PendingIntent
-        )
+        if(isRetry) {
+            val retryPendingIntent: PendingIntent = PendingIntent.getBroadcast(
+                context,
+                2, // Or a unique request code
+                Intent(
+                    this,
+                    NotificationActionImpl::class.java
+                ).apply {
+                    action = NotificationActionImpl.NOTIFICATION_RETRY_ACTION_INTENT_ACTION
+                },
+                PendingIntent.FLAG_MUTABLE // Flags for the PendingIntent
+            )
+            notifications.add(
+                NotificationCompat.Action.Builder(
+                    null, // Icon for the reply button
+                    retryLabel, // Text for the reply button
+                    retryPendingIntent
+                ).build(),
+            )
+        } else {
+            val stopPendingIntent: PendingIntent = PendingIntent.getBroadcast(
+                context,
+                0, // Or a unique request code
+                Intent(
+                    this,
+                    NotificationActionImpl::class.java
+                ).apply {
+                    action = NotificationActionImpl.NOTIFICATION_STOP_ACTION_INTENT_ACTION
+                },
+                PendingIntent.FLAG_MUTABLE // Flags for the PendingIntent
+            )
 
-        return listOf(
-            NotificationCompat.Action.Builder(
-                null, // Icon for the reply button
-                stopLabel, // Text for the reply button
-                stopPendingIntent
-            ).setSemanticAction(NotificationCompat.Action.SEMANTIC_ACTION_MUTE).build(),
+            val pausePendingIntent: PendingIntent = PendingIntent.getBroadcast(
+                context,
+                1, // Or a unique request code
+                Intent(
+                    this,
+                    NotificationActionImpl::class.java
+                ).apply {
+                    action = NotificationActionImpl.NOTIFICATION_PAUSE_ACTION_INTENT_ACTION
+                },
+                PendingIntent.FLAG_MUTABLE // Flags for the PendingIntent
+            )
+            notifications.add(
+                NotificationCompat.Action.Builder(
+                    null, // Icon for the reply button
+                    stopLabel, // Text for the reply button
+                    stopPendingIntent
+                ).build()
+            )
 
-            NotificationCompat.Action.Builder(
-                null, // Icon for the reply button
-                pauseLabel, // Text for the reply button
-                pausePendingIntent
-            ).setSemanticAction(NotificationCompat.Action.SEMANTIC_ACTION_MUTE).build(),
-        )
+            notifications.add(
+                NotificationCompat.Action.Builder(
+                    null, // Icon for the reply button
+                    pauseLabel, // Text for the reply button
+                    pausePendingIntent
+                ).build(),
+            )
+        }
+        return notifications
     }
 
     override fun onTimeout(startId: Int, fgsType: Int) {

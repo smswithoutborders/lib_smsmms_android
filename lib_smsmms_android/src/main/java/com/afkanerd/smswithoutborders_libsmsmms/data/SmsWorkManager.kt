@@ -23,14 +23,13 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
+import java.util.UUID
 import kotlin.coroutines.resume
 
 class SmsWorkManager(
     context: Context,
     workerParams: WorkerParameters
 ) : CoroutineWorker(context, workerParams ) {
-    val workValue = MutableStateFlow<Result?>(null)
-
     override suspend fun doWork(): Result = suspendCancellableCoroutine { cont ->
         val itp = inputData.getByteArray(ITP_PAYLOAD)
         if(itp == null) {
@@ -95,53 +94,45 @@ class SmsWorkManager(
             version,
             imageLength!!.toShortLittleEndian(),
             textLength = textLength!!.toShortLittleEndian(),
-            subscriptionId = subscriptionId
+            subscriptionId = subscriptionId,
         )
     }
 
-    private lateinit var messageStateChangedBroadcast: BroadcastReceiver
     private lateinit var completedSendingBroadcast: BroadcastReceiver
+    private lateinit var retrySendingBroadcast: BroadcastReceiver
     fun registerReceivers(
         cont: CancellableContinuation<Result>
     ) {
         val filter = IntentFilter(ITP_SERVICE_COMPLETION)
         completedSendingBroadcast = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
-                // Service says it's finished
-                applicationContext.unregisterReceiver(this)
                 cont.resume(Result.success())
+                applicationContext.unregisterReceiver(this)
             }
         }
         ContextCompat.registerReceiver(
             applicationContext,
             completedSendingBroadcast,
             filter,
-            ContextCompat.RECEIVER_NOT_EXPORTED
+            ContextCompat.RECEIVER_EXPORTED
         )
 
-        val intentFilter = IntentFilter()
-        intentFilter.addAction(SmsTextReceivedReceiver.SMS_SENT_BROADCAST_INTENT)
-
-//        messageStateChangedBroadcast = object : BroadcastReceiver() {
-//            override fun onReceive(context: Context, intent: Intent) {
-//                if (intent.action != null &&
-//                    intentFilter.hasAction(intent.action) &&
-//                    intent.hasExtra(ITP_TRANSMISSION_REQUEST)
-//                ) {
-//                    if (resultCode != Activity.RESULT_OK) {
-//                        cont.resume(Result.failure())
-//                        context.unregisterReceiver(messageStateChangedBroadcast)
-//                    }
-//                }
-//            }
-//        }
-//
-//        ContextCompat.registerReceiver(
-//            applicationContext,
-//            messageStateChangedBroadcast,
-//            intentFilter,
-//            ContextCompat.RECEIVER_EXPORTED
-//        )
+        val filterRetry = IntentFilter(ITP_RETRY_SERVICE)
+        retrySendingBroadcast = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                try {
+                    cont.resume(Result.retry())
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+        }
+        ContextCompat.registerReceiver(
+            applicationContext,
+            retrySendingBroadcast,
+            filterRetry,
+            ContextCompat.RECEIVER_EXPORTED
+        )
     }
 
     fun startService(
@@ -166,6 +157,7 @@ class SmsWorkManager(
             putExtra(ITP_TEXT_LENGTH, textLength)
             putExtra(ITP_TRANSMISSION_ADDRESS, address)
             putExtra(ITP_TRANSMISSION_SUBSCRIPTION_ID, subscriptionId)
+            putExtra(ITP_WORK_MANAGER_UUID, id.toString())
         }
 
         try {
@@ -186,13 +178,14 @@ class SmsWorkManager(
         const val ITP_SESSION_ID = "ITP_SESSION_ID"
         const val ITP_TRANSMISSION_ADDRESS = "ITP_TRANSMISSION_ADDRESS"
         const val ITP_TRANSMISSION_SUBSCRIPTION_ID = "ITP_TRANSMISSION_SUBSCRIPTION_ID"
+        const val ITP_WORK_MANAGER_UUID = "ITP_WORK_MANAGER_UUID"
         const val ITP_IMAGE_LENGTH = "ITP_IMAGE_LENGTH"
         const val ITP_TEXT_LENGTH = "ITP_TEXT_LENGTH"
         const val ITP_SERVICE_ICON = "ITP_SERVICE_ICON"
         const val ITP_STOP_SERVICE = "ITP_STOP_SERVICE"
         const val IMAGE_TRANSMISSION_WORK_MANAGER_TAG = "IMAGE_TRANSMISSION_WORK_MANAGER_TAG"
         const val ITP_SERVICE_COMPLETION = "ITP_IS_SUCCESS"
-        const val ITP_SERVICE_RETRY_REQUEST = "ITP_SERVICE_RETRY_REQUEST"
+        const val ITP_RETRY_SERVICE = "ITP_RETRY_SERVICE"
         const val ITP_TRANSMISSION_REQUEST = "ITP_TRANSMISSION_REQUEST"
     }
 
