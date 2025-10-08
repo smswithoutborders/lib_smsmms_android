@@ -108,36 +108,40 @@ class ImageTransmissionService : Service() {
             icon = icon
         )
 
-        dividedMessages = divideImagePayload(
-            payload,
-            version,
-            sessionId,
-            imageLength,
-            textLength
-        ).apply {
-            forEachIndexed { index, data ->
-                val segNumSeg = ImageTransmissionProtocol
-                    .getSegNumberNumberSegment(index, this.size)
-                this[index] = data.replaceRange(2, 4,
-                    segNumSeg.toHexString())
+        CoroutineScope(Dispatchers.Default).launch {
+            dividedMessages = divideImagePayload(
+                payload,
+                version,
+                sessionId,
+                imageLength,
+                textLength
+            ).apply {
+                forEachIndexed { index, data ->
+                    val segNumSeg = ImageTransmissionProtocol
+                        .getSegNumberNumberSegment(index, this.size)
+                    this[index] = data.replaceRange(2, 4,
+                        segNumSeg.toHexString())
+                }
             }
+            val transmissionIndex = ImageTransmissionProtocol
+                .getTransmissionIndex(applicationContext, sessionId) ?: 0
+
+            val notification = createForegroundNotification(
+                intent,
+                icon = icon,
+                progress = transmissionIndex,
+                maxProgress = dividedMessages.size,
+            ).notification
+
+            startForeground(notificationId, notification)
+
+            sendMessage(
+                address = address,
+                subscriptionId = subscriptionId,
+                transmissionIndex = transmissionIndex
+            )
+
         }
-
-        val notification = createForegroundNotification(
-            intent,
-            icon = icon,
-            progress = 0,
-            maxProgress = dividedMessages.size,
-        ).notification
-
-        startForeground(notificationId, notification)
-
-        sendMessage(
-            address = address,
-            subscriptionId = subscriptionId,
-            transmissionIndex = 0
-        )
-
         return START_STICKY
     }
 
@@ -155,7 +159,8 @@ class ImageTransmissionService : Service() {
             bundle = Bundle().apply {
                 putBoolean(SmsWorkManager.ITP_TRANSMISSION_REQUEST, true)
             }
-        ) { }
+        ) {
+        }
     }
 
     private fun createForegroundNotification(
@@ -311,7 +316,7 @@ class ImageTransmissionService : Service() {
                     if (resultCode == Activity.RESULT_OK) {
                         CoroutineScope(Dispatchers.Default).launch {
                             var transmissionIndex = ImageTransmissionProtocol
-                                .getTransmissionIndex(applicationContext, sessionId) ?: return@launch
+                                .getTransmissionIndex(applicationContext, sessionId) ?: 0
 
                             transmissionIndex += 1
                             if(transmissionIndex >= dividedMessages.size) {
@@ -322,7 +327,7 @@ class ImageTransmissionService : Service() {
                             ImageTransmissionProtocol.storeTransmissionSessionIndex(
                                 context = applicationContext,
                                 sessionId = sessionId,
-                                index = transmissionIndex + 1
+                                index = transmissionIndex
                             )
                             Thread.sleep(5000)
 
@@ -331,6 +336,19 @@ class ImageTransmissionService : Service() {
                                 subscriptionId = subscriptionId,
                                 transmissionIndex = transmissionIndex,
                             )
+
+                            val notification = createForegroundNotification(
+                                intent,
+                                icon = icon,
+                                progress = transmissionIndex,
+                                maxProgress = dividedMessages.size,
+                            ).notification
+
+                            try {
+                                startForeground( notificationId, notification, )
+                            } catch(e: Exception) {
+                                e.printStackTrace()
+                            }
                         }
                     } else {
                         // TODO: could depend on the type of failure
