@@ -18,3 +18,13 @@ fun ByteArray.toShortLittleEndian(
 
     return ((byte2 and 0xFF) shl 8 or (byte1 and 0xFF)).toShort()
 }
+
+fun ByteArray.isHexBytes(): Boolean {
+    val text = try {
+        this.toString(Charsets.US_ASCII)
+    } catch (e: Exception) {
+        return false
+    }
+    if (text.isEmpty()) return false
+    return text.all { it in '0'..'9' || it in 'a'..'f' || it in 'A'..'F' }
+}

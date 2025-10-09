@@ -109,7 +109,7 @@ class ImageTransmissionService : Service() {
         )
 
         CoroutineScope(Dispatchers.Default).launch {
-            dividedMessages = divideImagePayload(
+            dividedMessages = ImageTransmissionProtocol.divideImagePayload(
                 payload,
                 version,
                 sessionId,
@@ -140,7 +140,6 @@ class ImageTransmissionService : Service() {
                 subscriptionId = subscriptionId,
                 transmissionIndex = transmissionIndex
             )
-
         }
         return START_STICKY
     }
@@ -379,56 +378,6 @@ class ImageTransmissionService : Service() {
             intentFilter,
             ContextCompat.RECEIVER_EXPORTED
         )
-    }
-
-    /**
-     * Message type
-     * 	Character limit per message	Bytes for text	Bytes for UDH
-     * Single SMS	160	140 bytes	0 bytes
-     * Concatenated SMS	153	134 bytes	6 bytes
-     */
-    @Throws
-    private fun divideImagePayload(
-        payload: ByteArray,
-        version: Byte,
-        sessionId: Byte,
-        imageLength: Short,
-        textLength: Short,
-    ): MutableList<String> {
-        var encodedPayload = payload
-        val standardSegmentSize = 153
-        val dividedImage = mutableListOf<String>()
-
-        var segmentNumber = 0
-        val segNumberNumberOfSegments: Byte = 0
-        do {
-            var metaData = version.toHexString() +
-                    sessionId.toHexString() +
-                    segNumberNumberOfSegments.toHexString()
-
-            if(segmentNumber == 0) {
-                metaData += imageLength.toHexString() + textLength.toHexString()
-            }
-
-            val size = (standardSegmentSize - metaData.length)
-                .coerceAtMost(encodedPayload.size)
-
-            val buffer = metaData + String(encodedPayload.take(size).toByteArray(),
-                StandardCharsets.UTF_8)
-            if(buffer.length > standardSegmentSize) {
-                throw Exception("Buffer size > $standardSegmentSize")
-            }
-            encodedPayload = encodedPayload.drop(size).toByteArray()
-
-            segmentNumber += 1
-            if(segmentNumber >= 256 / 2) {
-                throw Exception("Segment number > ${256 /2 }")
-            }
-
-            dividedImage.add(buffer)
-        } while(encodedPayload.isNotEmpty())
-
-        return dividedImage
     }
 
     override fun onDestroy() {
