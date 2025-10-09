@@ -12,6 +12,8 @@ import androidx.work.CoroutineWorker
 import androidx.work.Data
 import androidx.work.ListenableWorker
 import androidx.work.WorkerParameters
+import com.afkanerd.lib_smsmms_android.R
+import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.isDefault
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.toByteArray
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.toShortLittleEndian
 import com.afkanerd.smswithoutborders_libsmsmms.receivers.SmsTextReceivedReceiver
@@ -23,6 +25,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
 import java.util.UUID
 import kotlin.coroutines.resume
 
@@ -31,10 +34,24 @@ class SmsWorkManager(
     workerParams: WorkerParameters
 ) : CoroutineWorker(context, workerParams ) {
     override suspend fun doWork(): Result = suspendCancellableCoroutine { cont ->
+        if(!applicationContext.isDefault()) {
+            CoroutineScope(Dispatchers.Main).launch {
+                Toast.makeText(applicationContext,
+                    applicationContext.getString(R.string.not_default_sms_app),
+                    Toast.LENGTH_LONG).show()
+            }
+            cont.resume( Result.failure(
+                Data.Builder().putString("reason", "NOT DEFAULT SMS APP null")
+                    .build())
+            )
+            return@suspendCancellableCoroutine
+        }
+
         val itp = inputData.getByteArray(ITP_PAYLOAD)
         if(itp == null) {
             cont.resume( Result.failure(
                 Data.Builder().putString("reason", "ITP_PAYLOAD null").build()))
+            return@suspendCancellableCoroutine
         }
 
         val address = inputData.getString(ITP_TRANSMISSION_ADDRESS)
@@ -42,55 +59,78 @@ class SmsWorkManager(
             cont.resume(Result.failure(
                 Data.Builder().putString("reason", "ITP_TRANSMISSION_ADDRESS null")
                     .build()))
+            return@suspendCancellableCoroutine
         }
 
         val subscriptionId = inputData.getLong(ITP_TRANSMISSION_SUBSCRIPTION_ID,
             -1)
 
         val icon = inputData.getInt(ITP_SERVICE_ICON, -1).also {
-            if(it == -1)
-                cont.resume( Result.failure(
+            if(it == -1) {
+                cont.resume(
+                    Result.failure(
                         Data.Builder().putString("reason", "ITP_SERVICE_ICON null")
-                            .build()))
+                            .build()
+                    )
+                )
+                return@suspendCancellableCoroutine
+            }
         }
 
         val version = inputData.getByte(ITP_VERSION, -1).also {
-            if(it.toInt() == -1)
+            if(it.toInt() == -1) {
                 cont.resume(
                     Result.failure(
-                        Data.Builder().putString("reason", "ITP_VERSION null").build()))
+                        Data.Builder().putString("reason", "ITP_VERSION null").build()
+                    )
+                )
+                return@suspendCancellableCoroutine
+            }
         }
 
         val sessionId = inputData.getByte(ITP_SESSION_ID, -1).also {
-            if(it.toInt() == -1)
+            if(it.toInt() == -1) {
                 cont.resume(
                     Result.failure(
                         Data.Builder().putString("reason", "ITP_SESSION_ID null")
-                            .build()))
+                            .build()
+                    )
+                )
+                return@suspendCancellableCoroutine
+            }
         }
 
         val imageLength = inputData.getByteArray(ITP_IMAGE_LENGTH).also {
-            if(it == null)
-                cont.resume( Result.failure(
+            if(it == null) {
+                cont.resume(
+                    Result.failure(
                         Data.Builder().putString("reason", "ITP_IMAGE_LENGTH null")
-                            .build()) )
+                            .build()
+                    )
+                )
+                return@suspendCancellableCoroutine
+            }
         }
 
         val textLength = inputData.getByteArray(ITP_TEXT_LENGTH).also {
-            if(it == null)
+            if(it == null) {
                 cont.resume(
                     Result.failure(
                         Data.Builder().putString("reason", "ITP_TEXT_LENGTH null")
-                            .build()) )
+                            .build()
+                    )
+                )
+                return@suspendCancellableCoroutine
+            }
         }
 
         registerReceivers(cont)
 
         startService(
-            itp!!,
+            itp,
             sessionId,
             icon,
-            address!!,
+            address,
             version,
             imageLength!!.toShortLittleEndian(),
             textLength = textLength!!.toShortLittleEndian(),

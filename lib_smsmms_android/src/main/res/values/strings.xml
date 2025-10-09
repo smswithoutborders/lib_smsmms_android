@@ -483,5 +483,6 @@
     <string name="retry">Retry</string>
     <string name="queued_for_sending">Queued for sending…</string>
     <string name="will_resume_sending_shortly">Will resume sending shortly…</string>
+    <string name="not_default_sms_app">Not default SMS app</string>
 
 </resources>
