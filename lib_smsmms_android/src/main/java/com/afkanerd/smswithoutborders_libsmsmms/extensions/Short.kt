@@ -1,8 +1,9 @@
 package com.afkanerd.smswithoutborders_libsmsmms.extensions
 
-fun Short.toByteArray(): ByteArray {
-    return byteArrayOf(
-        (this.toInt() shr 8).toByte(),   // high byte
-        (this.toInt() and 0xFF).toByte() // low byte
-    )
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
+
+fun Short.toLittleEndianBytes(): ByteArray {
+    return ByteBuffer.allocate(2)
+        .order(ByteOrder.LITTLE_ENDIAN).putShort(this).array()
 }

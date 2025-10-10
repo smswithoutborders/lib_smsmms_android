@@ -14,7 +14,6 @@ import androidx.work.ListenableWorker
 import androidx.work.WorkerParameters
 import com.afkanerd.lib_smsmms_android.R
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.isDefault
-import com.afkanerd.smswithoutborders_libsmsmms.extensions.toByteArray
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.toShortLittleEndian
 import com.afkanerd.smswithoutborders_libsmsmms.receivers.SmsTextReceivedReceiver
 import com.afkanerd.smswithoutborders_libsmsmms.services.ImageTransmissionService
