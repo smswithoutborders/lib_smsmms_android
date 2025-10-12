@@ -601,7 +601,6 @@ fun ThreadConversationLayout(
 //                                            )
 //                                        }
 //                                    ) {
-                                    val scope = rememberCoroutineScope()
                                     val offsetX = remember { Animatable(0f) }
                                     val threshold = 300f
 

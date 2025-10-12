@@ -42,6 +42,7 @@ import com.afkanerd.smswithoutborders_libsmsmms.ui.navigation.SettingsScreenNav
 import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.CustomsConversationsViewModel
 import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.SearchViewModel
 import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.ThreadsViewModel
+import kotlinx.coroutines.CoroutineScope
 import kotlin.String
 
 @Composable
