@@ -41,6 +41,7 @@ class ThreadsViewModel: ViewModel() {
         BLOCKED,
         DRAFTS,
         MUTED,
+        CUSTOM,
     }
 
     private val _selectedInbox = MutableLiveData(InboxType.INBOX) // default

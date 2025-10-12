@@ -21,8 +21,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.AlertDialog
-import androidx.compose.material.IconButton
-import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.VolumeOff
 import androidx.compose.material.icons.filled.Android
@@ -35,10 +33,15 @@ import androidx.compose.material.icons.filled.LogoDev
 import androidx.compose.material.icons.filled.NotificationsOff
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Unarchive
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.DrawerState
+import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
@@ -47,6 +50,8 @@ import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.SwipeToDismissBoxState
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -203,6 +208,7 @@ fun ImportDetails(
                 )
             }
         }
+
     )
 }
 
@@ -366,7 +372,8 @@ fun ThreadConversationCard(
 fun ModalDrawerSheetLayout(
     callback: ((ThreadsViewModel.InboxType) -> Unit)? = null,
     selectedItemIndex: ThreadsViewModel.InboxType = ThreadsViewModel.InboxType.INBOX,
-    customComposable: (@Composable ((ThreadsViewModel.InboxType) -> Unit) -> Unit)? = null
+    customComposable:
+    (@Composable ((ThreadsViewModel.InboxType) -> () -> Unit) -> Unit)? = null
 ) {
     ModalDrawerSheet {
         Text(
@@ -378,7 +385,10 @@ fun ModalDrawerSheetLayout(
 
         Column(modifier = Modifier.padding(16.dp)) {
             customComposable?.invoke { inboxType ->
-                callback?.let { it(inboxType) }
+                callback?.invoke(inboxType)
+                return@invoke {
+                    callback?.invoke(inboxType)
+                }
             }
 
             NavigationDrawerItem(
@@ -755,7 +765,7 @@ fun ModalDrawerSheetLayoutPreview() {
                 selected = true,
                 onClick = {},
             )
-        }
+        },
     )
 }
 
