@@ -577,9 +577,6 @@ fun ThreadConversationLayout(
                                         }
                                     }
 
-                                    val initialValue = remember{ mutableStateOf(
-                                        SwipeToDismissBoxValue.Settled ) }
-
                                     val date = if(!inPreviewMode) DateTimeUtils.formatDate(
                                         context,
                                         thread.date
