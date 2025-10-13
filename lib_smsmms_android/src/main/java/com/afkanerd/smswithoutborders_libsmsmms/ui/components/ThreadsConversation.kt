@@ -680,7 +680,6 @@ fun SwipeToDeleteBackground(
                     imageVector = if (inArchive) Icons.Default.Unarchive else Icons.Default.Archive,
                     tint = MaterialTheme.colorScheme.onPrimary,
                     contentDescription = stringResource(R.string.messages_threads_menu_archive),
-                    modifier = Modifier.padding(20.dp)
                 )
             }
         }
@@ -696,7 +695,6 @@ fun SwipeToDeleteBackground(
                     Icons.Default.Delete,
                     tint = MaterialTheme.colorScheme.onError,
                     contentDescription = stringResource(R.string.messages_thread_delete_confirmation_text),
-                    modifier = Modifier.padding(16.dp)
                 )
             }
         }

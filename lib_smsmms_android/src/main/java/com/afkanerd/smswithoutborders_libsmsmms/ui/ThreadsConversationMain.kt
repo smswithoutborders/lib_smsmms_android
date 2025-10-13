@@ -631,35 +631,42 @@ fun ThreadConversationLayout(
                                                 },
                                             )
                                         }
+                                        if(context.settingsGetEnableSwipeBehaviour) {
+
+                                        }
 
                                         Box(
                                             modifier = Modifier
                                                 .offset { IntOffset(offsetX.value.roundToInt(), 0) }
                                                 .fillMaxSize()
                                                 .background(Color.White)
-                                                .draggable(
-                                                    orientation = Orientation.Horizontal,
-                                                    state = rememberDraggableState { delta ->
-                                                        scope.launch {
-                                                            offsetX.snapTo(offsetX.value + delta)
-                                                        }
-                                                    },
-                                                    onDragStopped = {
-                                                        scope.launch {
-                                                            val target = when {
-                                                                offsetX.value < -threshold -> -threshold
-                                                                offsetX.value > threshold -> threshold
-                                                                else -> 0f
+                                                .apply {
+                                                    if(context.settingsGetEnableSwipeBehaviour) {
+                                                        this.draggable(
+                                                            orientation = Orientation.Horizontal,
+                                                            state = rememberDraggableState { delta ->
+                                                                scope.launch {
+                                                                    offsetX.snapTo(offsetX.value + delta)
+                                                                }
+                                                            },
+                                                            onDragStopped = {
+                                                                scope.launch {
+                                                                    val target = when {
+                                                                        offsetX.value < -threshold -> -threshold
+                                                                        offsetX.value > threshold -> threshold
+                                                                        else -> 0f
+                                                                    }
+                                                                    offsetX.animateTo(
+                                                                        target,
+                                                                        animationSpec =
+                                                                            spring(dampingRatio =
+                                                                                Spring.DampingRatioMediumBouncy)
+                                                                    )
+                                                                }
                                                             }
-                                                            offsetX.animateTo(
-                                                                target,
-                                                                animationSpec =
-                                                                    spring(dampingRatio =
-                                                                        Spring.DampingRatioMediumBouncy)
-                                                            )
-                                                        }
+                                                        )
                                                     }
-                                                )
+                                                }
                                         ) {
                                             ThreadConversationCard(
                                                 id = thread.threadId,
