@@ -631,9 +631,6 @@ fun ThreadConversationLayout(
                                                 },
                                             )
                                         }
-                                        if(context.settingsGetEnableSwipeBehaviour) {
-
-                                        }
 
                                         Box(
                                             modifier = Modifier
