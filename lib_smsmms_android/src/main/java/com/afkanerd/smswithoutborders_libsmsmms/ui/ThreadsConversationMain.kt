@@ -580,27 +580,11 @@ fun ThreadConversationLayout(
                                     val initialValue = remember{ mutableStateOf(
                                         SwipeToDismissBoxValue.Settled ) }
 
-                                    val dismissState = getSwipeBehaviour(
-                                        inboxType,
-                                        initialValue.value
-                                    )
-
                                     val date = if(!inPreviewMode) DateTimeUtils.formatDate(
                                         context,
                                         thread.date
                                     ) ?: "" else "Tues"
 
-//                                    SwipeToDismissBox(
-//                                        state = dismissState,
-//                                        gesturesEnabled = context.settingsGetEnableSwipeBehaviour,
-//                                        enableDismissFromStartToEnd = false,
-//                                        backgroundContent = {
-//                                            SwipeToDeleteBackground(
-//                                                inboxType == ThreadsViewModel
-//                                                    .InboxType.ARCHIVED
-//                                            )
-//                                        }
-//                                    ) {
                                     val offsetX = remember { Animatable(0f) }
                                     val threshold = 300f
 
