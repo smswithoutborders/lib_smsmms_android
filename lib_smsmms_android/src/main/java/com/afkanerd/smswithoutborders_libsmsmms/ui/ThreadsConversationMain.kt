@@ -243,7 +243,7 @@ fun ThreadConversationLayout(
                     }
                 },
                 selectedItemIndex = inboxType,
-                customComposable = modalNavigationModalItems
+                customComposable = modalNavigationModalItems,
             )
         },
     ) {
