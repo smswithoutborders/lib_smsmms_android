@@ -12,6 +12,7 @@ import android.os.Binder
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
+import android.util.Base64
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
@@ -64,11 +65,11 @@ class ImageTransmissionService : Service() {
         val version  = intent.getByteExtra(SmsWorkManager.ITP_VERSION, -1)
             .also { if(it.toInt() == -1) return START_NOT_STICKY }
 
-        val imageLength  = intent.getShortExtra(SmsWorkManager.ITP_IMAGE_LENGTH,
-            -1).also { if(it.toInt() == -1) return START_NOT_STICKY }
+        val imageLength  = intent.getByteArrayExtra(SmsWorkManager.ITP_IMAGE_LENGTH).also {
+            if(it == null) return START_NOT_STICKY }
 
-        val textLength  = intent.getShortExtra(SmsWorkManager.ITP_TEXT_LENGTH,
-            -1).also { if(it.toInt() == -1) return START_NOT_STICKY }
+        val textLength  = intent.getByteArrayExtra(SmsWorkManager.ITP_TEXT_LENGTH).also {
+            if(it == null) return START_NOT_STICKY }
 
         val sessionId  = intent.getByteExtra(SmsWorkManager.ITP_SESSION_ID, -1)
 
@@ -112,15 +113,13 @@ class ImageTransmissionService : Service() {
                 payload,
                 version,
                 sessionId,
-                imageLength,
-                textLength
+                imageLength!!,
+                textLength!!
             ).apply {
-                forEachIndexed { index, data ->
-                    val segNumSeg = ImageTransmissionProtocol
-                        .getSegNumberNumberSegment(index, this.size)
-                    this[index] = data.replaceRange(2, 4,
-                        segNumSeg.toHexString())
-                }
+                val header = Base64.decode(this[0].take(8), Base64.DEFAULT)
+                header[3] = this.size.toByte()
+                this[0] = this[0].replaceRange(0, 8,
+                    Base64.encodeToString(header, Base64.DEFAULT))
             }
             val transmissionIndex = ImageTransmissionProtocol
                 .getTransmissionIndex(applicationContext, sessionId) ?: 0

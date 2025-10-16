@@ -99,7 +99,7 @@ class SmsWorkManager(
             }
         }
 
-        val imageLength = inputData.getByteArray(ITP_IMAGE_LENGTH).also {
+        val imageLength = inputData.getByteArray(ITP_IMAGE_LENGTH) .also {
             if(it == null) {
                 cont.resume(
                     Result.failure(
@@ -131,8 +131,8 @@ class SmsWorkManager(
             icon,
             address,
             version,
-            imageLength!!.toShortLittleEndian(),
-            textLength = textLength!!.toShortLittleEndian(),
+            imageLength!!,
+            textLength = textLength!!,
             subscriptionId = subscriptionId,
         )
     }
@@ -180,8 +180,8 @@ class SmsWorkManager(
         icon: Int,
         address: String,
         version: Byte,
-        imageLength: Short,
-        textLength: Short,
+        imageLength: ByteArray,
+        textLength: ByteArray,
         subscriptionId: Long = -1,
     ) {
         val intent = Intent(
