@@ -1,6 +1,7 @@
 package com.afkanerd.smswithoutborders_libsmsmms.ui
 
 import android.content.res.Configuration
+import android.graphics.Color
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -21,6 +22,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardColors
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -87,7 +90,7 @@ fun SettingsMain(
     val currentNightMode = LocalConfiguration.current.uiMode and Configuration.UI_MODE_NIGHT_MASK
 
     var localeExpanded by remember { mutableStateOf(inPreviewMode) }
-    var themeExpanded by remember { mutableStateOf(inPreviewMode) }
+    var themeExpanded by remember { mutableStateOf(false) }
 
     var storeTelephonyDb by remember {
         mutableStateOf(context.settingsGetStoreTelephonyDb)
@@ -138,7 +141,7 @@ fun SettingsMain(
             Spacer(modifier = Modifier.height(4.dp))
             SettingsItem(
                 itemTitle = stringResource(R.string.language),
-                itemDescription = context.getCurrentLocale()?.displayName ?: "English",
+                itemDescription = context.getCurrentLocale()?.displayName ?: stringResource(R.string.english),
                 checked = null,
             ) {
                 localeExpanded = true
@@ -276,6 +279,7 @@ fun SettingsItem(
     itemTitle: String,
     itemDescription: String? = null,
     checked: Boolean? = null,
+    isWarning: Boolean = false,
     onClickCallback: (Boolean?) -> Unit,
 ) {
     val inPreviewMode = LocalInspectionMode.current
@@ -289,7 +293,11 @@ fun SettingsItem(
         },
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp)
+            .padding(8.dp),
+        colors = CardDefaults.cardColors(
+            if(isWarning) MaterialTheme.colorScheme.error
+            else MaterialTheme.colorScheme.surface
+        )
     ) {
         Row(
             modifier = Modifier.padding(16.dp),
@@ -300,14 +308,17 @@ fun SettingsItem(
                     itemTitle,
                     fontSize = 14.sp,
                     modifier = Modifier.padding(bottom=8.dp),
-                    style = MaterialTheme.typography.titleSmall
+                    style = MaterialTheme.typography.titleSmall,
+                    color = if(isWarning) MaterialTheme.colorScheme.onError else
+                        MaterialTheme.colorScheme.onSurface
                 )
                 itemDescription?.let {
                     Text(
                         it,
                         fontSize = 14.sp,
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.outline
+                        color = if(isWarning) MaterialTheme.colorScheme.surfaceVariant
+                        else MaterialTheme.colorScheme.onSurface
                     )
                 }
             }
