@@ -153,9 +153,7 @@ dependencies {
     // Optional - Included automatically by material, only add when you need
     // the icons but not the material library (e.g. when using Material3 or a
     // custom design system based on Foundation)
-    implementation 'androidx.compose.material:material-icons-core'
-    // Optional - Add full set of material icons
-    implementation 'androidx.compose.material:material-icons-extended'
+    implementation 'androidx.compose.material:material-icons-core:1.7.8'
     // Optional - Add window size utils
     implementation 'androidx.compose.material3.adaptive:adaptive'
 
@@ -186,4 +184,5 @@ dependencies {
     implementation "androidx.datastore:datastore-preferences-core:1.1.7"
     implementation "androidx.work:work-runtime-ktx:2.10.5"
     implementation "androidx.datastore:datastore-preferences:1.1.7"
+    implementation "androidx.compose.material:material-icons-extended:1.7.8"
 }
