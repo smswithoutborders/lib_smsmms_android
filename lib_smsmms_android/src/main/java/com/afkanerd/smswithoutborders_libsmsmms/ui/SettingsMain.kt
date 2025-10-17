@@ -280,10 +280,12 @@ fun SettingsItem(
     itemDescription: String? = null,
     checked: Boolean? = null,
     isWarning: Boolean = false,
+    enabled: Boolean = true,
     onClickCallback: (Boolean?) -> Unit,
 ) {
     val inPreviewMode = LocalInspectionMode.current
     Card(
+        enabled = enabled,
         onClick = {
             if(!inPreviewMode) {
                 if(checked != null)
