@@ -116,9 +116,9 @@ class ImageTransmissionService : Service() {
                 imageLength!!,
                 textLength!!
             ).apply {
-                val header = Base64.decode(this[0].take(8), Base64.DEFAULT)
+                val header = Base64.decode(this[0].take(12), Base64.DEFAULT)
                 header[3] = this.size.toByte()
-                this[0] = this[0].replaceRange(0, 8,
+                this[0] = this[0].replaceRange(0, 12,
                     Base64.encodeToString(header, Base64.DEFAULT))
             }
             val transmissionIndex = ImageTransmissionProtocol
