@@ -57,7 +57,6 @@ class ImageTransmissionService : Service() {
         super.onCreate()
         notificationManager = getSystemService(NOTIFICATION_SERVICE)
         as NotificationManager
-
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -121,13 +120,14 @@ class ImageTransmissionService : Service() {
                 }
         }
 
-        handleBroadcast(
-            sessionId = sessionId,
-            address = address,
-            subscriptionId = subscriptionId,
-            icon = icon,
-            workId = workId!!
-        )
+        if(!::messageStateChangedBroadcast.isInitialized) {
+            handleBroadcast(
+                sessionId = sessionId,
+                address = address,
+                subscriptionId = subscriptionId,
+                icon = icon,
+            )
+        }
 
         CoroutineScope(Dispatchers.Default).launch {
             val payload = ImageTransmissionProtocol.getCacheImage(applicationContext, sessionId)
@@ -325,7 +325,6 @@ class ImageTransmissionService : Service() {
         icon: Int,
         address: String,
         subscriptionId: Long,
-        workId: String,
     ) {
         val intentFilter = IntentFilter()
         intentFilter.addAction(SmsTextReceivedReceiver.SMS_SENT_BROADCAST_INTENT)
@@ -395,6 +394,7 @@ class ImageTransmissionService : Service() {
                 }
             }
         }
+
         ContextCompat.registerReceiver(
             this,
             messageStateChangedBroadcast,
