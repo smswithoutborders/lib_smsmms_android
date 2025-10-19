@@ -19,13 +19,7 @@ class NotificationActionImpl: BroadcastReceiver() {
 
         when(intent.action) {
             NOTIFICATION_STOP_ACTION_INTENT_ACTION -> {
-                context?.startService(
-                    Intent(
-                        context,
-                        ImageTransmissionService::class.java
-                    ).apply {
-                        putExtra(SmsWorkManager.ITP_STOP_SERVICE, true)
-                } )
+                context?.sendBroadcast(Intent(SmsWorkManager.ITP_SERVICE_COMPLETION))
             }
             NOTIFICATION_PAUSE_ACTION_INTENT_ACTION -> {
             }

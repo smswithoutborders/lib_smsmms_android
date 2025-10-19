@@ -46,13 +46,6 @@ class SmsWorkManager(
             return@suspendCancellableCoroutine
         }
 
-        val itp = inputData.getByteArray(ITP_PAYLOAD)
-        if(itp == null) {
-            cont.resume( Result.failure(
-                Data.Builder().putString("reason", "ITP_PAYLOAD null").build()))
-            return@suspendCancellableCoroutine
-        }
-
         val address = inputData.getString(ITP_TRANSMISSION_ADDRESS)
         if(address == null) {
             cont.resume(Result.failure(
@@ -123,30 +116,53 @@ class SmsWorkManager(
             }
         }
 
-        registerReceivers(cont)
 
-        startService(
-            itp,
-            sessionId,
-            icon,
-            address,
-            version,
-            imageLength!!,
-            textLength = textLength!!,
-            subscriptionId = subscriptionId,
-        )
+        val intent = Intent(
+            applicationContext,
+            ImageTransmissionService::class.java
+        ).apply {
+            putExtra(ITP_SESSION_ID, sessionId)
+            putExtra(ITP_SERVICE_ICON, icon)
+            putExtra(ITP_VERSION, version)
+            putExtra(ITP_IMAGE_LENGTH, imageLength)
+            putExtra(ITP_TEXT_LENGTH, textLength)
+            putExtra(ITP_TRANSMISSION_ADDRESS, address)
+            putExtra(ITP_TRANSMISSION_SUBSCRIPTION_ID, subscriptionId)
+            putExtra(ITP_WORK_MANAGER_UUID, id.toString())
+        }
+
+        registerReceivers(cont, sessionId)
+
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                applicationContext.startForegroundService(intent)
+            } else {
+                applicationContext.startService(intent)
+            }
+        } catch(e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     private lateinit var completedSendingBroadcast: BroadcastReceiver
     private lateinit var retrySendingBroadcast: BroadcastReceiver
     fun registerReceivers(
-        cont: CancellableContinuation<Result>
+        cont: CancellableContinuation<Result>,
+        sessionId: Byte,
     ) {
         val filter = IntentFilter(ITP_SERVICE_COMPLETION)
         completedSendingBroadcast = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
-                cont.resume(Result.success())
-                applicationContext.unregisterReceiver(this)
+                try {
+                    applicationContext.unregisterReceiver(this)
+                    cont.resume(Result.success())
+                } catch(e: Exception) {
+                    e.printStackTrace()
+                } finally {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        ImageTransmissionProtocol.clearImageCache(applicationContext, sessionId)
+                    }
+                }
             }
         }
         ContextCompat.registerReceiver(
@@ -160,6 +176,7 @@ class SmsWorkManager(
         retrySendingBroadcast = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
                 try {
+                    applicationContext.unregisterReceiver(this)
                     cont.resume(Result.retry())
                 } catch (e: Exception) {
                     e.printStackTrace()
@@ -173,43 +190,6 @@ class SmsWorkManager(
             ContextCompat.RECEIVER_EXPORTED
         )
     }
-
-    fun startService(
-        itp: ByteArray,
-        sessionId: Byte,
-        icon: Int,
-        address: String,
-        version: Byte,
-        imageLength: ByteArray,
-        textLength: ByteArray,
-        subscriptionId: Long = -1,
-    ) {
-        val intent = Intent(
-            applicationContext,
-            ImageTransmissionService::class.java
-        ).apply {
-            putExtra(ITP_PAYLOAD, itp)
-            putExtra(ITP_SESSION_ID, sessionId)
-            putExtra(ITP_SERVICE_ICON, icon)
-            putExtra(ITP_VERSION, version)
-            putExtra(ITP_IMAGE_LENGTH, imageLength)
-            putExtra(ITP_TEXT_LENGTH, textLength)
-            putExtra(ITP_TRANSMISSION_ADDRESS, address)
-            putExtra(ITP_TRANSMISSION_SUBSCRIPTION_ID, subscriptionId)
-            putExtra(ITP_WORK_MANAGER_UUID, id.toString())
-        }
-
-        try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                applicationContext.startForegroundService(intent)
-            } else {
-                applicationContext.startService(intent)
-            }
-        } catch(e: Exception) {
-            e.printStackTrace()
-        }
-    }
-
 
     companion object {
         const val ITP_PAYLOAD = "ITP_PAYLOAD"

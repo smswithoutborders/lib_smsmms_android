@@ -117,7 +117,7 @@ object NotificationsInitializer {
         context: Context,
         notificationManager: NotificationManager
     ) {
-        val importance = NotificationManager.IMPORTANCE_HIGH
+        val importance = NotificationManager.IMPORTANCE_LOW
 
         val channel = NotificationChannel(
             notificationsChannelIds[4],

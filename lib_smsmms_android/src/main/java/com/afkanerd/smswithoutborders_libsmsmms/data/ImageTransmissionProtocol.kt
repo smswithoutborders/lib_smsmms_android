@@ -44,7 +44,7 @@ data class ImageTransmissionProtocol(
         const val STANDARD_SEGMENT_SIZE = 153
         const val STANDARD_ENCODED_HEADER_SIZE = 12
 
-        fun startWorkManager(
+        suspend fun startWorkManager(
             context: Context,
             formattedPayload: ByteArray,
             logo: Int,
@@ -78,7 +78,6 @@ data class ImageTransmissionProtocol(
                     TimeUnit.MILLISECONDS
                 )
                 .setInputData(Data.Builder()
-                    .putByteArray(SmsWorkManager.ITP_PAYLOAD, formattedPayload)
                     .putInt(SmsWorkManager.ITP_SERVICE_ICON, logo)
                     .putByte(SmsWorkManager.ITP_VERSION, version)
                     .putByte(SmsWorkManager.ITP_SESSION_ID, sessionId)
@@ -90,6 +89,8 @@ data class ImageTransmissionProtocol(
                 )
                 .addTag(SmsWorkManager.IMAGE_TRANSMISSION_WORK_MANAGER_TAG)
                 .build();
+
+            cacheImage(context, sessionId, formattedPayload)
 
             return workManager.enqueueUniqueWork(
                 "$SmsWorkManager.IMAGE_TRANSMISSION_WORK_MANAGER_TAG.${
@@ -117,6 +118,33 @@ data class ImageTransmissionProtocol(
             context.dataStore.edit { session ->
                 session[key] = index
             }
+        }
+
+        suspend fun cacheImage(
+            context: Context,
+            sessionId: Byte,
+            payload: ByteArray,
+        ) {
+            val key = byteArrayPreferencesKey("session_index_image_$sessionId")
+            context.dataStore.edit { session ->
+                session[key] = payload
+            }
+        }
+
+        suspend fun getCacheImage(
+            context: Context,
+            sessionId: Byte,
+        ) : ByteArray? {
+            val key = byteArrayPreferencesKey("session_index_image_$sessionId")
+            return context.dataStore.data.first()[key]
+        }
+
+        suspend fun clearImageCache(
+            context: Context,
+            sessionId: Byte,
+        ) {
+            val key = byteArrayPreferencesKey("session_index_image_$sessionId")
+            context.dataStore.edit { it.remove(key) }
         }
 
         suspend fun getItpSession(context: Context) : Int {

@@ -1,6 +1,7 @@
 package com.afkanerd.smswithoutborders_libsmsmms.services
 
 import android.app.Activity
+import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
 import android.content.BroadcastReceiver
@@ -29,6 +30,7 @@ import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getThreadId
 import com.afkanerd.smswithoutborders_libsmsmms.receivers.NotificationActionImpl
 import com.afkanerd.smswithoutborders_libsmsmms.receivers.SmsTextReceivedReceiver
 import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.ConversationsViewModel
+import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -44,22 +46,24 @@ class ImageTransmissionService : Service() {
     private lateinit var messageStateChangedBroadcast: BroadcastReceiver
     private var notificationId: Int = -1
 
+    private lateinit var notificationManager: NotificationManager
+    private lateinit var workState: WorkInfo.State
+
     override fun onBind(intent: Intent?): IBinder? {
         TODO("Implement binder")
+    }
+
+    override fun onCreate() {
+        super.onCreate()
+        notificationManager = getSystemService(NOTIFICATION_SERVICE)
+        as NotificationManager
+
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         notificationId = getString(R.string.foreground_service_image_transmission_notification_id).toInt()
 
-        if(intent?.hasExtra(SmsWorkManager.ITP_STOP_SERVICE) == true) {
-            stopSelf()
-            return START_NOT_STICKY
-        }
-
-        val payload  = intent?.getByteArrayExtra(SmsWorkManager.ITP_PAYLOAD)
-            ?: return START_NOT_STICKY
-
-        val address  = intent.getStringExtra(SmsWorkManager.ITP_TRANSMISSION_ADDRESS)
+        val address  = intent?.getStringExtra(SmsWorkManager.ITP_TRANSMISSION_ADDRESS)
             ?: return START_NOT_STICKY
 
         val version  = intent.getByteExtra(SmsWorkManager.ITP_VERSION, -1)
@@ -80,23 +84,39 @@ class ImageTransmissionService : Service() {
         val workId = intent.getStringExtra(SmsWorkManager.ITP_WORK_MANAGER_UUID)
 
         CoroutineScope(Dispatchers.Default).launch {
-            WorkManager.getInstance(applicationContext)
-                .getWorkInfoByIdFlow(UUID.fromString(workId))
+            val workIdUuid = UUID.fromString(workId)
+            val workManager = WorkManager.getInstance(applicationContext)
+            workManager
+                .getWorkInfoByIdFlow(workIdUuid)
                 .collect { workInfo ->
-                    if(workInfo?.state == WorkInfo.State.ENQUEUED) {
-                        val notification = createForegroundNotification(
-                            intent,
-                            icon = icon,
-                            progress = 0,
-                            maxProgress = dividedMessages.size,
-                            isQueue = true
-                        ).notification
+                    workState = workInfo!!.state
 
-                        startForeground(notificationId, notification)
-                    }
+                    when(workInfo.state) {
+                        WorkInfo.State.ENQUEUED -> {
+                            val transmissionIndex = ImageTransmissionProtocol
+                                .getTransmissionIndex(applicationContext, sessionId) ?: 0
+                            val notification = createForegroundNotification(
+                                intent,
+                                icon = icon,
+                                progress = transmissionIndex,
+                                maxProgress = dividedMessages.size,
+                                isQueue = true
+                            ).notification
 
-                    if(workInfo?.state == WorkInfo.State.CANCELLED) {
-                        stopSelf()
+                            notificationManager.notify(notificationId, notification)
+                        }
+                        WorkInfo.State.CANCELLED,
+                        WorkInfo.State.SUCCEEDED -> {
+                            if(::messageStateChangedBroadcast.isInitialized) {
+                                try {
+                                    unregisterReceiver(messageStateChangedBroadcast)
+                                } catch(e: IllegalArgumentException) {
+                                    e.printStackTrace()
+                                }
+                            }
+                            stopSelf()
+                        }
+                        else -> {}
                     }
                 }
         }
@@ -105,10 +125,14 @@ class ImageTransmissionService : Service() {
             sessionId = sessionId,
             address = address,
             subscriptionId = subscriptionId,
-            icon = icon
+            icon = icon,
+            workId = workId!!
         )
 
         CoroutineScope(Dispatchers.Default).launch {
+            val payload = ImageTransmissionProtocol.getCacheImage(applicationContext, sessionId)
+                ?: return@launch
+
             dividedMessages = ImageTransmissionProtocol.divideImagePayload(
                 payload,
                 version,
@@ -301,6 +325,7 @@ class ImageTransmissionService : Service() {
         icon: Int,
         address: String,
         subscriptionId: Long,
+        workId: String,
     ) {
         val intentFilter = IntentFilter()
         intentFilter.addAction(SmsTextReceivedReceiver.SMS_SENT_BROADCAST_INTENT)
@@ -317,7 +342,7 @@ class ImageTransmissionService : Service() {
 
                             transmissionIndex += 1
                             if(transmissionIndex >= dividedMessages.size) {
-                                stopSelf()
+                                sendBroadcast(Intent(SmsWorkManager.ITP_SERVICE_COMPLETION))
                                 return@launch
                             }
 
@@ -328,30 +353,34 @@ class ImageTransmissionService : Service() {
                             )
                             Thread.sleep(5000)
 
-                            sendMessage(
-                                address = address,
-                                subscriptionId = subscriptionId,
-                                transmissionIndex = transmissionIndex,
-                            )
+                            when(workState) {
+                                WorkInfo.State.ENQUEUED,
+                                WorkInfo.State.RUNNING -> {
+                                    println("Sending new message: $transmissionIndex")
 
-                            val notification = createForegroundNotification(
-                                intent,
-                                icon = icon,
-                                progress = transmissionIndex,
-                                maxProgress = dividedMessages.size,
-                            ).notification
+                                    sendMessage(
+                                        address = address,
+                                        subscriptionId = subscriptionId,
+                                        transmissionIndex = transmissionIndex,
+                                    )
 
-                            try {
-                                startForeground( notificationId, notification, )
-                            } catch(e: Exception) {
-                                e.printStackTrace()
+                                    val notification = createForegroundNotification(
+                                        intent,
+                                        icon = icon,
+                                        progress = transmissionIndex,
+                                        maxProgress = dividedMessages.size,
+                                    ).notification
+
+                                    notificationManager.notify(notificationId, notification)
+                                }
+                                else -> {}
                             }
                         }
                     } else {
-                        // TODO: could depend on the type of failure
                         CoroutineScope(Dispatchers.Default).launch {
                             val transmissionIndex = ImageTransmissionProtocol
                                 .getTransmissionIndex(applicationContext, sessionId) ?: return@launch
+
                             val notification = createForegroundNotification(
                                 intent,
                                 icon = icon,
@@ -360,11 +389,7 @@ class ImageTransmissionService : Service() {
                                 isRetry = true
                             ).notification
 
-                            try {
-                                startForeground( notificationId, notification, )
-                            } catch(e: Exception) {
-                                e.printStackTrace()
-                            }
+                            notificationManager.notify(notificationId, notification)
                         }
                     }
                 }
@@ -378,16 +403,5 @@ class ImageTransmissionService : Service() {
         )
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        sendBroadcast(Intent(SmsWorkManager.ITP_SERVICE_COMPLETION))
-        if(::messageStateChangedBroadcast.isInitialized) {
-            try {
-                unregisterReceiver(messageStateChangedBroadcast)
-            } catch(e: IllegalArgumentException) {
-                e.printStackTrace()
-            }
-        }
-    }
 
 }
