@@ -63,6 +63,7 @@ import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MonotonicFrameClock
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -120,6 +121,8 @@ import com.google.accompanist.permissions.rememberPermissionState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlin.coroutines.CoroutineContext
 import kotlin.math.roundToInt
 
 data class ThreadsConversationParameters(
@@ -183,7 +186,7 @@ fun ThreadConversationLayout(
     val listState = rememberLazyListState()
     val scrollBehaviour = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
 
-    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val drawerState = threadsViewModel.drawerState.collectAsState()
 
     val selectedIconColors = MaterialTheme.colorScheme.primary
 
@@ -231,16 +234,12 @@ fun ThreadConversationLayout(
     }
 
     ModalNavigationDrawer(
-        drawerState = drawerState,
+        drawerState = drawerState.value,
         drawerContent = {
             ModalDrawerSheetLayout(
                 callback = { type ->
                     threadsViewModel.setInboxType(type)
-                    scope.launch {
-                        drawerState.apply {
-                            if(isClosed) open() else close()
-                        }
-                    }
+                    threadsViewModel.toggleDrawerValue()
                 },
                 selectedItemIndex = inboxType,
                 customComposable = modalNavigationModalItems,
@@ -266,12 +265,7 @@ fun ThreadConversationLayout(
                                 },
                                 navigationIcon = {
                                     IconButton(onClick = {
-                                        scope.launch {
-                                            drawerState.apply {
-                                                if(isClosed) { open() }
-                                                else { close() }
-                                            }
-                                        }
+                                        threadsViewModel.toggleDrawerValue()
                                     }) {
                                         Icon(
                                             imageVector = Icons.Filled.Menu,
@@ -445,11 +439,7 @@ fun ThreadConversationLayout(
                                 },
                                 navigationIcon = {
                                     IconButton(onClick = {
-                                        scope.launch {
-                                            drawerState.apply {
-                                                if(isClosed) open() else close()
-                                            }
-                                        }
+                                        threadsViewModel.toggleDrawerValue()
                                     }) {
                                         Icon(
                                             imageVector = Icons.Filled.Menu,
