@@ -27,6 +27,7 @@ import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.loadNativesFo
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.loadRawSmsMmsDb
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.loadRawThreads
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.makeE16PhoneNumber
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
