@@ -184,7 +184,7 @@ private fun ConversationSent(
         Column {
             Card(
                 colors = CardDefaults.cardColors(
-                    containerColor = if(isSelected) MaterialTheme.colorScheme.tertiaryContainer
+                    containerColor = if(isSelected) MaterialTheme.colorScheme.secondary
                     else MaterialTheme.colorScheme.primary
                 ),
                 modifier = Modifier
@@ -203,7 +203,8 @@ private fun ConversationSent(
                     text= text,
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.padding(16.dp),
-                    color = if(isSelected) MaterialTheme.colorScheme.onPrimaryContainer
+                    color = if(isSelected)
+                        MaterialTheme.colorScheme.onSecondary
                     else color
                 )
             }
