@@ -33,7 +33,11 @@ fun Context.notify(
     title: String? = null,
 ) {
     if(actions) insertNotificationSessions(conversation, self)
-    val builder = getNotificationBuilder(conversation, actions, cls)
+    val builder = getNotificationBuilder(
+        conversation,
+        actions,
+        cls,
+    )
 
     val address = conversation.sms!!.address!!
     val contactName = retrieveContactName(address)
@@ -73,26 +77,12 @@ fun Context.notify(
                 .setGroupConversation(false)
                 .setConversationTitle(title ?: (contactName ?: conversation.sms?.address!!))
         }
-    } else {
-        style.addMessage(
-            if(Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
-                NotificationCompat.MessagingStyle.Message(
-                    text ?: conversation.sms?.body,
-                    System.currentTimeMillis(),
-                    sender.name
-                )
-            } else {
-                NotificationCompat.MessagingStyle.Message(
-                    text ?: conversation.sms?.body,
-                    System.currentTimeMillis(),
-                    sender
-                )
-            }
-        )
-            .setGroupConversation(false)
-            .setConversationTitle(title ?: (contactName ?: conversation.sms?.address!!))
+        builder.setStyle(style)
     }
-    builder.setStyle(style)
+    else {
+        builder.setContentTitle(title ?: (contactName ?: conversation.sms?.address!!))
+        builder.setContentText(text ?: conversation.sms?.body)
+    }
 
     with(NotificationManagerCompat.from(this)) {
         if (ActivityCompat.checkSelfPermission(
@@ -130,7 +120,7 @@ class NotificationsDelImpl: BroadcastReceiver() {
 fun Context.getNotificationBuilder(
     conversation: Conversations,
     actions: Boolean,
-    cls: Class<*>
+    cls: Class<*>,
 ): NotificationCompat.Builder {
     val contactName = retrieveContactName(conversation.sms!!.address!!)
     val sender = Person.Builder()
@@ -158,7 +148,6 @@ fun Context.getNotificationBuilder(
     return NotificationCompat.Builder(
         this,
         getString(R.string.incoming_messages_channel_id))
-//        .setContentTitle(contactName ?: conversation.address)
         .setWhen(System.currentTimeMillis())
         .setDefaults(Notification.DEFAULT_ALL)
         .setSmallIcon(R.drawable.dekusms_icon_default)

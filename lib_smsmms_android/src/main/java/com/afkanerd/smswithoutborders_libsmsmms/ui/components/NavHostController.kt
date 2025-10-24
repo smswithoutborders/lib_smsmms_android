@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material3.DrawerState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -41,6 +42,7 @@ import com.afkanerd.smswithoutborders_libsmsmms.ui.navigation.SettingsScreenNav
 import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.CustomsConversationsViewModel
 import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.SearchViewModel
 import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.ThreadsViewModel
+import kotlinx.coroutines.CoroutineScope
 import kotlin.String
 
 @Composable
@@ -53,7 +55,8 @@ fun NavHostControllerInstance(
     customMenuItems: (@Composable ((Boolean) -> Unit) -> Unit)? = null,
     conversationsCustomComposable: (@Composable (CustomsConversationsViewModel?) -> Unit)? = null,
     conversationsCustomViewModel: CustomsConversationsViewModel? = null,
-    modalNavigationModalItems: (@Composable ((ThreadsViewModel.InboxType) -> Unit) -> Unit)? = null,
+    modalNavigationModalItems:
+    (@Composable ((ThreadsViewModel.InboxType) -> () -> Unit) -> Unit)? = null,
     startDestination: Any = HomeScreenNav(),
     customBottomBar: @Composable (() -> Unit)? = null,
     customThreadsView: @Composable (() -> Unit)? = null,

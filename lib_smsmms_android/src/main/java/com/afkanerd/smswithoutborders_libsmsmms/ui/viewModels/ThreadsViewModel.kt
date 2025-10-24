@@ -3,9 +3,14 @@ package com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels
 import android.content.Context
 import android.content.Intent
 import android.provider.Telephony
+import androidx.compose.material3.DrawerState
+import androidx.compose.material3.DrawerValue
+import androidx.compose.runtime.MonotonicFrameClock
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.AndroidUiDispatcher
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -22,6 +27,7 @@ import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.loadNativesFo
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.loadRawSmsMmsDb
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.loadRawThreads
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.makeE16PhoneNumber
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -29,8 +35,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.coroutines.CoroutineContext
 
 class ThreadsViewModel: ViewModel() {
+
     var messagesLoading by mutableStateOf(false)
     var secondaryMessagesLoading by mutableStateOf(false)
     var foldOpenConversation by mutableStateOf("")
@@ -41,6 +49,20 @@ class ThreadsViewModel: ViewModel() {
         BLOCKED,
         DRAFTS,
         MUTED,
+        CUSTOM,
+    }
+
+
+    private val _drawerState =
+        MutableStateFlow(DrawerState(DrawerValue.Closed)) // default
+    val drawerState: StateFlow<DrawerState> get() = _drawerState.asStateFlow()
+
+    fun toggleDrawerValue() {
+        viewModelScope.launch(AndroidUiDispatcher.Main) {
+            _drawerState.value.apply {
+                if(isClosed) open() else close()
+            }
+        }
     }
 
     private val _selectedInbox = MutableLiveData(InboxType.INBOX) // default

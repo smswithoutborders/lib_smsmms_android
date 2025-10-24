@@ -296,7 +296,7 @@ private fun Context.getSmsPendingIntents(
     val sentPendingIntent = PendingIntent.getBroadcast(
         this,
         conversation.id.toInt(),
-        Intent(this, SmsTextReceivedReceiver::class.java).apply {
+        Intent().apply {
             setPackage(packageName)
             action = if(conversation.sms_data == null)
                 SmsTextReceivedReceiver.SMS_SENT_BROADCAST_INTENT else
@@ -315,7 +315,7 @@ private fun Context.getSmsPendingIntents(
     val deliveredPendingIntent = PendingIntent.getBroadcast(
         this,
         conversation.id.toInt(),
-        Intent(this, SmsTextReceivedReceiver::class.java).apply {
+        Intent().apply {
             setPackage(packageName)
             action = if(conversation.sms_data == null)
                 SmsTextReceivedReceiver.SMS_DELIVERED_BROADCAST_INTENT else
