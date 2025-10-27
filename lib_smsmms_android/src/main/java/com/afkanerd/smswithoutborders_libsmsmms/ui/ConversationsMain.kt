@@ -591,7 +591,7 @@ fun ConversationsMainLayout(
                         mmsValueChanged = {
                             typingMmsImage = it
                         },
-                        mmsCancelCallback = {
+                        mmsCancelledCallback = {
                             typingMmsImage = null
                         },
                         sendMmsCallback = {
@@ -715,10 +715,6 @@ fun ConversationsMainLayout(
                             }
                         }
 
-                        val contentUri by remember{
-                            mutableStateOf(conversation.mms_content_uri?.toUri())
-                        }
-
                         ConversationsCard(
                             text= text,
                             timestamp = timestamp,
@@ -727,7 +723,7 @@ fun ConversationsMainLayout(
                             position = position,
                             date = date,
                             showDate = showDate,
-                            mmsContentUri = contentUri,
+                            mmsContentUri = typingMmsImage,
                             mmsMimeType = conversation.mms_mimetype,
                             mmsFilename = conversation.mms_filename,
                             onClickCallback = {
@@ -751,9 +747,9 @@ fun ConversationsMainLayout(
                                     showFailedRetryModal = true
                                 }
                                 else {
-                                    if(contentUri != null) {
+                                    if(typingMmsImage != null) {
                                         navController.navigate(ImageViewScreenNav(
-                                            contentUri = contentUri.toString(),
+                                            contentUri = typingMmsImage.toString(),
                                             address = contactName,
                                             date = date,
                                             filename = conversation.mms_filename
@@ -886,155 +882,6 @@ fun ConversationsMainLayout(
         })
     }
 
-}
-
-@Composable
-fun MmsContentView(
-    contentUri: Uri,
-    mimeType: String,
-    filename: String?,
-    isSelected: Boolean,
-    type: Int,
-    isSending: Boolean = false,
-    onClickCallback: (() -> Unit)?,
-    onLongClickCallback: (() -> Unit)?,
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp),
-        horizontalArrangement = if(isSending) Arrangement.End else Arrangement.Start
-    ) {
-        Box(
-            modifier = Modifier
-                .wrapContentSize(if(isSending)
-                    Alignment.CenterEnd else Alignment.CenterStart),
-        ) {
-            when {
-                mimeType.contains("image") -> {
-                    AsyncImage(
-                        model = contentUri,
-                        contentDescription = stringResource(R.string.mms_image),
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .combinedClickable(
-                                onClick = {
-                                    onClickCallback?.let { it() }
-                                },
-                                onLongClick ={
-                                    onLongClickCallback?.let { it() }
-                                }
-                            )
-                            .size(200.dp)
-                            .aspectRatio(1f)  // This ensures a square aspect ratio
-                            .clip(RoundedCornerShape(10.dp))
-                    )
-                }
-                mimeType.contains("video") -> {
-                    val imageLoader = ImageLoader.Builder(LocalContext.current)
-                        .components {
-                            add(VideoFrameDecoder.Factory())
-                        }
-                        .build()
-
-                    val painter = rememberAsyncImagePainter(
-                        model = contentUri,
-                        imageLoader = imageLoader,
-                    )
-
-                    Image(
-                        painter = painter,
-                        contentDescription = stringResource(R.string.mms_video),
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .size(200.dp)
-                            .aspectRatio(1f)  // This ensures a square aspect ratio
-                            .clip(RoundedCornerShape(10.dp)),
-                    )
-                }
-                else -> {
-                    val inPreview = LocalInspectionMode.current
-                    val filename by remember{
-                        mutableStateOf(if(inPreview) "filename.txt" else filename)
-                    }
-                    Card {
-                        Row(
-                            modifier = Modifier.padding(16.dp),
-                            horizontalArrangement = Arrangement.Center,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            // TODO:
-//                            Icon(painterResource(R.drawable.ic_alert), "")
-//                            filename?.let {
-//                                Text(
-//                                    it,
-//                                    modifier = Modifier.padding(start=16.dp)
-//                                )
-//                            }
-                        }
-                    }
-                }
-            }
-
-            if(isSelected) {
-                Surface(
-                    color = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.4f),
-                    modifier = Modifier
-                        .matchParentSize()
-                        .clip(RoundedCornerShape(10.dp))
-                ) {
-                    // Optional: Add content on top of the overlay if needed
-                    // Text("Overlay Text", color = Color.White)
-                }
-            }
-        }
-
-        if(LocalInspectionMode.current || type == Telephony.Sms.MESSAGE_TYPE_FAILED) {
-            Column(modifier = Modifier
-                .align(Alignment.CenterVertically)) {
-                IconButton(onClick = {}) {
-                    Icon(
-                        Icons.Default.Info,
-                        "Message failed icon",
-//                        tint= colorResource(R.color.design_default_color_error)
-                        tint= MaterialTheme.colorScheme.error
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Preview
-@Composable
-fun PreviewMmsImage_Image() {
-    val context = LocalContext.current
-    Column {
-        MmsContentView(
-            context.getUriForDrawable(R.drawable.github_mark)!!,
-            "image/jpeg",
-            "demo.txt",
-            true,
-            Telephony.Mms.MESSAGE_BOX_SENT,
-            isSending = true,
-            onClickCallback = {}) {
-        }
-    }
-}
-
-@Preview
-@Composable
-fun PreviewMmsImage_filepath() {
-    Column {
-        MmsContentView(
-            "content://file/path".toUri(),
-            "text/v-card",
-            "demo.txt",
-            false,
-            Telephony.Mms.MESSAGE_BOX_SENT,
-            onClickCallback = {}) {
-        }
-    }
 }
 
 @Preview

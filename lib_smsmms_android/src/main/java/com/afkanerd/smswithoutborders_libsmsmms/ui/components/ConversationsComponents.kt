@@ -14,12 +14,15 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresExtension
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -30,6 +33,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
@@ -48,10 +52,12 @@ import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.outlined.AddCircleOutline
 import androidx.compose.material.icons.outlined.InsertPhoto
 import androidx.compose.material.icons.outlined.PhotoLibrary
 import androidx.compose.material.icons.outlined.SimCard
 import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -63,6 +69,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.SheetValue
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberStandardBottomSheetState
@@ -94,14 +101,19 @@ import androidx.compose.ui.tooling.preview.datasource.LoremIpsum
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.net.toUri
 import androidx.navigation.NavController
+import coil3.ImageLoader
 import coil3.compose.AsyncImage
+import coil3.compose.rememberAsyncImagePainter
+import coil3.video.VideoFrameDecoder
 import com.afkanerd.lib_smsmms_android.BuildConfig
 import com.afkanerd.lib_smsmms_android.R
 import com.afkanerd.smswithoutborders_libsmsmms.data.entities.Conversations
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.copyItemToClipboard
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getSimCardInformation
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getSubscriptionBitmap
+import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getUriForDrawable
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.shareItem
 import com.afkanerd.smswithoutborders_libsmsmms.ui.navigation.ComposeNewMessageScreenNav
 import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.ConversationsViewModel
@@ -226,9 +238,9 @@ fun ChatCompose(
     value: String,
     valueChanged: ((String) -> Unit)? = null,
     mmsValueChanged: ((Uri) -> Unit)? = null,
+    mmsCancelledCallback: (() -> Unit)? = null,
     subscriptionId: Long = -1,
     sendMmsCallback: (Uri) -> Unit,
-    mmsCancelCallback: (() -> Unit)? = null,
     simCardChooserCallback: (() -> Unit)? = null,
     smsSendCallback: () -> Unit
 ) {
@@ -244,145 +256,164 @@ fun ChatCompose(
         imageUri = uri
     }
 
-    val smsManager = if(Build.VERSION.SDK_INT > Build.VERSION_CODES.Q)
-        context.getSystemService(SmsManager::class.java)
-    else SmsManager.getSmsManagerForSubscriptionId(subscriptionId.toInt())
-
     Column(
         modifier = Modifier
             .imePadding()
             .height(IntrinsicSize.Min)
-            .padding(start = 8.dp, end = 8.dp, top = 4.dp, bottom = 4.dp)
-            .clip(RoundedCornerShape(
-                24.dp,
-                24.dp,
-                24.dp,
-                24.dp)
-            )
-            .background(MaterialTheme.colorScheme.outlineVariant),
+            .fillMaxWidth()
+            .padding(start = 8.dp, end = 4.dp, top = 4.dp, bottom = 4.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.End
     ) {
-        Row {
-            Column(
-                modifier=Modifier.fillMaxHeight(),
-                verticalArrangement = Arrangement.Bottom,
-                horizontalAlignment = Alignment.CenterHorizontally
+        Row( Modifier.fillMaxWidth()) {
+            Row(Modifier
+                .weight(1f)
+                .fillMaxHeight()
+                .clip(RoundedCornerShape(
+                    24.dp,
+                    24.dp,
+                    24.dp,
+                    24.dp)
+                )
+                .background(MaterialTheme.colorScheme.outlineVariant),
             ) {
-                IconButton(onClick = {
-                    imagePicker.launch(arrayOf("*/*"))
-                }) {
-                    Icon(
-                        Icons.Outlined.InsertPhoto,
-                        stringResource(R.string.send_mms_photo),
-                        tint = MaterialTheme.colorScheme.onBackground
-                    )
-                }
-            }
-
-            Column(
-                modifier=Modifier
-                    .weight(1f)
-                    .fillMaxHeight(),
-                verticalArrangement = Arrangement.Bottom,
-                horizontalAlignment = Alignment.End
-            ) {
-
-                BasicTextField(
-                    value = value,
-                    onValueChange = {
-                        valueChanged?.invoke(it)
-                    },
-                    maxLines = 7,
-                    singleLine = false,
-                    textStyle = TextStyle(
-                        color= MaterialTheme.colorScheme.onBackground,
-                        fontSize = 16.sp
-                    ),
-                    cursorBrush = SolidColor(MaterialTheme.colorScheme.onBackground),
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxWidth(),
-                    keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences)
+                Column(
+                    modifier=Modifier.fillMaxHeight(),
+                    verticalArrangement = Arrangement.Bottom,
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    TextFieldDefaults.DecorationBox(
+                    IconButton(onClick = {
+//                    imagePicker.launch(arrayOf("*/*"))
+                        imagePicker.launch(arrayOf("image/png", "image/jpg", "image/jpeg"))
+                    }) {
+                        Icon(
+                            Icons.Outlined.AddCircleOutline,
+                            stringResource(R.string.send_mms_photo),
+                            tint = MaterialTheme.colorScheme.onBackground,
+                            modifier = Modifier.size(30.dp)
+                        )
+                    }
+                }
+
+                Column(
+                    modifier=Modifier
+                        .weight(1f)
+                        .fillMaxHeight(),
+                    verticalArrangement = Arrangement.Bottom,
+                ) {
+                    if(imageUri != null || inPreviewMode) {
+                        ComposeMmsImage(imageUri) {
+                            imageUri = null
+                            mmsCancelledCallback?.invoke()
+                        }
+                    }
+
+                    BasicTextField(
                         value = value,
-                        visualTransformation = VisualTransformation.None,
-                        innerTextField = it,
-                        singleLine = false,
-                        enabled = true,
-                        interactionSource = interactionsSource,
-                        placeholder = {
-                            Text(
-                                text= stringResource(R.string.text_message),
-                                color = MaterialTheme.colorScheme.outline
-                            )
+                        onValueChange = {
+                            valueChanged?.invoke(it)
                         },
-                        shape = RoundedCornerShape(24.dp, 24.dp, 24.dp, 24.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Color.Transparent,
-                            unfocusedBorderColor = Color.Transparent,
-                            focusedContainerColor = Color.Transparent,
-                            unfocusedContainerColor = Color.Transparent,
+                        maxLines = 7,
+                        singleLine = false,
+                        textStyle = TextStyle(
+                            color= MaterialTheme.colorScheme.onBackground,
+                            fontSize = 16.sp
                         ),
-                    )
+                        cursorBrush = SolidColor(MaterialTheme.colorScheme.onBackground),
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth(),
+                        keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences)
+                    ) {
+                        TextFieldDefaults.DecorationBox(
+                            value = value,
+                            visualTransformation = VisualTransformation.None,
+                            innerTextField = it,
+                            singleLine = false,
+                            enabled = true,
+                            interactionSource = interactionsSource,
+                            placeholder = {
+                                Text(
+                                    text= stringResource(R.string.text_message),
+                                    color = MaterialTheme.colorScheme.outline
+                                )
+                            },
+                            shape = RoundedCornerShape(24.dp, 24.dp, 24.dp, 24.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = Color.Transparent,
+                                unfocusedBorderColor = Color.Transparent,
+                                focusedContainerColor = Color.Transparent,
+                                unfocusedContainerColor = Color.Transparent,
+                            ),
+                        )
+                    }
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        if(value.isNotBlank() || inPreviewMode) {
+                            val length = if(inPreviewMode) "10/140"
+                            else getSMSCount(
+                                context,
+                                value,
+                                subscriptionId,
+                            )
+                            Text(
+                                length,
+                                color= MaterialTheme.colorScheme.secondary,
+                                fontSize = 12.sp,
+                                modifier = Modifier.padding(end = 8.dp)
+                            )
+                        }
+                    }
                 }
 
                 Row(
                     modifier = Modifier
-                        .fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
+                        .padding(8.dp)
+                        .fillMaxHeight(),
+                    verticalAlignment = Alignment.Bottom,
                     horizontalArrangement = Arrangement.End
                 ) {
-                    if(value.isNotBlank() || inPreviewMode) {
-                        val length = if(inPreviewMode) "10/140"
-                        else getSMSCount(
-                            context,
-                            value,
-                            smsManager
-                        )
-                        Text(
-                            length,
-                            color= MaterialTheme.colorScheme.secondary,
-                            fontSize = 12.sp,
-                            modifier = Modifier.padding(end = 8.dp)
-                        )
+                    if(simCardChooserCallback != null || inPreviewMode) {
+                        IconButton(
+                            onClick = { simCardChooserCallback!!() },
+                        ) {
+                            if(LocalInspectionMode.current) {
+                                Icon(
+                                    Icons.Outlined.SimCard,
+                                    stringResource(R.string.send_message),
+                                    tint = MaterialTheme.colorScheme.onBackground,
+                                    modifier = Modifier.size(25.dp)
+                                )
+                            } else {
+                                if(subscriptionId > -1) {
+                                    context.getSubscriptionBitmap(
+                                        subscriptionId.toInt())
+                                        ?.asImageBitmap()?.let { image ->
+                                            Image(
+                                                image,
+                                                stringResource(R.string.choose_sim_card),
+                                                modifier = Modifier.size(25.dp)
+                                            )
+                                        }
+                                }
+                            }
+                        }
+
                     }
                 }
             }
 
-            Row(
-                modifier = Modifier.fillMaxHeight(),
-                verticalAlignment = Alignment.Bottom,
-                horizontalArrangement = Arrangement.End
-            ) {
-                if(simCardChooserCallback != null || inPreviewMode) {
-                    IconButton(
-                        onClick = { simCardChooserCallback!!() },
-                    ) {
-                        if(LocalInspectionMode.current) {
-                            Icon(
-                                Icons.Outlined.SimCard,
-                                stringResource(R.string.send_message),
-                                tint = MaterialTheme.colorScheme.onBackground
-                            )
-                        } else {
-                            if(subscriptionId > -1) {
-                                context.getSubscriptionBitmap(
-                                    subscriptionId.toInt())
-                                    ?.asImageBitmap()?.let { image ->
-                                        Image(
-                                            image,
-                                            stringResource(R.string.choose_sim_card)
-                                        )
-                                    }
-                            }
-                        }
-                    }
-
-                }
-
-                if(value.isNotBlank() || imageUri != null || LocalInspectionMode.current) {
+            if(value.isNotBlank() || imageUri != null || LocalInspectionMode.current) {
+                Column(
+                    Modifier.fillMaxHeight(),
+                    verticalArrangement = Arrangement.Bottom,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
                     IconButton(
                         onClick = {
                             if(imageUri != null) {
@@ -392,24 +423,33 @@ fun ChatCompose(
                             }
                             imageUri = null
                         },
+                        modifier = Modifier
+                            .padding(start = 8.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.outlineVariant),
                     ) {
                         Icon(
                             Icons.AutoMirrored.Default.Send,
                             stringResource(R.string.send_message),
-                            tint = MaterialTheme.colorScheme.onBackground
+                            tint = MaterialTheme.colorScheme.onBackground,
                         )
                     }
                 }
             }
         }
+
     }
 }
 
 fun getSMSCount(
     context: Context,
     text: String?,
-    smsManager: SmsManager,
+    subscriptionId: Long,
 ): String {
+    val smsManager = if(Build.VERSION.SDK_INT > Build.VERSION_CODES.Q)
+        context.getSystemService(SmsManager::class.java)
+    else SmsManager.getSmsManagerForSubscriptionId(subscriptionId.toInt())
+
     if(text.isNullOrBlank()) return ""
     val messages = smsManager.divideMessage(text)
     val segmentCount = messages[messages.size - 1].length
@@ -730,8 +770,7 @@ fun ConversationCrudBottomBar(
 
 
 
-@Preview(showBackground = true, name = "Search Counter Light")
-@Preview(showBackground = true, name = "Search Counter Dark", uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES)
+@Preview(showBackground = true)
 @Composable
 fun SearchCounterComposePreview() {
     SearchCounterCompose(
@@ -743,8 +782,7 @@ fun SearchCounterComposePreview() {
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview(showBackground = true, name = "Search TopAppBar Light")
-@Preview(showBackground = true, name = "Search TopAppBar Dark", uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES)
+@Preview(showBackground = true)
 @Composable
 fun SearchTopAppBarTextPreview() {
     SearchTopAppBarText(
@@ -756,8 +794,8 @@ fun SearchTopAppBarTextPreview() {
 
 @RequiresExtension(extension = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, version = 15)
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
-@Preview(showBackground = true, name = "Chat Compose Light")
-@Preview(showBackground = true, name = "Chat Compose Dark", uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES)
+@Preview(showBackground = true)
+@Preview(showBackground = true)
 @Composable
 fun ChatComposePreview() {
     ChatCompose(
@@ -835,7 +873,9 @@ fun ComposeMmsImage(
     onCloseCallback: () -> Unit,
 ) {
     val size = 90.dp
-    val padding = 12.dp;
+    val padding = 12.dp
+    val shape = RoundedCornerShape(24.dp, 24.dp,
+        24.dp, 24.dp)
 
     ElevatedCard(
         elevation = CardDefaults.cardElevation(
@@ -846,15 +886,15 @@ fun ComposeMmsImage(
         Row {
             Column {
                 if(LocalInspectionMode.current) {
-//                    Image(
-//                        painter = painterResource(R.drawable.github_mark),
-//                        contentDescription = stringResource(R.string.mms_selected_image),
-//                        modifier = Modifier
-//                            .padding(padding)
-//                            .size(size)
-//                            .clip(RoundedCornerShape(24.dp, 24.dp, 24.dp, 24.dp)),
-//                        contentScale = ContentScale.Crop,
-//                    )
+                    Image(
+                        painter = painterResource(R.drawable.github_mark),
+                        contentDescription = stringResource(R.string.mms_selected_image),
+                        modifier = Modifier
+                            .padding(padding)
+                            .size(size)
+                            .clip(shape),
+                        contentScale = ContentScale.Crop,
+                    )
                 }
                 else {
                     AsyncImage(
@@ -863,11 +903,7 @@ fun ComposeMmsImage(
                         modifier = Modifier
                             .padding(padding)
                             .size(size)
-                            .clip(
-                                RoundedCornerShape(
-                                    24.dp, 24.dp, 24.dp, 24.dp
-                                )
-                            ),
+                            .clip(shape),
                         contentScale = ContentScale.Crop,
                     )
                 }
@@ -881,5 +917,154 @@ fun ComposeMmsImage(
             }
         }
     }
-
 }
+
+@Composable
+fun MmsContentView(
+    contentUri: Uri,
+    mimeType: String,
+    filename: String?,
+    isSelected: Boolean,
+    type: Int,
+    isSending: Boolean = false,
+    onClickCallback: (() -> Unit)?,
+    onLongClickCallback: (() -> Unit)?,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp),
+        horizontalArrangement = if(isSending) Arrangement.End else Arrangement.Start
+    ) {
+        Box(
+            modifier = Modifier
+                .wrapContentSize(if(isSending)
+                    Alignment.CenterEnd else Alignment.CenterStart),
+        ) {
+            when {
+                mimeType.contains("image") -> {
+                    AsyncImage(
+                        model = contentUri,
+                        contentDescription = stringResource(R.string.mms_image),
+                        contentScale = ContentScale.Crop,
+                        modifier = if(LocalInspectionMode.current) Modifier else Modifier
+                            .combinedClickable(
+                                onClick = {
+                                    onClickCallback?.let { it() }
+                                },
+                                onLongClick ={
+                                    onLongClickCallback?.let { it() }
+                                }
+                            )
+                            .size(200.dp)
+                            .aspectRatio(1f)  // This ensures a square aspect ratio
+                            .clip(RoundedCornerShape(10.dp))
+                    )
+                }
+                mimeType.contains("video") -> {
+                    val imageLoader = ImageLoader.Builder(LocalContext.current)
+                        .components {
+                            add(VideoFrameDecoder.Factory())
+                        }
+                        .build()
+
+                    val painter = rememberAsyncImagePainter(
+                        model = contentUri,
+                        imageLoader = imageLoader,
+                    )
+
+                    Image(
+                        painter = painter,
+                        contentDescription = stringResource(R.string.mms_video),
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .size(200.dp)
+                            .aspectRatio(1f)  // This ensures a square aspect ratio
+                            .clip(RoundedCornerShape(10.dp)),
+                    )
+                }
+                else -> {
+                    val inPreview = LocalInspectionMode.current
+                    val filename by remember{
+                        mutableStateOf(if(inPreview) "filename.txt" else filename)
+                    }
+                    Card {
+                        Row(
+                            modifier = Modifier.padding(16.dp),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            // TODO:
+//                            Icon(painterResource(R.drawable.ic_alert), "")
+//                            filename?.let {
+//                                Text(
+//                                    it,
+//                                    modifier = Modifier.padding(start=16.dp)
+//                                )
+//                            }
+                        }
+                    }
+                }
+            }
+
+            if(isSelected) {
+                Surface(
+                    color = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.4f),
+                    modifier = Modifier
+                        .matchParentSize()
+                        .clip(RoundedCornerShape(10.dp))
+                ) {
+                    // Optional: Add content on top of the overlay if needed
+                    // Text("Overlay Text", color = Color.White)
+                }
+            }
+        }
+
+        if(LocalInspectionMode.current || type == Telephony.Sms.MESSAGE_TYPE_FAILED) {
+            Column(modifier = Modifier
+                .align(Alignment.CenterVertically)) {
+                IconButton(onClick = {}) {
+                    Icon(
+                        Icons.Default.Info,
+                        "Message failed icon",
+//                        tint= colorResource(R.color.design_default_color_error)
+                        tint= MaterialTheme.colorScheme.error
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Preview
+@Composable
+fun PreviewMmsImage_Image() {
+    val context = LocalContext.current
+    Column {
+        MmsContentView(
+            context.getUriForDrawable(R.drawable.github_mark)!!,
+            "image/jpeg",
+            "demo.txt",
+            true,
+            Telephony.Mms.MESSAGE_BOX_SENT,
+            isSending = true,
+            onClickCallback = {}) {
+        }
+    }
+}
+
+@Preview
+@Composable
+fun PreviewMmsImage_filepath() {
+    Column {
+        MmsContentView(
+            "content://file/path".toUri(),
+            "text/v-card",
+            "demo.txt",
+            false,
+            Telephony.Mms.MESSAGE_BOX_SENT,
+            onClickCallback = {}) {
+        }
+    }
+}
+
