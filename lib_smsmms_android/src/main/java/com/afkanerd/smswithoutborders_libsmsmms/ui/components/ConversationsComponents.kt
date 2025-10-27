@@ -278,7 +278,9 @@ fun ChatCompose(
                 .background(MaterialTheme.colorScheme.outlineVariant),
             ) {
                 Column(
-                    modifier=Modifier.fillMaxHeight(),
+                    modifier=Modifier
+                        .padding(8.dp)
+                        .fillMaxHeight(),
                     verticalArrangement = Arrangement.Bottom,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
@@ -299,7 +301,6 @@ fun ChatCompose(
                     modifier=Modifier
                         .weight(1f)
                         .fillMaxHeight(),
-                    verticalArrangement = Arrangement.Bottom,
                 ) {
                     if(imageUri != null || inPreviewMode) {
                         ComposeMmsImage(imageUri) {
@@ -348,13 +349,14 @@ fun ChatCompose(
                         )
                     }
 
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.End
-                    ) {
-                        if(value.isNotBlank() || inPreviewMode) {
+                    if(value.isNotBlank() || inPreviewMode) {
+
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.End
+                        ) {
                             val length = if(inPreviewMode) "10/140"
                             else getSMSCount(
                                 context,
