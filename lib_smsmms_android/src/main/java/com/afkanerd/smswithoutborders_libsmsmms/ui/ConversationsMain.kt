@@ -94,6 +94,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import coil3.compose.AsyncImage
+import coil3.toUri
 import coil3.video.VideoFrameDecoder
 import com.afkanerd.lib_smsmms_android.R
 import com.afkanerd.smswithoutborders_libsmsmms.data.data.models.DateTimeUtils
@@ -214,7 +215,8 @@ fun ConversationsMainLayout(
 
     var typingText by remember{ mutableStateOf(text) }
     var typingMmsImage by remember{ mutableStateOf<Uri?>(null) }
-    var subscriptionId by remember{ mutableStateOf( context.getDefaultSimSubscription()) }
+    var subscriptionId by remember{ mutableStateOf( if(inPreviewMode) -1 else
+        context.getDefaultSimSubscription()) }
     var highlightedMessage by remember{ mutableStateOf<Conversations?>(null) }
 
     var isBlocked by remember { mutableStateOf(viewModel.contactIsBlocked(context, address))}
@@ -654,7 +656,12 @@ fun ConversationsMainLayout(
                             if(inPreviewMode) _items!![index]
                             else inboxMessagesItems[index]
                     )?.let { conversation ->
-                        var showDate = index == 0
+                        var showDate by remember{ mutableStateOf(when {
+                            index == 0 ||
+                                    conversation.sms?.status == Telephony.Sms.STATUS_PENDING ||
+                                    conversation.sms?.status == Telephony.Sms.STATUS_FAILED -> true
+                            else -> false
+                        }) }
 
                         var timestamp by remember { mutableStateOf(
                             if(inPreviewMode) "1234567"
@@ -723,7 +730,7 @@ fun ConversationsMainLayout(
                             position = position,
                             date = date,
                             showDate = showDate,
-                            mmsContentUri = typingMmsImage,
+                            mmsContentUri = conversation.mms_content_uri?.toUri(),
                             mmsMimeType = conversation.mms_mimetype,
                             mmsFilename = conversation.mms_filename,
                             onClickCallback = {
@@ -834,15 +841,32 @@ fun ConversationsMainLayout(
                 retryCallback = {
                     highlightedMessage?.let { conversation ->
                         viewModel.delete(context, listOf(conversation)) {
-                            smsManager.sendSms(
-                                context,
-                                text = typingText,
-                                address = address,
-                                subscriptionId = subscriptionId!!,
-                                threadId = threadId,
-                                data = null
-                            ){
-                                highlightedMessage = null
+                            if(conversation.mms_content_uri != null) {
+                                val uri = conversation.mms_content_uri!!.toUri()
+                                viewModel.sendMms(
+                                    context,
+                                    uri,
+                                    text = typingText,
+                                    address = address,
+                                    subscriptionId = subscriptionId!!,
+                                    threadId = threadId,
+                                    filename = context.getFileNameFromUri(uri)
+                                        ?: System.currentTimeMillis().toString(),
+                                    mimeType = context.getMimeTypeFromUri(uri) ?: "image/jpeg"
+                                ){}
+                                typingMmsImage = null
+                                typingText = ""
+                            } else {
+                                smsManager.sendSms(
+                                    context,
+                                    text = typingText,
+                                    address = address,
+                                    subscriptionId = subscriptionId!!,
+                                    threadId = threadId,
+                                    data = null
+                                ){
+                                    highlightedMessage = null
+                                }
                             }
                         }
                     }

@@ -31,6 +31,7 @@ import androidx.compose.material.icons.automirrored.rounded.VolumeUp
 import androidx.compose.material.icons.filled.Archive
 import androidx.compose.material.icons.filled.ChatBubbleOutline
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Notifications
@@ -80,6 +81,7 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
@@ -456,28 +458,27 @@ fun ThreadConversationLayout(
                 },
                 bottomBar = customBottomBar ?: {},
                 floatingActionButton = {
-                    if(customThreadsView != null) null
-                    else {
-                        when(inboxType) {
-                            ThreadsViewModel.InboxType.INBOX -> {
-                                if((isDefault && !messagesAreLoading) || inPreviewMode) {
-                                    ExtendedFloatingActionButton(
-                                        onClick = {
-                                            navController.navigate(
-                                                ComposeNewMessageScreenNav())
-                                        },
-                                        icon = { Icon( Icons.Default.ChatBubbleOutline,
-                                            stringResource(R.string.compose_new_message)) },
-                                        text = { Text(text = stringResource(R.string.compose)) },
-                                        expanded = listState.isScrollingUp(),
-                                        containerColor = MaterialTheme.colorScheme.primaryContainer,
-                                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                                    )
-                                }
+                    when(inboxType) {
+                        ThreadsViewModel.InboxType.INBOX -> {
+                            if((isDefault && !messagesAreLoading) || inPreviewMode) {
+                                ExtendedFloatingActionButton(
+                                    onClick = {
+                                        navController.navigate(
+                                            ComposeNewMessageScreenNav())
+                                    },
+                                    icon = { Icon( Icons.Default.Edit,
+                                        stringResource(R.string.compose_new_message)) },
+                                    text = { Text(
+                                        stringResource(R.string.compose),
+                                        fontWeight = FontWeight.SemiBold
+                                    ) },
+                                    expanded = listState.isScrollingUp(),
+                                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                                )
                             }
-
-                            else -> {}
                         }
+                        else -> {}
                     }
                 }
             ) { innerPadding ->
