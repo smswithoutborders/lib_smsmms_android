@@ -27,18 +27,15 @@ import androidx.compose.material.icons.filled.Android
 import androidx.compose.material.icons.filled.Archive
 import androidx.compose.material.icons.filled.Block
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.DeveloperMode
 import androidx.compose.material.icons.filled.Drafts
 import androidx.compose.material.icons.filled.Inbox
 import androidx.compose.material.icons.filled.LogoDev
 import androidx.compose.material.icons.filled.NotificationsOff
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Unarchive
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.DrawerState
-import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -51,7 +48,6 @@ import androidx.compose.material3.SwipeToDismissBoxState
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -73,10 +69,10 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import coil3.compose.AsyncImage
 import com.afkanerd.lib_smsmms_android.BuildConfig
-import com.afkanerd.smswithoutborders_libsmsmms.extensions.toHslColor
 import com.afkanerd.lib_smsmms_android.R
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.exportRawWithColumnGuesses
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.retrieveContactPhoto
+import com.afkanerd.smswithoutborders_libsmsmms.extensions.toHslColor
 import com.afkanerd.smswithoutborders_libsmsmms.ui.navigation.SettingsScreenNav
 import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.ThreadsViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -489,6 +485,30 @@ fun ModalDrawerSheetLayout(
                 selected = selectedItemIndex == ThreadsViewModel.InboxType.BLOCKED,
                 onClick = { callback?.let{ it(ThreadsViewModel.InboxType.BLOCKED) } }
             )
+
+            if(BuildConfig.DEBUG || LocalInspectionMode.current) {
+                HorizontalDivider(Modifier.padding(8.dp))
+
+                NavigationDrawerItem(
+                    icon = {
+                        Icon(
+                            Icons.Filled.DeveloperMode,
+                            contentDescription = stringResource(R.string.developer_mode)
+                        )
+                    },
+                    label = {
+                        Text(
+                            stringResource(R.string.developers),
+                            fontSize = 14.sp
+                        )
+                    },
+                    badge = {
+                    },
+                    selected = selectedItemIndex == ThreadsViewModel.InboxType.DEVELOPER,
+                    onClick = { callback?.let{ it(ThreadsViewModel.InboxType.DEVELOPER) } }
+                )
+
+            }
         }
     }
 }
@@ -607,22 +627,6 @@ fun ThreadsNavMenuItems(
 
             HorizontalDivider()
 
-//            threadMenuItems?.let { dropMenuItem ->
-//                dropMenuItem.forEach { entry ->
-//                    DropdownMenuItem(
-//                        text = {
-//                            Text(
-//                                text= entry.key,
-//                                color = MaterialTheme.colorScheme.onBackground
-//                            )
-//                        },
-//                        onClick = {
-//                            entry.value()
-//                            dismissCallback?.let { it(false) }
-//                        }
-//                    )
-//                }
-//            }
             threadMenuItems?.invoke{
                 dismissCallback?.invoke(it)
             }
@@ -671,7 +675,7 @@ fun SwipeToDeleteBackground(
     ) {
         Column(Modifier
             .fillMaxHeight()
-            .background( color = MaterialTheme.colorScheme.primary ),
+            .background(color = MaterialTheme.colorScheme.primary),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -686,7 +690,7 @@ fun SwipeToDeleteBackground(
 
         Column(Modifier
             .fillMaxHeight()
-            .background( color = MaterialTheme.colorScheme.error ),
+            .background(color = MaterialTheme.colorScheme.error),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
