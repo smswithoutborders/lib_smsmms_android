@@ -26,8 +26,14 @@ import com.afkanerd.lib_smsmms_android.R
 import com.afkanerd.smswithoutborders_libsmsmms.activities.DeveloperModeNotificationCls
 import com.afkanerd.smswithoutborders_libsmsmms.data.data.models.SmsMmsNatives
 import com.afkanerd.smswithoutborders_libsmsmms.data.entities.Conversations
+import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getDatabase
+import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getThreadId
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getUriForDrawable
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.notify
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -53,13 +59,17 @@ fun DeveloperModemMain(
     ) { innerPadding ->
         Column(Modifier.padding(innerPadding)) {
             DeveloperModeItems("Trigger MMS notification") {
+                val address = "+237123456789"
+                val uri = context.getUriForDrawable(R.drawable.egs_cyberpunk2077_cdprojektred_s1_03_2560x1440_359e77d3cd0a40aebf3bbc130d14c5c7)
+                    .toString()
                 val conversation = Conversations(
-                    mms_text = "Hello world MMS"
+                    mms_text = "Hello world MMS",
+                    mms_mimetype = "image/jpeg"
                 ).apply {
                     sms = SmsMmsNatives.Sms(
-                        _id = -1,
-                        thread_id = -1,
-                        address = "+237123456789",
+                        _id = System.currentTimeMillis(),
+                        thread_id = context.getThreadId(address),
+                        address = address,
                         date = System.currentTimeMillis(),
                         date_sent = System.currentTimeMillis(),
                         read = 0,
@@ -68,8 +78,7 @@ fun DeveloperModemMain(
                         body = "Hello world MMS",
                         sub_id = -1,
                     )
-                    mms_content_uri = context.getUriForDrawable(R.drawable.egs_cyberpunk2077_cdprojektred_s1_03_2560x1440_359e77d3cd0a40aebf3bbc130d14c5c7)
-                        .toString()
+                    mms_content_uri = uri
                     mms = SmsMmsNatives.Mms(
                         _id = -1,
                         thread_id = -1,
@@ -80,7 +89,12 @@ fun DeveloperModemMain(
                     )
                 }
 
-                context.notify(conversation, DeveloperModeNotificationCls::class.java)
+                CoroutineScope(Dispatchers.Default).launch {
+                    context.getDatabase().conversationsDao()?.insert(conversation)
+                    withContext(Dispatchers.Main) {
+                        context.notify(conversation, DeveloperModeNotificationCls::class.java)
+                    }
+                }
             }
         }
     }
