@@ -3,7 +3,6 @@ package com.afkanerd.smswithoutborders_libsmsmms.ui
 import android.content.res.Configuration
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -118,7 +117,6 @@ fun SettingsMain(
         Column(modifier = Modifier
             .verticalScroll(scrollState)
             .padding(innerPadding),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Spacer(modifier = Modifier.height(4.dp))
             SettingsItem(
@@ -293,7 +291,7 @@ fun SettingsItem(
             headlineColor = textColor,
             leadingIconColor = textColor,
             overlineColor = textColor,
-            supportingTextColor = textColor,
+            supportingTextColor = if(isWarning) textColor else MaterialTheme.colorScheme.secondary,
             trailingIconColor = textColor,
             disabledHeadlineColor = textColor,
             disabledLeadingIconColor = textColor,
