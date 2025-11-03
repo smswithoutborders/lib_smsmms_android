@@ -50,6 +50,7 @@ class ThreadsViewModel: ViewModel() {
         DRAFTS,
         MUTED,
         CUSTOM,
+        DEVELOPER,
     }
 
 

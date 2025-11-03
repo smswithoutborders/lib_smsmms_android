@@ -114,6 +114,7 @@ import com.afkanerd.smswithoutborders_libsmsmms.ui.components.ThreadConversation
 import com.afkanerd.smswithoutborders_libsmsmms.ui.components.ThreadsNavMenuItems
 import com.afkanerd.smswithoutborders_libsmsmms.ui.navigation.ComposeNewMessageScreenNav
 import com.afkanerd.smswithoutborders_libsmsmms.ui.navigation.ConversationsScreenNav
+import com.afkanerd.smswithoutborders_libsmsmms.ui.navigation.DeveloperModeScreen
 import com.afkanerd.smswithoutborders_libsmsmms.ui.navigation.HomeScreenNav
 import com.afkanerd.smswithoutborders_libsmsmms.ui.navigation.SearchScreenNav
 import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.ThreadsViewModel
@@ -240,8 +241,12 @@ fun ThreadConversationLayout(
         drawerContent = {
             ModalDrawerSheetLayout(
                 callback = { type ->
-                    threadsViewModel.setInboxType(type)
-                    threadsViewModel.toggleDrawerValue()
+                    if(type == ThreadsViewModel.InboxType.DEVELOPER) {
+                        navController.navigate(DeveloperModeScreen)
+                    } else {
+                        threadsViewModel.setInboxType(type)
+                        threadsViewModel.toggleDrawerValue()
+                    }
                 },
                 selectedItemIndex = inboxType,
                 customComposable = modalNavigationModalItems,

@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.DrawerState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -28,6 +27,7 @@ import com.afkanerd.lib_smsmms_android.R
 import com.afkanerd.smswithoutborders_libsmsmms.ui.ComposeNewMessage
 import com.afkanerd.smswithoutborders_libsmsmms.ui.ContactDetails
 import com.afkanerd.smswithoutborders_libsmsmms.ui.ConversationsMainLayout
+import com.afkanerd.smswithoutborders_libsmsmms.ui.DeveloperModemMain
 import com.afkanerd.smswithoutborders_libsmsmms.ui.ImageViewMain
 import com.afkanerd.smswithoutborders_libsmsmms.ui.SearchThreadsMain
 import com.afkanerd.smswithoutborders_libsmsmms.ui.SettingsMain
@@ -35,6 +35,7 @@ import com.afkanerd.smswithoutborders_libsmsmms.ui.ThreadConversationLayout
 import com.afkanerd.smswithoutborders_libsmsmms.ui.navigation.ComposeNewMessageScreenNav
 import com.afkanerd.smswithoutborders_libsmsmms.ui.navigation.ContactDetailsScreenNav
 import com.afkanerd.smswithoutborders_libsmsmms.ui.navigation.ConversationsScreenNav
+import com.afkanerd.smswithoutborders_libsmsmms.ui.navigation.DeveloperModeScreen
 import com.afkanerd.smswithoutborders_libsmsmms.ui.navigation.HomeScreenNav
 import com.afkanerd.smswithoutborders_libsmsmms.ui.navigation.ImageViewScreenNav
 import com.afkanerd.smswithoutborders_libsmsmms.ui.navigation.SearchScreenNav
@@ -42,8 +43,6 @@ import com.afkanerd.smswithoutborders_libsmsmms.ui.navigation.SettingsScreenNav
 import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.CustomsConversationsViewModel
 import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.SearchViewModel
 import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.ThreadsViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlin.String
 
 @Composable
 fun NavHostControllerInstance(
@@ -127,6 +126,10 @@ fun NavHostControllerInstance(
 
         composable<SettingsScreenNav>{
             SettingsMain(navController = navController)
+        }
+
+        composable<DeveloperModeScreen>{
+            DeveloperModemMain(navController)
         }
 
         composable<ImageViewScreenNav>{ backStackEntry ->
