@@ -829,7 +829,7 @@ fun ConversationsMainLayout(
                                 viewModel.sendMms(
                                     context,
                                     uri,
-                                    text = typingText,
+                                    text = conversation.mms_text ?: conversation.sms?.body ?: "",
                                     address = address,
                                     subscriptionId = subscriptionId!!,
                                     threadId = threadId,
