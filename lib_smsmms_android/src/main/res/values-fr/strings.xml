@@ -365,5 +365,6 @@
     <string name="enable_24_hours_time_format">24-Stunden-Zeitformat aktivieren</string>
     <string name="block_contact">Contact de bloc</string>
     <string name="text_body_cannot_empty">Le corps du texte ne peut pas être vide !</string>
+    <string name="foreground_service_image_transmission_descriptions">Transmission d\'images par SMS</string>
 
 </resources>
