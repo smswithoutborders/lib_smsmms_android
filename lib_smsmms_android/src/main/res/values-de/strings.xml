@@ -12,6 +12,7 @@
     <string name="foreground_service_failed_channel_description">Klicken, um Gateway-Clients wieder zu verbinden</string>
     <string name="message_failed_notifications_descriptions">Benachrichtigungen erhalten, wenn Nachrichten fehlschlagen</string>
 
+    <string name="foreground_service_image_transmission_descriptions">Bildübertragung per SMS</string>
     <string name="gateway_client_service_notification_id" translatable="false">100000000</string>
     <string name="message_failed_notification_id" translatable="false">100000001</string>
 
@@ -390,6 +391,33 @@
     <string name="enable_24_hours_time_format">24-Stunden-Zeitformat aktivieren</string>
     <string name="block_contact">Kontakt blockieren</string>
     <string name="text_body_cannot_empty">Textkörper darf nicht leer sein!</string>
+    <string name="secure">Sicher</string>
+    <string name="image_transmission_service">Bildübertragungsdienst</string>
+    <string name="aspect_ratio_is_locked_width_and_height_will_be_adjusted_proportionally">Das Seitenverhältnis ist fixiert. Breite und Höhe werden proportional angepasst.</string>
+    <string name="quality">Qualität</string>
+    <string name="resize">Größe ändern</string>
+    <string name="compression">Kompression</string>
+    <string name="apply">Anwenden</string>
+    <string name="size">Größe</string>
+    <string name="edit_image">Bild bearbeiten</string>
+    <string name="width">Breite</string>
+    <string name="height">Höhe</string>
+    <string name="sms_est">SMS Est.</string>
+    <string name="sending_images">Bilder senden…</string>
+    <string name="of_sent">%1$d von %2$d gesendet…</string>
+    <string name="stop">Stoppen</string>
+    <string name="pause">Pause</string>
+    <string name="sending_stop">Der Versand wurde gestoppt…</string>
+    <string name="waiting_to_send_of">Warte darauf, %1$d von %2$d zu senden</string>
+    <string name="failed_to_send_message">Nachricht konnte nicht gesendet werden</string>
+    <string name="retry">Wiederholen</string>
+    <string name="queued_for_sending">Zum Senden in die Warteschlange gestellt…</string>
+    <string name="will_resume_sending_shortly">Ich werde den Versand in Kürze wieder aufnehmen…</string>
+    <string name="not_default_sms_app">Nicht die Standard-SMS-App</string>
+    <string name="english">Englisch 1</string>
+    <string name="developers">Entwickler</string>
+    <string name="developer_mode">Entwicklermodus</string>
+    <string name="subject">Betreff: %1$s</string>
 
 
 </resources>
