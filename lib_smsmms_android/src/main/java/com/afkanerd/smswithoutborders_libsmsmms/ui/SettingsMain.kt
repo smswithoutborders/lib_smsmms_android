@@ -262,15 +262,18 @@ fun SettingsItem(
     checked: Boolean? = null,
     isWarning: Boolean = false,
     enabled: Boolean = true,
+    horizontalDivide: Boolean = false,
     onClickCallback: (Boolean?) -> Unit,
 ) {
     val inPreviewMode = LocalInspectionMode.current
     val textColor = when {
         isWarning -> MaterialTheme.colorScheme.onError
-        !enabled -> MaterialTheme.colorScheme.secondary
+        !enabled -> MaterialTheme.colorScheme.onSecondary
         else -> MaterialTheme.colorScheme.onSurface
     }
-    HorizontalDivider()
+    
+    if(horizontalDivide) HorizontalDivider()
+
     ListItem(
         headlineContent = { Text(itemTitle) },
         supportingContent = { itemDescription?.let {Text(itemDescription)} },
@@ -293,7 +296,7 @@ fun SettingsItem(
         colors = ListItemColors(
             containerColor = when {
                 isWarning -> MaterialTheme.colorScheme.error
-                !enabled -> MaterialTheme.colorScheme.secondaryContainer
+                !enabled -> MaterialTheme.colorScheme.secondary
                 else -> MaterialTheme.colorScheme.surface
             },
             headlineColor = textColor,
@@ -301,6 +304,7 @@ fun SettingsItem(
             overlineColor = textColor,
             supportingTextColor = when {
                 isWarning -> textColor
+                !enabled -> MaterialTheme.colorScheme.onSecondary
                 else -> MaterialTheme.colorScheme.secondary
             },
             trailingIconColor = textColor,
