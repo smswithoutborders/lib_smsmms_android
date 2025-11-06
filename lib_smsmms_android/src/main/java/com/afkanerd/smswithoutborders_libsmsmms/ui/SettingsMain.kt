@@ -1,5 +1,6 @@
 package com.afkanerd.smswithoutborders_libsmsmms.ui
 
+import android.R.attr.textColor
 import android.content.res.Configuration
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.clickable
@@ -264,8 +265,11 @@ fun SettingsItem(
     onClickCallback: (Boolean?) -> Unit,
 ) {
     val inPreviewMode = LocalInspectionMode.current
-    val textColor = if(isWarning) MaterialTheme.colorScheme.onError
-        else MaterialTheme.colorScheme.onSurface
+    val textColor = when {
+        isWarning -> MaterialTheme.colorScheme.onError
+        !enabled -> MaterialTheme.colorScheme.secondary
+        else -> MaterialTheme.colorScheme.onSurface
+    }
     HorizontalDivider()
     ListItem(
         headlineContent = { Text(itemTitle) },
@@ -273,6 +277,7 @@ fun SettingsItem(
         trailingContent = {
             checked?.let {
                 Switch(
+                    enabled = enabled,
                     checked = checked,
                     onCheckedChange = {
                         onClickCallback(it)
@@ -280,18 +285,24 @@ fun SettingsItem(
                 )
             }
         },
-        modifier = if(inPreviewMode) Modifier else Modifier.clickable(onClick = {
+        modifier = if(inPreviewMode || !enabled) Modifier else Modifier.clickable(onClick = {
             if(checked != null)
                 onClickCallback(!checked)
             else onClickCallback(null)
-        }, enabled = enabled),
+        }),
         colors = ListItemColors(
-            containerColor = if(isWarning) MaterialTheme.colorScheme.error
-            else MaterialTheme.colorScheme.surface,
+            containerColor = when {
+                isWarning -> MaterialTheme.colorScheme.error
+                !enabled -> MaterialTheme.colorScheme.secondaryContainer
+                else -> MaterialTheme.colorScheme.surface
+            },
             headlineColor = textColor,
             leadingIconColor = textColor,
             overlineColor = textColor,
-            supportingTextColor = if(isWarning) textColor else MaterialTheme.colorScheme.secondary,
+            supportingTextColor = when {
+                isWarning -> textColor
+                else -> MaterialTheme.colorScheme.secondary
+            },
             trailingIconColor = textColor,
             disabledHeadlineColor = textColor,
             disabledLeadingIconColor = textColor,
@@ -306,4 +317,15 @@ fun SettingsMain_Preview() {
     SettingsMain(
         rememberNavController()
     )
+}
+@Preview
+@Composable
+fun SettingsItem_Preview() {
+    SettingsItem(
+        "title",
+        "description",
+        true,
+        false,
+        false
+    ) { }
 }
