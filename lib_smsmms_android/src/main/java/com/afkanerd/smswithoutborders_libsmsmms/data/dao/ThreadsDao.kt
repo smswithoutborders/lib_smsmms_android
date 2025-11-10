@@ -1,21 +1,17 @@
 package com.afkanerd.smswithoutborders_libsmsmms.data.dao
 
-import android.provider.Telephony
 import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
-import com.afkanerd.smswithoutborders_libsmsmms.data.entities.Conversations
 import com.afkanerd.smswithoutborders_libsmsmms.data.entities.Threads
 
 @Dao
 interface ThreadsDao {
 
-    @Query("SELECT * FROM Threads WHERE isArchive = 0 ORDER BY date DESC")
+    @Query("SELECT * FROM Threads WHERE isArchive = 0 AND address IS NOT NULL ORDER BY date DESC")
     fun getThreads(): PagingSource<Int, Threads>
 
     @Query("SELECT * FROM Threads WHERE isArchive = 1 ORDER BY date DESC")
@@ -51,7 +47,8 @@ interface ThreadsDao {
     @Transaction
     fun delete(threads: List<Threads>) {
         deleteThreads(threads)
-        deleteConversations(threads.map { it.threadId })
+        val threadIds = threads.map { it.threadId }
+        deleteConversations(threadIds)
     }
 
     @Query("SELECT " +

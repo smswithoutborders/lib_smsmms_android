@@ -40,8 +40,8 @@ object SmsMmsNatives {
     @Entity
     @Serializable
     data class Mms(
-        val _id: Long,
-        val thread_id: Int,
+        var _id: Long,
+        var thread_id: Int,
         val date: Long,
         val date_sent: Long,
         val msg_box: Int,

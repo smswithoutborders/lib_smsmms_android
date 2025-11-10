@@ -2,6 +2,7 @@ package com.afkanerd.smswithoutborders_libsmsmms.extensions.context
 
 import android.annotation.SuppressLint
 import android.app.PendingIntent
+import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
@@ -447,133 +448,97 @@ fun Context.registerIncomingSms(intent: Intent): Conversations {
 
 
 @Throws
-fun Context.loadRawThreads() : List<String>{
-    val threadIds = mutableListOf<String>()
+fun Context.loadRawThreads() : List<Pair<String, Boolean>>{
+    val threadIds = mutableListOf<Pair<String, Boolean>>()
+
+    fun processCursor(cursor: Cursor, isMms: Boolean) {
+        do {
+            val threadId = cursor.getString(0)
+            val value = Pair(threadId, isMms)
+            if(!threadIds.contains(value))
+                threadIds.add(value)
+        } while(cursor.moveToNext())
+    }
 
     try {
-        val cursor = contentResolver.query(
-            Telephony.Threads.CONTENT_URI,
-            arrayOf(Telephony.Threads._ID, Telephony.Threads.DATE),
-            null,
-            null,
-            "date asc",
-        )
-        if(cursor != null && cursor.moveToFirst()) {
-            do {
-                if(!threadIds.contains(cursor.getString(0)))
-                    threadIds.add(cursor.getString(0))
-            } while(cursor.moveToNext())
-            cursor.close()
-        }
-    } catch(e: Exception) {
-        e.printStackTrace()
+        val bundle = Bundle()
+        bundle.putString(ContentResolver.QUERY_ARG_SQL_GROUP_BY, "thread_id")
+        bundle.putString(ContentResolver.QUERY_ARG_SQL_SORT_ORDER, "date DESC");
+
         contentResolver.query(
             Telephony.Sms.CONTENT_URI,
-            null,
-            "1) GROUP BY (thread_id",
-            null,
-            "date desc"
+            arrayOf("thread_id"),
+            bundle,
+            null
         )?.let { cursor ->
-            if(cursor.moveToFirst()) {
-                do {
-                    if(!threadIds.contains(cursor.getString(0)))
-                        threadIds.add(cursor.getString(0))
-                } while(cursor.moveToNext())
-            }
+            if(cursor.moveToFirst()) { processCursor(cursor, false) }
             cursor.close()
         }
 
         contentResolver.query(
             Telephony.Mms.CONTENT_URI,
-            null,
-            "1) GROUP BY (thread_id",
-            null,
-            "date desc"
+            arrayOf("thread_id"),
+            bundle,
+            null
         )?.let { cursor ->
-            if(cursor.moveToFirst()) {
-                do {
-                    if(!threadIds.contains(cursor.getString(0)))
-                        threadIds.add(cursor.getString(0))
-                } while(cursor.moveToNext())
-            }
+            if(cursor.moveToFirst()) { processCursor(cursor, true) }
             cursor.close()
         }
+    } catch(e: Exception) {
+        e.printStackTrace()
     }
 
     return threadIds
 }
 
-fun Context.loadNativesForThread(threadId: String) : List<Conversations> {
-    val conversationsList = arrayListOf<Conversations>()
-
-    try {
-        // SMS
-        contentResolver.query(
-            Telephony.Sms.CONTENT_URI,
-            null,
-            "thread_id = ?",
-            arrayOf(threadId),
-            "date asc"
-        )?.let { cursor ->
-            if (cursor.moveToFirst()) {
-                do {
-                    parseRawSmsContents(cursor)?.let { it ->
-                        conversationsList.add(Conversations(sms = it.apply {
-                            this.thread_id = getThreadId(this.address!!)
-                        }))
-                    }
-                } while (cursor.moveToNext())
-            }
-            cursor.close()
-        }
-    } catch(e: Exception) {
-        throw e
-    }
-    return conversationsList
-}
-
-
 @Throws
-fun Context.loadRawSmsMmsDb() : List<Conversations>{
+fun Context.loadRawSmsMmsDb(threadId: String? = null, isMms: Boolean) : List<Conversations>{
     val conversationsList = arrayListOf<Conversations>()
 
-    try {
-        // SMS
-        contentResolver.query(
-            Telephony.Sms.CONTENT_URI,
-            null,
-            null,
-            null,
-            "date asc"
-        )?.let { cursor ->
-            if(cursor.moveToFirst()) {
-                do {
-                    parseRawSmsContents(cursor)?.let { it ->
-                        conversationsList.add(Conversations(sms = it.apply {
-                            this.thread_id = getThreadId(this.address!!)
-                        }))
-                    }
-                } while(cursor.moveToNext())
-            }
-            cursor.close()
-        }
+    val selection = if(threadId != null) "thread_id =?" else threadId
+    val selectionArgs = if(threadId != null) arrayOf(threadId) else null
 
-        contentResolver.query(
-            Telephony.Mms.CONTENT_URI,
-            null,
-            null,
-            null,
-            "date asc"
-        )?.let { cursor ->
-            if(cursor.moveToFirst()) {
-                do {
-                    val conversation = MmsParser.parse(this, cursor)
-                    conversation?.sms?.let { conversationsList.add(conversation) }
-                } while(cursor.moveToNext())
+    try {
+        if(!isMms) {
+            // SMS
+            contentResolver.query(
+                Telephony.Sms.CONTENT_URI,
+                null,
+                selection,
+                selectionArgs,
+                "date desc"
+            )?.let { cursor ->
+                if (cursor.moveToFirst()) {
+                    do {
+                        parseRawSmsContents(cursor)?.let { it ->
+                            conversationsList.add(Conversations(sms = it.apply {
+                                this.thread_id = getThreadId(this.address!!)
+                            }))
+                        }
+                    } while (cursor.moveToNext())
+                }
                 cursor.close()
             }
+        } else {
+            contentResolver.query(
+                Telephony.Mms.CONTENT_URI,
+                null,
+                selection,
+                selectionArgs,
+                "date desc"
+            )?.let { cursor ->
+                if(cursor.moveToFirst()) {
+                    do {
+                        val conversation = MmsParser.parse(this, cursor)
+                        if(!conversationsList.any {conv -> conv.mms?._id == conversation?.mms?._id}) {
+                            conversation?.sms?.let { conversationsList.add(conversation) }
+                        }
+                    } while(cursor.moveToNext())
+                    cursor.close()
+                }
+            }
         }
-    } catch(e: Exception) {
+    } catch (e: Exception) {
         throw e
     }
 

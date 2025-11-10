@@ -1,33 +1,25 @@
 package com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels
 
 import android.content.Context
-import android.content.Intent
 import android.provider.Telephony
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
-import androidx.compose.runtime.MonotonicFrameClock
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.AndroidUiDispatcher
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asFlow
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getDatabase
 import com.afkanerd.smswithoutborders_libsmsmms.data.entities.Threads
-import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getThreadId
-import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.loadNativesForThread
+import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getDatabase
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.loadRawSmsMmsDb
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.loadRawThreads
-import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.makeE16PhoneNumber
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -35,7 +27,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlin.coroutines.CoroutineContext
 
 class ThreadsViewModel: ViewModel() {
 
@@ -224,7 +215,6 @@ class ThreadsViewModel: ViewModel() {
 
     fun loadNativesAsync(
         context: Context,
-        deleteDb: Boolean = false,
         completeCallback: () -> Unit,
     ) {
         viewModelScope.launch {
@@ -233,10 +223,11 @@ class ThreadsViewModel: ViewModel() {
 
                 try {
                     val threads = context.loadRawThreads()
-                    threads.forEach { threadId ->
-                        val conversations = context.loadNativesForThread(threadId)
+                    threads.forEach { thread ->
+                        val conversations = context
+                            .loadRawSmsMmsDb(thread.first, thread.second)
                         context.getDatabase().conversationsDao()
-                            ?.insertAllSorted(conversations, deleteDb)
+                            ?.insertAllThreads(conversations, thread.second)
                         messagesLoading = false
                         secondaryMessagesLoading = true
                     }
@@ -252,31 +243,31 @@ class ThreadsViewModel: ViewModel() {
         }
     }
 
-    fun loadNatives(
-        context: Context,
-        deleteDb: Boolean = false,
-        completeCallback: () -> Unit,
-    ) {
-        viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                messagesLoading = true
-
-                try {
-                    val conversations = context.loadRawSmsMmsDb()
-                    context.getDatabase().conversationsDao()
-                        ?.insertAll(conversations, deleteDb)
-
-                } catch(e: Exception) {
-                    e.printStackTrace()
-                } finally {
-                    withContext(Dispatchers.Main) {
-                        messagesLoading = false
-                        completeCallback()
-                    }
-                }
-            }
-        }
-    }
+//    fun loadNatives(
+//        context: Context,
+//        deleteDb: Boolean = false,
+//        completeCallback: () -> Unit,
+//    ) {
+//        viewModelScope.launch {
+//            withContext(Dispatchers.IO) {
+//                messagesLoading = true
+//
+//                try {
+//                    val conversations = context.loadRawSmsMmsDb()
+//                    context.getDatabase().conversationsDao()
+//                        ?.insertAll(conversations, deleteDb)
+//
+//                } catch(e: Exception) {
+//                    e.printStackTrace()
+//                } finally {
+//                    withContext(Dispatchers.Main) {
+//                        messagesLoading = false
+//                        completeCallback()
+//                    }
+//                }
+//            }
+//        }
+//    }
 
     fun isArchived(context: Context, threadId: Int, callback: (Boolean) -> Unit) {
         viewModelScope.launch {

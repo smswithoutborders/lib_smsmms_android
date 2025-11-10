@@ -329,7 +329,9 @@ fun ThreadConversationCard(
                         stringResource(R.string.sms_status_failed_only)+ ": $content"
                     Telephony.Sms.MESSAGE_TYPE_SENT ->
                         stringResource(R.string.messages_thread_you)+ " $content"
-                    else -> if(!mms) content else stringResource(R.string.image)
+                    else -> content.ifEmpty {
+                        if(mms) { stringResource(R.string.image) } else ""
+                    }
                 },
                 color = colorContent,
                 style = MaterialTheme.typography.bodySmall,
@@ -646,7 +648,7 @@ fun ThreadsNavMenuItems(
 //                        Toast.makeText(context,
 //                            context.getString(R.string.reset_complete), Toast.LENGTH_LONG).show()
 //                    }
-                    threadsViewModel.loadNativesAsync(context, true) {
+                    threadsViewModel.loadNativesAsync(context) {
                         Toast.makeText(context,
                             context.getString(R.string.reset_complete), Toast.LENGTH_LONG).show()
                     }

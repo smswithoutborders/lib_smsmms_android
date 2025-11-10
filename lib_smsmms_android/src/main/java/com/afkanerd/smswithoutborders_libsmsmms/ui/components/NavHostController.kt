@@ -27,7 +27,7 @@ import com.afkanerd.lib_smsmms_android.R
 import com.afkanerd.smswithoutborders_libsmsmms.ui.ComposeNewMessage
 import com.afkanerd.smswithoutborders_libsmsmms.ui.ContactDetails
 import com.afkanerd.smswithoutborders_libsmsmms.ui.ConversationsMainLayout
-import com.afkanerd.smswithoutborders_libsmsmms.ui.DeveloperModemMain
+import com.afkanerd.smswithoutborders_libsmsmms.ui.DeveloperModeMain
 import com.afkanerd.smswithoutborders_libsmsmms.ui.ImageViewMain
 import com.afkanerd.smswithoutborders_libsmsmms.ui.SearchThreadsMain
 import com.afkanerd.smswithoutborders_libsmsmms.ui.SettingsMain
@@ -129,7 +129,7 @@ fun NavHostControllerInstance(
         }
 
         composable<DeveloperModeScreen>{
-            DeveloperModemMain(navController)
+            DeveloperModeMain(navController)
         }
 
         composable<ImageViewScreenNav>{ backStackEntry ->

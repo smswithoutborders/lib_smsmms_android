@@ -37,7 +37,7 @@ import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DeveloperModemMain(
+fun DeveloperModeMain(
     navController: NavController,
 ) {
     val context = LocalContext.current
@@ -116,6 +116,6 @@ fun DeveloperModeItems(
 
 @Preview(showBackground = true)
 @Composable
-fun DeveloperModemMain_Preview() {
-    DeveloperModemMain(rememberNavController())
+fun DeveloperModeMain_Preview() {
+    DeveloperModeMain(rememberNavController())
 }

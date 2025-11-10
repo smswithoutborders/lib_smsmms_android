@@ -318,6 +318,7 @@ fun ConversationsMainLayout(
     }
 
     LaunchedEffect(inboxMessagesItems.loadState, searchIndexes) {
+        context.cancelNotification(threadId)
         if(inboxMessagesItems.loadState.isIdle) {
             if(searchIndexes.isNotEmpty() && searchIndex == 0) {
                 if(inboxMessagesItems.itemCount > searchIndexes.first()) {
@@ -331,15 +332,16 @@ fun ConversationsMainLayout(
                 }
             }
 
-            inboxMessagesItems.itemSnapshotList.first()?.sms?.let {
-                if(it.sub_id > -1) {
-                    subscriptionId = it.sub_id
-                    println("Custom subscription: $subscriptionId: " +
-                            context.getSubscriptionName(subscriptionId!!)
-                    )
+            if(inboxMessagesItems.itemSnapshotList.isNotEmpty()) {
+                inboxMessagesItems.itemSnapshotList.first()?.sms?.let {
+                    if(it.sub_id > -1) {
+                        subscriptionId = it.sub_id
+                        println("Custom subscription: $subscriptionId: " +
+                                context.getSubscriptionName(subscriptionId!!)
+                        )
+                    }
                 }
             }
-            context.cancelNotification(threadId)
         }
     }
 
