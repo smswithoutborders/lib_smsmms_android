@@ -198,8 +198,10 @@ fun ConversationsMainLayout(
 
     var typingText by remember{ mutableStateOf(text) }
     var typingMmsImage by remember{ mutableStateOf<Uri?>(null) }
+
     var subscriptionId by remember{ mutableStateOf( if(inPreviewMode) -1 else
         context.getDefaultSimSubscription()) }
+
     var highlightedMessage by remember{ mutableStateOf<Conversations?>(null) }
 
     var isBlocked by remember { mutableStateOf(viewModel.contactIsBlocked(context, address))}
@@ -329,9 +331,16 @@ fun ConversationsMainLayout(
                 }
             }
 
+            inboxMessagesItems.itemSnapshotList.first()?.sms?.let {
+                if(it.sub_id > -1) {
+                    subscriptionId = it.sub_id
+                    println("Custom subscription: $subscriptionId: " +
+                            context.getSubscriptionName(subscriptionId!!)
+                    )
+                }
+            }
             context.cancelNotification(threadId)
         }
-
     }
 
     BackHandler {
@@ -633,7 +642,7 @@ fun ConversationsMainLayout(
                 items(
                     count = if(inPreviewMode) _items!!.size else inboxMessagesItems.itemCount,
                     key =  if(inPreviewMode) { index -> _items!![index].id }
-                    else inboxMessagesItems.itemKey{ it.id }
+                    else inboxMessagesItems.itemKey{ it.id },
                 ) { index ->
                     (
                             if(inPreviewMode) _items!![index]
@@ -651,18 +660,18 @@ fun ConversationsMainLayout(
                             else {
                                 DateTimeUtils
                                     .formatDateExtended(context,
-                                        conversation.sms?.date!!.toLong())
+                                        conversation.sms?.date!!)
                             })
                         }
+
+                        val subscriptionId by remember{
+                            mutableStateOf(conversation.sms?.sub_id ?: subscriptionId) }
 
                         var date by remember { mutableStateOf(
                             if(inPreviewMode) "1234567"
                             else { deriveMetaDate(conversation) +
-                                    if(dualSim && !inPreviewMode) {
-                                        " • " +
-                                                context
-                                                    .getSubscriptionName(
-                                                        subscriptionId!!)
+                                    if(dualSim) {
+                                        " • " + context.getSubscriptionName(subscriptionId!!)
                                     } else ""
                             })
                         }
