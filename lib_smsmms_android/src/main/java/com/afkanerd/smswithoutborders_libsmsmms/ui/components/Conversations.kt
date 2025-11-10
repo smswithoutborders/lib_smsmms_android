@@ -32,7 +32,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalInspectionMode
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextAlign
@@ -43,7 +42,6 @@ import com.afkanerd.lib_smsmms_android.R
 import com.afkanerd.smswithoutborders_libsmsmms.data.data.models.DateTimeUtils
 import com.afkanerd.smswithoutborders_libsmsmms.data.data.models.SmsMmsNatives
 import com.afkanerd.smswithoutborders_libsmsmms.data.entities.Conversations
-import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.CustomsConversationsViewModel
 
 enum class ConversationPositionTypes(val value: Int) {
     NORMAL(0),
@@ -127,10 +125,14 @@ private fun ConversationReceived(
                 ),
                 modifier = Modifier
                     .clip(shape = shape)
-                    .combinedClickable(
-                        onClick = { onClickCallback?.let { it() } },
-                        onLongClick = { onLongClickCallback?.let { it() } }
-                    )
+                    .apply {
+                        if(!LocalInspectionMode.current) {
+                            this.combinedClickable(
+                                onClick = { onClickCallback?.let { it() } },
+                                onLongClick = { onLongClickCallback?.let { it() } }
+                            )
+                        }
+                    }
             ) {
                 Text(
                     text = text,
@@ -189,14 +191,18 @@ private fun ConversationSent(
                 modifier = Modifier
                     .clip(shape = shape)
                     .align(alignment = Alignment.End)
-                    .combinedClickable(
-                        onClick = {
-                            onClickCallback?.let { it() }
-                        },
-                        onLongClick = {
-                            onLongClickCallback?.let { it() }
+                    .apply{
+                        if(!LocalInspectionMode.current) {
+                            this.combinedClickable(
+                                onClick = {
+                                    onClickCallback?.let { it() }
+                                },
+                                onLongClick = {
+                                    onLongClickCallback?.let { it() }
+                                }
+                            )
                         }
-                    )
+                    }
             ) {
                 Text(
                     text= text,
@@ -614,6 +620,24 @@ fun ConversationContactName(
             Text(
                 stringResource(R.string.secured),
                 style = MaterialTheme.typography.titleSmall
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+fun PreviewConversations_Card_Delivered() {
+    Surface(Modifier.safeDrawingPadding()) {
+        Column {
+            ConversationsCard(
+                text = AnnotatedString("Hello world"),
+                timestamp = "Yesterday",
+                date = "Yesterday",
+                type = Telephony.Sms.MESSAGE_TYPE_SENT,
+                position = ConversationPositionTypes.NORMAL,
+                status = Telephony.Sms.STATUS_COMPLETE,
+                isSelected = false,
             )
         }
     }

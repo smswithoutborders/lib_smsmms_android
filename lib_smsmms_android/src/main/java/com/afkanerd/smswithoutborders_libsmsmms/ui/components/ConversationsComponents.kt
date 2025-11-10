@@ -99,7 +99,9 @@ import com.afkanerd.smswithoutborders_libsmsmms.data.entities.Conversations
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.copyItemToClipboard
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getSimCardInformation
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getSubscriptionBitmap
+import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getSubscriptionName
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getUriForDrawable
+import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.isDualSim
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.shareItem
 import com.afkanerd.smswithoutborders_libsmsmms.ui.navigation.ComposeNewMessageScreenNav
 import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.ConversationsViewModel
@@ -219,17 +221,24 @@ fun SearchTopAppBarText(
 @Composable
 fun ChatCompose(
     value: String,
+    subscriptionId: Long,
+    sendMmsCallback: (Uri) -> Unit,
     valueChanged: ((String) -> Unit)? = null,
     mmsValueChanged: ((Uri) -> Unit)? = null,
     mmsCancelledCallback: (() -> Unit)? = null,
-    subscriptionId: Long = -1,
-    sendMmsCallback: (Uri) -> Unit,
     simCardChooserCallback: (() -> Unit)? = null,
     smsSendCallback: () -> Unit
 ) {
     val context = LocalContext.current
     val inPreviewMode = LocalInspectionMode.current
     val interactionsSource = remember { MutableInteractionSource() }
+
+    var subscriptionBitmap by remember{
+        mutableStateOf(context.getSubscriptionBitmap(subscriptionId.toInt())) }
+
+    LaunchedEffect(subscriptionId) {
+        subscriptionBitmap = context.getSubscriptionBitmap(subscriptionId.toInt())
+    }
 
     var imageUri: Uri? by remember { mutableStateOf(null) }
     val imagePicker = mmsImagePicker { uri ->
@@ -369,7 +378,7 @@ fun ChatCompose(
                     verticalAlignment = Alignment.Bottom,
                     horizontalArrangement = Arrangement.End
                 ) {
-                    if(simCardChooserCallback != null || inPreviewMode) {
+                    if(context.isDualSim() || inPreviewMode) {
                         IconButton(
                             onClick = { simCardChooserCallback!!() },
                         ) {
@@ -381,20 +390,13 @@ fun ChatCompose(
                                     modifier = Modifier.size(25.dp)
                                 )
                             } else {
-                                if(subscriptionId > -1) {
-                                    context.getSubscriptionBitmap(
-                                        subscriptionId.toInt())
-                                        ?.asImageBitmap()?.let { image ->
-                                            Image(
-                                                image,
-                                                stringResource(R.string.choose_sim_card),
-                                                modifier = Modifier.size(25.dp)
-                                            )
-                                        }
-                                }
+                                Image(
+                                    subscriptionBitmap!!.asImageBitmap(),
+                                    stringResource(R.string.choose_sim_card),
+                                    modifier = Modifier.size(25.dp)
+                                )
                             }
                         }
-
                     }
                 }
             }
@@ -802,6 +804,7 @@ fun SearchTopAppBarTextPreview() {
 fun ChatComposePreview() {
     ChatCompose(
         value = "Hello there!",
+        subscriptionId = -1,
         sendMmsCallback = {}
     ) {
 
