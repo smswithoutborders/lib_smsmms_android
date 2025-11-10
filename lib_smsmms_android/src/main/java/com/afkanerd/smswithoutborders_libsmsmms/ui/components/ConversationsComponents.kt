@@ -99,7 +99,6 @@ import com.afkanerd.smswithoutborders_libsmsmms.data.entities.Conversations
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.copyItemToClipboard
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getSimCardInformation
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getSubscriptionBitmap
-import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getSubscriptionName
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getUriForDrawable
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.isDualSim
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.shareItem
@@ -234,7 +233,9 @@ fun ChatCompose(
     val interactionsSource = remember { MutableInteractionSource() }
 
     var subscriptionBitmap by remember{
-        mutableStateOf(context.getSubscriptionBitmap(subscriptionId.toInt())) }
+        mutableStateOf(if(inPreviewMode) null
+        else context.getSubscriptionBitmap(subscriptionId.toInt()))
+    }
 
     LaunchedEffect(subscriptionId) {
         subscriptionBitmap = context.getSubscriptionBitmap(subscriptionId.toInt())
@@ -348,7 +349,6 @@ fun ChatCompose(
                     }
 
                     if(value.isNotBlank() || inPreviewMode) {
-
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth(),
@@ -378,7 +378,7 @@ fun ChatCompose(
                     verticalAlignment = Alignment.Bottom,
                     horizontalArrangement = Arrangement.End
                 ) {
-                    if(context.isDualSim() || inPreviewMode) {
+                    if(inPreviewMode || context.isDualSim()) {
                         IconButton(
                             onClick = { simCardChooserCallback!!() },
                         ) {
