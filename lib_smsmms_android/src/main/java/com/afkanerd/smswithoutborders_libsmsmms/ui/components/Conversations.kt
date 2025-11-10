@@ -341,10 +341,10 @@ fun ConversationsCard(
                                 text= when(type) {
                                     Telephony.Sms.MESSAGE_TYPE_SENT -> {
                                         if(status == Telephony.Sms.STATUS_COMPLETE)
-                                            "$date ${stringResource(
+                                            "$date • ${stringResource(
                                                 R.string.sms_status_delivered)}"
                                         else
-                                            "$date " + stringResource(R.string.sms_status_sent)
+                                            "$date • " + stringResource(R.string.sms_status_sent)
                                     }
 
                                     Telephony.Sms.MESSAGE_TYPE_FAILED ->
