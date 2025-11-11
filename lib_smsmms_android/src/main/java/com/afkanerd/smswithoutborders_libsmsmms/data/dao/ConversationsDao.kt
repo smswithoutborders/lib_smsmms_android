@@ -125,16 +125,18 @@ interface ConversationsDao {
         return id
     }
 
-    @Query("DELETE FROM Conversations WHERE thread_id = :threadId OR mms__id == :threadId")
-    fun deleteAllThreadConversations(threadId: Int)
+    @Query("DELETE FROM Conversations WHERE address like :address || '%'")
+    fun deleteAllAddressConversations(address: String)
 
-    @Query("DELETE FROM Threads WHERE threadId = :threadId")
-    fun deleteAllThread(threadId: Int)
+    @Query("DELETE FROM Conversations WHERE address like :address || '%'")
+    fun deleteAllThreads(address: String)
 
     @Transaction
     fun insertAllThreads(conversationsList: List<Conversations>, isMms: Boolean) {
         val conversation = conversationsList.firstOrNull() ?: return
 
+//        deleteAllAddressConversations(conversation.sms?.address!!)
+//        deleteAllThreads(conversation.sms?.address!!)
         insertConversations(conversationsList)
         conversation.sms?.let {
             insertUpdateThread(

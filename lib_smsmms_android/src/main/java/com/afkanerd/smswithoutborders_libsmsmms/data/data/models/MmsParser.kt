@@ -9,6 +9,7 @@ import android.provider.Telephony
 import android.util.Xml
 import androidx.core.net.toUri
 import com.afkanerd.smswithoutborders_libsmsmms.data.entities.Conversations
+import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.findRCSPhoneNumbers
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getThreadId
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.parseRawMmsContents
 import com.klinker.android.send_message.Settings
@@ -170,6 +171,9 @@ object MmsParser {
         fun getConversation(context: Context, cursor: Cursor): Conversations? {
             if(address.isNullOrEmpty()) return null
 
+            address = context.findRCSPhoneNumbers(address!!)?.run {
+                this[0]
+            } ?: address!!.trimEnd()
             val threadId = context.getThreadId(address!!)
             val mms = parseRawMmsContents(cursor)
             mms.thread_id = threadId

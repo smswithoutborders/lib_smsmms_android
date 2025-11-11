@@ -14,8 +14,8 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.afkanerd.lib_smsmms_android.R
 import com.afkanerd.smswithoutborders_libsmsmms.data.data.models.SmsMmsNatives
-import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getDatabase
 import com.afkanerd.smswithoutborders_libsmsmms.data.entities.Conversations
+import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getDatabase
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.sendMms
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.sendSms
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.settingsGetKeepMessagesArchived
@@ -47,7 +47,7 @@ class ConversationsViewModel : ViewModel(),  CustomConversationServices {
     var prefetchDistance: Int = 3 * pageSize
     var enablePlaceholder: Boolean = true
     var initialLoadSize: Int = 2 * pageSize
-    var maxSize: Int = PagingConfig.Companion.MAX_SIZE_UNBOUNDED
+    var maxSize: Int = PagingConfig.MAX_SIZE_UNBOUNDED
 
 
     private var conversationsPager: Flow<PagingData<Conversations>>? = null
