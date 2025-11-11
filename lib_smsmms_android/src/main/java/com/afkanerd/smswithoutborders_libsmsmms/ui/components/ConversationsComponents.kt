@@ -268,6 +268,7 @@ fun ChatCompose(
         Row( Modifier.fillMaxWidth()) {
             Row(Modifier
                 .weight(1f)
+                .fillMaxWidth()
                 .fillMaxHeight()
                 .clip(RoundedCornerShape(
                     24.dp,
@@ -277,26 +278,6 @@ fun ChatCompose(
                 )
                 .background(MaterialTheme.colorScheme.outlineVariant),
             ) {
-                Column(
-                    modifier=Modifier
-                        .padding(8.dp)
-                        .fillMaxHeight(),
-                    verticalArrangement = Arrangement.Bottom,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    IconButton(onClick = {
-//                    imagePicker.launch(arrayOf("*/*"))
-                        imagePicker.launch(arrayOf("image/png", "image/jpg", "image/jpeg"))
-                    }) {
-                        Icon(
-                            Icons.Outlined.AddCircleOutline,
-                            stringResource(R.string.send_mms_photo),
-                            tint = MaterialTheme.colorScheme.onBackground,
-                            modifier = Modifier.size(30.dp)
-                        )
-                    }
-                }
-
                 Column(
                     modifier=Modifier
                         .weight(1f)
@@ -309,96 +290,98 @@ fun ChatCompose(
                         }
                     }
 
-                    BasicTextField(
-                        value = value,
-                        onValueChange = {
-                            valueChanged?.invoke(it)
-                        },
-                        maxLines = 7,
-                        singleLine = false,
-                        textStyle = TextStyle(
-                            color= MaterialTheme.colorScheme.onBackground,
-                            fontSize = 16.sp
-                        ),
-                        cursorBrush = SolidColor(MaterialTheme.colorScheme.onBackground),
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxWidth(),
-                        keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences)
+                    Row(
+                        modifier=Modifier.fillMaxHeight(),
                     ) {
-                        TextFieldDefaults.DecorationBox(
-                            value = value,
-                            visualTransformation = VisualTransformation.None,
-                            innerTextField = it,
-                            singleLine = false,
-                            enabled = true,
-                            interactionSource = interactionsSource,
-                            placeholder = {
-                                Text(
-                                    text= stringResource(R.string.text_message),
-                                    color = MaterialTheme.colorScheme.outline
-                                )
-                            },
-                            shape = RoundedCornerShape(24.dp, 24.dp, 24.dp, 24.dp),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = Color.Transparent,
-                                unfocusedBorderColor = Color.Transparent,
-                                focusedContainerColor = Color.Transparent,
-                                unfocusedContainerColor = Color.Transparent,
-                            ),
-                        )
-                    }
-
-                    if(value.isNotBlank() || inPreviewMode) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.End
+                        Column(
+                            Modifier.fillMaxHeight(),
+                            verticalArrangement = Arrangement.Center
                         ) {
-                            val length = if(inPreviewMode) "10/140"
-                            else getSMSCount(
-                                context,
-                                value,
-                                subscriptionId,
-                            )
-                            Text(
-                                length,
-                                color= MaterialTheme.colorScheme.secondary,
-                                fontSize = 12.sp,
-                                modifier = Modifier.padding(end = 8.dp)
-                            )
-                        }
-                    }
-                }
-
-                Row(
-                    modifier = Modifier
-                        .padding(8.dp)
-                        .fillMaxHeight(),
-                    verticalAlignment = Alignment.Bottom,
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    if(inPreviewMode || context.isDualSim()) {
-                        IconButton(
-                            onClick = { simCardChooserCallback!!() },
-                        ) {
-                            if(LocalInspectionMode.current) {
+                            IconButton(onClick = {
+                                imagePicker.launch(arrayOf("image/png", "image/jpg", "image/jpeg"))
+                            }) {
                                 Icon(
-                                    Icons.Outlined.SimCard,
-                                    stringResource(R.string.send_message),
+                                    Icons.Outlined.AddCircleOutline,
+                                    stringResource(R.string.send_mms_photo),
                                     tint = MaterialTheme.colorScheme.onBackground,
-                                    modifier = Modifier.size(25.dp)
-                                )
-                            } else {
-                                Image(
-                                    subscriptionBitmap!!.asImageBitmap(),
-                                    stringResource(R.string.choose_sim_card),
-                                    modifier = Modifier.size(25.dp)
+                                    modifier = Modifier.size(30.dp)
                                 )
                             }
                         }
+
+                        Column(
+                            Modifier
+                                .weight(1f)
+                                .fillMaxWidth(),
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            BasicTextField(
+                                value = value,
+                                onValueChange = {
+                                    valueChanged?.invoke(it)
+                                },
+                                maxLines = 7,
+                                singleLine = false,
+                                textStyle = TextStyle(
+                                    color= MaterialTheme.colorScheme.onBackground,
+                                    fontSize = 16.sp
+                                ),
+                                cursorBrush = SolidColor(MaterialTheme.colorScheme.onBackground),
+                                modifier = Modifier
+                                    .fillMaxWidth(),
+                                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences)
+                            ) {
+                                TextFieldDefaults.DecorationBox(
+                                    value = value,
+                                    visualTransformation = VisualTransformation.None,
+                                    innerTextField = it,
+                                    singleLine = false,
+                                    enabled = true,
+                                    interactionSource = interactionsSource,
+                                    placeholder = {
+                                        Text(
+                                            text= stringResource(R.string.text_message),
+                                            color = MaterialTheme.colorScheme.outline
+                                        )
+                                    },
+                                    shape = RoundedCornerShape(24.dp, 24.dp, 24.dp, 24.dp),
+                                    colors = OutlinedTextFieldDefaults.colors(
+                                        focusedBorderColor = Color.Transparent,
+                                        unfocusedBorderColor = Color.Transparent,
+                                        focusedContainerColor = Color.Transparent,
+                                        unfocusedContainerColor = Color.Transparent,
+                                    ),
+                                )
+                            }
+                        }
+
+                        Column(
+                            Modifier.fillMaxHeight(),
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            if(inPreviewMode || context.isDualSim()) {
+                                IconButton(
+                                    onClick = { simCardChooserCallback!!() },
+                                ) {
+                                    if(LocalInspectionMode.current) {
+                                        Icon(
+                                            Icons.Outlined.SimCard,
+                                            stringResource(R.string.send_message),
+                                            tint = MaterialTheme.colorScheme.onBackground,
+                                            modifier = Modifier.size(25.dp)
+                                        )
+                                    } else {
+                                        Image(
+                                            subscriptionBitmap!!.asImageBitmap(),
+                                            stringResource(R.string.choose_sim_card),
+                                            modifier = Modifier.size(25.dp)
+                                        )
+                                    }
+                                }
+                            }
+                        }
                     }
+
                 }
             }
 
@@ -408,6 +391,21 @@ fun ChatCompose(
                     verticalArrangement = Arrangement.Bottom,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
+
+                    if(value.isNotBlank() || inPreviewMode) {
+                        val length = if(inPreviewMode) "10/140"
+                        else getSMSCount(
+                            context,
+                            value,
+                            subscriptionId,
+                        )
+                        Text(
+                            length,
+                            color= MaterialTheme.colorScheme.secondary,
+                            fontSize = 12.sp,
+                            modifier = Modifier.padding(end = 8.dp)
+                        )
+                    }
                     IconButton(
                         onClick = {
                             if(imageUri != null) {
@@ -418,7 +416,7 @@ fun ChatCompose(
                             imageUri = null
                         },
                         modifier = Modifier
-                            .padding(start = 8.dp)
+                            .padding(8.dp)
                             .clip(CircleShape)
                             .background(MaterialTheme.colorScheme.outlineVariant),
                     ) {
@@ -426,11 +424,11 @@ fun ChatCompose(
                             verticalArrangement = Arrangement.Center,
                             horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
-                            Spacer(Modifier.weight(1f))
                             Icon(
                                 Icons.AutoMirrored.Default.Send,
                                 stringResource(R.string.send_message),
                                 tint = MaterialTheme.colorScheme.onBackground,
+                                modifier = Modifier.size(20.dp)
                             )
                             Text(
                                 messagingType,
