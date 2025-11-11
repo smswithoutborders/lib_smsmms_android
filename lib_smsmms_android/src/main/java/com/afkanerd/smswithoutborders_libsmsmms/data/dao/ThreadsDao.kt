@@ -57,6 +57,9 @@ interface ThreadsDao {
     @Query("DELETE FROM Conversations WHERE thread_id IN (:threads)")
     fun deleteConversations(threads: List<Int>)
 
+    @Query("DELETE FROM Threads")
+    fun deleteAll()
+
     @Transaction
     fun delete(threads: List<Threads>) {
         deleteThreads(threads)
