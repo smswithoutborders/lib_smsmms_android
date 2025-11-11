@@ -28,7 +28,7 @@ import com.afkanerd.smswithoutborders_libsmsmms.ui.ComposeNewMessage
 import com.afkanerd.smswithoutborders_libsmsmms.ui.ContactDetails
 import com.afkanerd.smswithoutborders_libsmsmms.ui.ConversationsMainLayout
 import com.afkanerd.smswithoutborders_libsmsmms.ui.DeveloperModeMain
-import com.afkanerd.smswithoutborders_libsmsmms.ui.ImageViewMain
+import com.afkanerd.smswithoutborders_libsmsmms.ui.MediaMain
 import com.afkanerd.smswithoutborders_libsmsmms.ui.SearchThreadsMain
 import com.afkanerd.smswithoutborders_libsmsmms.ui.SettingsMain
 import com.afkanerd.smswithoutborders_libsmsmms.ui.ThreadConversationLayout
@@ -134,7 +134,7 @@ fun NavHostControllerInstance(
 
         composable<ImageViewScreenNav>{ backStackEntry ->
             val imageViewScreen: ImageViewScreenNav = backStackEntry.toRoute()
-            ImageViewMain(
+            MediaMain(
                 contentUri = imageViewScreen.contentUri.toUri(),
                 address = imageViewScreen.address,
                 date = imageViewScreen.date,

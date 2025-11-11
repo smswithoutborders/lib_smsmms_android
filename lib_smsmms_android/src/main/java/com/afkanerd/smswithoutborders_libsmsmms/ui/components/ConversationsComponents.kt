@@ -43,6 +43,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.PlayCircle
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.outlined.AddCircleOutline
 import androidx.compose.material.icons.outlined.SimCard
@@ -267,6 +268,7 @@ fun ChatCompose(
         Row( Modifier.fillMaxWidth()) {
             Row(Modifier
                 .weight(1f)
+                .fillMaxWidth()
                 .fillMaxHeight()
                 .clip(RoundedCornerShape(
                     24.dp,
@@ -276,26 +278,6 @@ fun ChatCompose(
                 )
                 .background(MaterialTheme.colorScheme.outlineVariant),
             ) {
-                Column(
-                    modifier=Modifier
-                        .padding(8.dp)
-                        .fillMaxHeight(),
-                    verticalArrangement = Arrangement.Bottom,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    IconButton(onClick = {
-//                    imagePicker.launch(arrayOf("*/*"))
-                        imagePicker.launch(arrayOf("image/png", "image/jpg", "image/jpeg"))
-                    }) {
-                        Icon(
-                            Icons.Outlined.AddCircleOutline,
-                            stringResource(R.string.send_mms_photo),
-                            tint = MaterialTheme.colorScheme.onBackground,
-                            modifier = Modifier.size(30.dp)
-                        )
-                    }
-                }
-
                 Column(
                     modifier=Modifier
                         .weight(1f)
@@ -308,96 +290,98 @@ fun ChatCompose(
                         }
                     }
 
-                    BasicTextField(
-                        value = value,
-                        onValueChange = {
-                            valueChanged?.invoke(it)
-                        },
-                        maxLines = 7,
-                        singleLine = false,
-                        textStyle = TextStyle(
-                            color= MaterialTheme.colorScheme.onBackground,
-                            fontSize = 16.sp
-                        ),
-                        cursorBrush = SolidColor(MaterialTheme.colorScheme.onBackground),
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxWidth(),
-                        keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences)
+                    Row(
+                        modifier=Modifier.fillMaxHeight(),
                     ) {
-                        TextFieldDefaults.DecorationBox(
-                            value = value,
-                            visualTransformation = VisualTransformation.None,
-                            innerTextField = it,
-                            singleLine = false,
-                            enabled = true,
-                            interactionSource = interactionsSource,
-                            placeholder = {
-                                Text(
-                                    text= stringResource(R.string.text_message),
-                                    color = MaterialTheme.colorScheme.outline
-                                )
-                            },
-                            shape = RoundedCornerShape(24.dp, 24.dp, 24.dp, 24.dp),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = Color.Transparent,
-                                unfocusedBorderColor = Color.Transparent,
-                                focusedContainerColor = Color.Transparent,
-                                unfocusedContainerColor = Color.Transparent,
-                            ),
-                        )
-                    }
-
-                    if(value.isNotBlank() || inPreviewMode) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.End
+                        Column(
+                            Modifier.fillMaxHeight(),
+                            verticalArrangement = Arrangement.Center
                         ) {
-                            val length = if(inPreviewMode) "10/140"
-                            else getSMSCount(
-                                context,
-                                value,
-                                subscriptionId,
-                            )
-                            Text(
-                                length,
-                                color= MaterialTheme.colorScheme.secondary,
-                                fontSize = 12.sp,
-                                modifier = Modifier.padding(end = 8.dp)
-                            )
-                        }
-                    }
-                }
-
-                Row(
-                    modifier = Modifier
-                        .padding(8.dp)
-                        .fillMaxHeight(),
-                    verticalAlignment = Alignment.Bottom,
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    if(inPreviewMode || context.isDualSim()) {
-                        IconButton(
-                            onClick = { simCardChooserCallback!!() },
-                        ) {
-                            if(LocalInspectionMode.current) {
+                            IconButton(onClick = {
+                                imagePicker.launch(arrayOf("image/png", "image/jpg", "image/jpeg"))
+                            }) {
                                 Icon(
-                                    Icons.Outlined.SimCard,
-                                    stringResource(R.string.send_message),
+                                    Icons.Outlined.AddCircleOutline,
+                                    stringResource(R.string.send_mms_photo),
                                     tint = MaterialTheme.colorScheme.onBackground,
-                                    modifier = Modifier.size(25.dp)
-                                )
-                            } else {
-                                Image(
-                                    subscriptionBitmap!!.asImageBitmap(),
-                                    stringResource(R.string.choose_sim_card),
-                                    modifier = Modifier.size(25.dp)
+                                    modifier = Modifier.size(30.dp)
                                 )
                             }
                         }
+
+                        Column(
+                            Modifier
+                                .weight(1f)
+                                .fillMaxWidth(),
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            BasicTextField(
+                                value = value,
+                                onValueChange = {
+                                    valueChanged?.invoke(it)
+                                },
+                                maxLines = 7,
+                                singleLine = false,
+                                textStyle = TextStyle(
+                                    color= MaterialTheme.colorScheme.onBackground,
+                                    fontSize = 16.sp
+                                ),
+                                cursorBrush = SolidColor(MaterialTheme.colorScheme.onBackground),
+                                modifier = Modifier
+                                    .fillMaxWidth(),
+                                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences)
+                            ) {
+                                TextFieldDefaults.DecorationBox(
+                                    value = value,
+                                    visualTransformation = VisualTransformation.None,
+                                    innerTextField = it,
+                                    singleLine = false,
+                                    enabled = true,
+                                    interactionSource = interactionsSource,
+                                    placeholder = {
+                                        Text(
+                                            text= stringResource(R.string.text_message),
+                                            color = MaterialTheme.colorScheme.outline
+                                        )
+                                    },
+                                    shape = RoundedCornerShape(24.dp, 24.dp, 24.dp, 24.dp),
+                                    colors = OutlinedTextFieldDefaults.colors(
+                                        focusedBorderColor = Color.Transparent,
+                                        unfocusedBorderColor = Color.Transparent,
+                                        focusedContainerColor = Color.Transparent,
+                                        unfocusedContainerColor = Color.Transparent,
+                                    ),
+                                )
+                            }
+                        }
+
+                        Column(
+                            Modifier.fillMaxHeight(),
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            if(inPreviewMode || context.isDualSim()) {
+                                IconButton(
+                                    onClick = { simCardChooserCallback!!() },
+                                ) {
+                                    if(LocalInspectionMode.current) {
+                                        Icon(
+                                            Icons.Outlined.SimCard,
+                                            stringResource(R.string.send_message),
+                                            tint = MaterialTheme.colorScheme.onBackground,
+                                            modifier = Modifier.size(25.dp)
+                                        )
+                                    } else {
+                                        Image(
+                                            subscriptionBitmap!!.asImageBitmap(),
+                                            stringResource(R.string.choose_sim_card),
+                                            modifier = Modifier.size(25.dp)
+                                        )
+                                    }
+                                }
+                            }
+                        }
                     }
+
                 }
             }
 
@@ -407,6 +391,21 @@ fun ChatCompose(
                     verticalArrangement = Arrangement.Bottom,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
+
+                    if(value.isNotBlank() || inPreviewMode) {
+                        val length = if(inPreviewMode) "10/140"
+                        else getSMSCount(
+                            context,
+                            value,
+                            subscriptionId,
+                        )
+                        Text(
+                            length,
+                            color= MaterialTheme.colorScheme.secondary,
+                            fontSize = 12.sp,
+                            modifier = Modifier.padding(end = 8.dp)
+                        )
+                    }
                     IconButton(
                         onClick = {
                             if(imageUri != null) {
@@ -417,7 +416,7 @@ fun ChatCompose(
                             imageUri = null
                         },
                         modifier = Modifier
-                            .padding(start = 8.dp)
+                            .padding(8.dp)
                             .clip(CircleShape)
                             .background(MaterialTheme.colorScheme.outlineVariant),
                     ) {
@@ -425,11 +424,11 @@ fun ChatCompose(
                             verticalArrangement = Arrangement.Center,
                             horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
-                            Spacer(Modifier.weight(1f))
                             Icon(
                                 Icons.AutoMirrored.Default.Send,
                                 stringResource(R.string.send_message),
                                 tint = MaterialTheme.colorScheme.onBackground,
+                                modifier = Modifier.size(20.dp)
                             )
                             Text(
                                 messagingType,
@@ -938,7 +937,7 @@ fun MmsContentView(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp),
+            .padding(top=8.dp, start=8.dp, end=8.dp),
         horizontalArrangement = if(isSending) Arrangement.End else Arrangement.Start
     ) {
         Box(
@@ -952,18 +951,18 @@ fun MmsContentView(
                         model = contentUri,
                         contentDescription = stringResource(R.string.mms_image),
                         contentScale = ContentScale.Crop,
-                        modifier = if(LocalInspectionMode.current) Modifier else Modifier
-                            .combinedClickable(
-                                onClick = {
-                                    onClickCallback?.let { it() }
-                                },
-                                onLongClick ={
-                                    onLongClickCallback?.let { it() }
-                                }
-                            )
+                        modifier = Modifier
                             .size(200.dp)
                             .aspectRatio(1f)  // This ensures a square aspect ratio
                             .clip(RoundedCornerShape(10.dp))
+                            .then(
+                                if(!LocalInspectionMode.current) {
+                                    Modifier.combinedClickable(
+                                        onClick = { onClickCallback?.invoke() },
+                                        onLongClick = { onLongClickCallback?.invoke() }
+                                    )
+                                } else Modifier
+                            )
                     )
                 }
                 mimeType.contains("video") -> {
@@ -978,15 +977,38 @@ fun MmsContentView(
                         imageLoader = imageLoader,
                     )
 
-                    Image(
-                        painter = painter,
-                        contentDescription = stringResource(R.string.mms_video),
-                        contentScale = ContentScale.Crop,
+                    // 1. Use a Box to stack the Image and the Icon
+                    Box(
                         modifier = Modifier
                             .size(200.dp)
-                            .aspectRatio(1f)  // This ensures a square aspect ratio
+                            .aspectRatio(1f)
+                            .then(
+                                if(!LocalInspectionMode.current) {
+                                    Modifier.combinedClickable(
+                                        onClick = { onClickCallback?.invoke() },
+                                        onLongClick = { onLongClickCallback?.invoke() }
+                                    )
+                                } else Modifier
+                            )
                             .clip(RoundedCornerShape(10.dp)),
-                    )
+                        contentAlignment = Alignment.Center // Center the play button icon
+                    ) {
+                        // 2. The Video Thumbnail (Image) is the bottom layer
+                        Image(
+                            painter = painter,
+                            contentDescription = stringResource(R.string.mms_video),
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.matchParentSize() // Make the image fill the Box size
+                        )
+
+                        // 3. The Play Button Icon is the top layer
+                        Icon(
+                            imageVector = Icons.Default.PlayCircle,
+                            contentDescription = "Play Video",
+                            tint = Color.White, // Set the color of the icon
+                            modifier = Modifier.size(48.dp) // Set a visible size for the icon
+                        )
+                    }
                 }
                 else -> {
                     val inPreview = LocalInspectionMode.current
@@ -999,14 +1021,13 @@ fun MmsContentView(
                             horizontalArrangement = Arrangement.Center,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            // TODO:
-//                            Icon(painterResource(R.drawable.ic_alert), "")
-//                            filename?.let {
-//                                Text(
-//                                    it,
-//                                    modifier = Modifier.padding(start=16.dp)
-//                                )
-//                            }
+                            Icon(painterResource(R.drawable.ic_alert), "")
+                            filename?.let {
+                                Text(
+                                    it,
+                                    modifier = Modifier.padding(start=16.dp)
+                                )
+                            }
                         }
                     }
                 }
@@ -1042,6 +1063,23 @@ fun MmsContentView(
 
 @Preview
 @Composable
+fun PreviewMmsImage_Video() {
+    val context = LocalContext.current
+    Column {
+        MmsContentView(
+            context.getUriForDrawable(R.drawable.github_mark)!!,
+            "video/mp4",
+            "demo.txt",
+            false,
+            Telephony.Mms.MESSAGE_BOX_SENT,
+            isSending = true,
+            onClickCallback = {}) {
+        }
+    }
+}
+
+@Preview
+@Composable
 fun PreviewMmsImage_Image() {
     val context = LocalContext.current
     Column {
@@ -1049,7 +1087,7 @@ fun PreviewMmsImage_Image() {
             context.getUriForDrawable(R.drawable.github_mark)!!,
             "image/jpeg",
             "demo.txt",
-            true,
+            false,
             Telephony.Mms.MESSAGE_BOX_SENT,
             isSending = true,
             onClickCallback = {}) {

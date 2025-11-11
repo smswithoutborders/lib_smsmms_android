@@ -228,8 +228,8 @@ fun ThreadConversationLayout(
                         navController.navigate(DeveloperModeScreen)
                     } else {
                         threadsViewModel.setInboxType(type)
-                        threadsViewModel.toggleDrawerValue()
                     }
+                    threadsViewModel.toggleDrawerValue()
                 },
                 selectedItemIndex = inboxType,
                 customComposable = modalNavigationModalItems,

@@ -3,6 +3,7 @@ package com.afkanerd.smswithoutborders_libsmsmms.ui.components
 import android.net.Uri
 import android.provider.Telephony
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -125,14 +126,14 @@ private fun ConversationReceived(
                 ),
                 modifier = Modifier
                     .clip(shape = shape)
-                    .apply {
+                    .then(
                         if(!LocalInspectionMode.current) {
-                            this.combinedClickable(
-                                onClick = { onClickCallback?.let { it() } },
-                                onLongClick = { onLongClickCallback?.let { it() } }
+                            Modifier.combinedClickable(
+                                onClick = { onClickCallback?.invoke() },
+                                onLongClick = { onLongClickCallback?.invoke() }
                             )
-                        }
-                    }
+                        } else Modifier
+                    )
             ) {
                 Text(
                     text = text,
@@ -191,18 +192,14 @@ private fun ConversationSent(
                 modifier = Modifier
                     .clip(shape = shape)
                     .align(alignment = Alignment.End)
-                    .apply{
+                    .then(
                         if(!LocalInspectionMode.current) {
-                            this.combinedClickable(
-                                onClick = {
-                                    onClickCallback?.let { it() }
-                                },
-                                onLongClick = {
-                                    onLongClickCallback?.let { it() }
-                                }
+                            Modifier.combinedClickable(
+                                onClick = { onClickCallback?.invoke() },
+                                onLongClick = { onLongClickCallback?.invoke() }
                             )
-                        }
-                    }
+                        } else Modifier
+                    )
             ) {
                 Text(
                     text= text,
