@@ -111,7 +111,8 @@ fun NavHostControllerInstance(
             val contactsDetailsScreen: ContactDetailsScreenNav = backStackEntry.toRoute()
             ContactDetails(
                 address = contactsDetailsScreen.address,
-                navController = navController
+                navController = navController,
+                isEncryptionEnabled = contactsDetailsScreen.encryptionAvailable
             )
         }
 

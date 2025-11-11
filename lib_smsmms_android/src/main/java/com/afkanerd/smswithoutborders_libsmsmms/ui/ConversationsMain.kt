@@ -26,6 +26,7 @@ import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.NotificationsOff
+import androidx.compose.material.icons.filled.Security
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -174,7 +175,6 @@ fun ConversationsMainLayout(
     customComposable: (@Composable (CustomsConversationsViewModel?) -> Unit)? = null,
     customMenuItems: (@Composable ((Boolean) -> Unit) -> Unit)? = null,
     customsConversationsViewModel: CustomsConversationsViewModel? = null,
-    _items: List<Conversations>? = null
 ) {
     var text = text
     val readPhoneStatePermission = rememberPermissionState(requiredReadPhoneStatePermissions)
@@ -272,7 +272,6 @@ fun ConversationsMainLayout(
     val inboxMessagesItems = messages.collectAsLazyPagingItems()
 
     val selectedItems by viewModel.selectedItems.collectAsState()
-
 
     val scrollBehaviour = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
 
@@ -427,7 +426,13 @@ fun ConversationsMainLayout(
                 title = {
                     if(searchQuery.isNullOrEmpty()) {
                         TextButton(onClick = {
-                            navController.navigate(ContactDetailsScreenNav(address))
+                            navController.navigate(
+                                ContactDetailsScreenNav(
+                                    address,
+                                    customsConversationsViewModel
+                                        ?.isSecured == true
+                                )
+                            )
                         }) {
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
@@ -443,6 +448,16 @@ fun ConversationsMainLayout(
                                     Icon(
                                         Icons.Filled.NotificationsOff,
                                         "muted",
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                }
+                                if(customsConversationsViewModel?.isSecured == true ||
+                                    inPreviewMode
+                                ) {
+                                    Spacer(Modifier.padding(4.dp))
+                                    Icon(
+                                        Icons.Filled.Security,
+                                        "secured",
                                         modifier = Modifier.size(16.dp)
                                     )
                                 }
@@ -642,14 +657,9 @@ fun ConversationsMainLayout(
                 reverseLayout = true,
             ) {
                 items(
-                    count = if(inPreviewMode) _items!!.size else inboxMessagesItems.itemCount,
-                    key =  if(inPreviewMode) { index -> _items!![index].id }
-                    else inboxMessagesItems.itemKey{ it.id },
-                ) { index ->
-                    (
-                            if(inPreviewMode) _items!![index]
-                            else inboxMessagesItems[index]
-                    )?.let { conversation ->
+                    count = inboxMessagesItems.itemCount,
+                    key =  inboxMessagesItems.itemKey{ it.id }
+                ) { index -> inboxMessagesItems[index]?.let { conversation ->
                         var showDate by remember{ mutableStateOf(when {
                             index == 0 ||
                                     conversation.sms?.status == Telephony.Sms.STATUS_PENDING ||
@@ -907,6 +917,5 @@ fun ConversationsMainPreview() {
     ConversationsMainLayout(
         navController = rememberNavController(),
         address = "+1234567",
-        _items = emptyList()
     )
 }

@@ -2,16 +2,11 @@ package com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels
 
 import android.content.Context
 import android.os.Bundle
-import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.afkanerd.smswithoutborders_libsmsmms.data.entities.Conversations
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 interface CustomConversationServices {
     fun sendSms(
@@ -30,7 +25,7 @@ open class CustomsConversationsViewModel : ViewModel(), CustomConversationServic
     var rememberMenuExpanded by mutableStateOf(false)
         private set
 
-    var trigger by mutableStateOf(false)
+    var anythingTrigger by mutableStateOf(false)
         private set
 
     var address: String? by mutableStateOf(null)
@@ -41,6 +36,13 @@ open class CustomsConversationsViewModel : ViewModel(), CustomConversationServic
 
     var threadId: Int? by mutableStateOf(null)
         private set
+
+    var isSecured: Boolean by mutableStateOf(false)
+        private set
+
+    fun setIsSecured(isSecured: Boolean) {
+        this.isSecured = isSecured
+    }
 
     fun setConversationThreadId(threadId: Int) {
         this.threadId = threadId
@@ -55,7 +57,7 @@ open class CustomsConversationsViewModel : ViewModel(), CustomConversationServic
     }
 
     fun setModal(show: Boolean) {
-        trigger = show
+        anythingTrigger = show
         rememberMenuExpanded = !show
     }
 
