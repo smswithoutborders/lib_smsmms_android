@@ -12,6 +12,7 @@
     <string name="message_failed_notifications_descriptions">Otrzymuj powiadomienia, gdy wiadomości nie są dostarczane</string>
 
 
+    <string name="foreground_service_image_transmission_descriptions">Transmisja obrazu za pomocą SMS-ów</string>
     <string name="gateway_client_service_notification_id" translatable="false">100000000</string>
     <string name="message_failed_notification_id" translatable="false">100000001</string>
 
@@ -452,6 +453,33 @@
     <string name="enable_24_hours_time_format">Włącz format czasu 24-godzinnego</string>
     <string name="block_contact">Zablokuj kontakt</string>
     <string name="text_body_cannot_empty">Treść tekstu nie może być pusta!</string>
+    <string name="secure">Bezpieczny</string>
+    <string name="image_transmission_service">Usługa transmisji obrazu</string>
+    <string name="aspect_ratio_is_locked_width_and_height_will_be_adjusted_proportionally">Proporcje obrazu są zablokowane. Szerokość i wysokość zostaną dostosowane proporcjonalnie.</string>
+    <string name="quality">Jakość</string>
+    <string name="resize">Zmień rozmiar</string>
+    <string name="compression">Kompresja</string>
+    <string name="apply">Stosować</string>
+    <string name="size">Rozmiar</string>
+    <string name="edit_image">Edytuj obraz</string>
+    <string name="width">Szerokość</string>
+    <string name="height">Wysokość</string>
+    <string name="sms_est">SMS Est.</string>
+    <string name="sending_images">Wysyłanie obrazów…</string>
+    <string name="of_sent">%1$d z %2$d wysłano…</string>
+    <string name="stop">Zatrzymywać się</string>
+    <string name="pause">Pauza</string>
+    <string name="sending_stop">Wysyłanie zatrzymane…</string>
+    <string name="waiting_to_send_of">Oczekiwanie na wysłanie %1$d z %2$d</string>
+    <string name="failed_to_send_message">Nie udało się wysłać wiadomości</string>
+    <string name="retry">Spróbować ponownie</string>
+    <string name="queued_for_sending">W kolejce do wysłania…</string>
+    <string name="will_resume_sending_shortly">Wkrótce wznowimy wysyłanie…</string>
+    <string name="not_default_sms_app">Nie jest to domyślna aplikacja SMS</string>
+    <string name="english">Angielski1</string>
+    <string name="developers">Deweloperzy</string>
+    <string name="developer_mode">Tryb programisty</string>
+    <string name="subject">Temat: %1$s</string>
 
 
 </resources>

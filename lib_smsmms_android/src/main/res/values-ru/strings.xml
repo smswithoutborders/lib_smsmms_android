@@ -409,5 +409,33 @@
     <string name="enable_24_hours_time_format">Включить 24-часовой формат времени</string>
     <string name="block_contact">Блокировать контакт</string>
     <string name="text_body_cannot_empty">Текстовое поле не может быть пустым!</string>
+    <string name="foreground_service_image_transmission_descriptions">Передача изображения через SMS</string>
+    <string name="secure">Безопасный</string>
+    <string name="image_transmission_service">Служба передачи изображений</string>
+    <string name="aspect_ratio_is_locked_width_and_height_will_be_adjusted_proportionally">Соотношение сторон зафиксировано. Ширина и высота будут изменены пропорционально.</string>
+    <string name="quality">Качество</string>
+    <string name="resize">Изменить размер</string>
+    <string name="compression">Сжатие</string>
+    <string name="apply">Применять</string>
+    <string name="size">Размер</string>
+    <string name="edit_image">Редактировать изображение</string>
+    <string name="width">Ширина</string>
+    <string name="height">Высота</string>
+    <string name="sms_est">SMS Приблиз.</string>
+    <string name="sending_images">Отправка изображений…</string>
+    <string name="of_sent">%1$d из %2$d отправлено…</string>
+    <string name="stop">Останавливаться</string>
+    <string name="pause">Пауза</string>
+    <string name="sending_stop">Отправка остановлена…</string>
+    <string name="waiting_to_send_of">Ожидание отправки %1$d из %2$d</string>
+    <string name="failed_to_send_message">Не удалось отправить сообщение.</string>
+    <string name="retry">Повторить попытку</string>
+    <string name="queued_for_sending">В очереди на отправку…</string>
+    <string name="will_resume_sending_shortly">Скоро отправка возобновится…</string>
+    <string name="not_default_sms_app">Не стандартное приложение для отправки СМС</string>
+    <string name="english">Английский1</string>
+    <string name="developers">Разработчики</string>
+    <string name="developer_mode">Режим разработчика</string>
+    <string name="subject">Тема: %1$s</string>
 
 </resources>

@@ -365,5 +365,33 @@
     <string name="enable_24_hours_time_format">24-Stunden-Zeitformat aktivieren</string>
     <string name="block_contact">Contact de bloc</string>
     <string name="text_body_cannot_empty">Le corps du texte ne peut pas être vide !</string>
+    <string name="foreground_service_image_transmission_descriptions">Transmission d\'images par SMS</string>
+    <string name="secure">Sécurisé</string>
+    <string name="image_transmission_service">Service de transmission d\'images</string>
+    <string name="aspect_ratio_is_locked_width_and_height_will_be_adjusted_proportionally">Le format d\'image est verrouillé. La largeur et la hauteur seront ajustées proportionnellement.</string>
+    <string name="quality">Qualité</string>
+    <string name="resize">Redimensionner</string>
+    <string name="compression">Compression</string>
+    <string name="apply">Appliquer</string>
+    <string name="size">Taille</string>
+    <string name="edit_image">Modifier l\'image</string>
+    <string name="width">Largeur</string>
+    <string name="height">Hauteur</string>
+    <string name="sms_est">SMS Est.</string>
+    <string name="sending_images">Envoi d\'images…</string>
+    <string name="of_sent">%1$d de %2$d envoyé…</string>
+    <string name="stop">Arrêt</string>
+    <string name="pause">Pause</string>
+    <string name="sending_stop">L\'envoi a été interrompu…</string>
+    <string name="waiting_to_send_of">En attente d\'envoi de %1$d sur %2$d</string>
+    <string name="failed_to_send_message">Échec de l\'envoi du message</string>
+    <string name="retry">Réessayer</string>
+    <string name="queued_for_sending">En attente d\'envoi…</string>
+    <string name="will_resume_sending_shortly">L\'envoi reprendra bientôt…</string>
+    <string name="not_default_sms_app">Application SMS non par défaut</string>
+    <string name="english">Anglais1</string>
+    <string name="developers">Développeuses</string>
+    <string name="developer_mode">Mode développeur</string>
+    <string name="subject">Sujet : %1$s</string>
 
 </resources>
