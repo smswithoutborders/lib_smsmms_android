@@ -7,23 +7,17 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.database.Cursor
 import android.graphics.Bitmap
-import android.net.Uri
 import android.os.Build
 import android.provider.BlockedNumberContract
-import android.provider.ContactsContract
 import android.provider.Telephony
 import android.telecom.TelecomManager
 import android.telephony.PhoneNumberUtils
 import android.telephony.SubscriptionInfo
 import android.telephony.SubscriptionManager
 import android.telephony.TelephonyManager
-import android.widget.Toast
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat.getString
 import androidx.core.content.ContextCompat.startActivity
 import androidx.core.net.toUri
-import com.afkanerd.lib_smsmms_android.R
-import com.afkanerd.smswithoutborders_libsmsmms.data.entities.Conversations
 import com.google.i18n.phonenumbers.NumberParseException
 import com.google.i18n.phonenumbers.PhoneNumberUtil
 import java.util.regex.Pattern
@@ -194,4 +188,19 @@ fun isShortCode(address: String): Boolean {
     val pattern = Pattern.compile("[a-zA-Z]")
     val matcher = pattern.matcher(address)
     return !PhoneNumberUtils.isWellFormedSmsAddress(address) || matcher.find()
+}
+
+fun Context.findRCSPhoneNumbers(inputString: String): Array<String>? {
+    // 1. Split the string by one or more whitespace characters.
+    val potentialNumbers = inputString.trimEnd().split(Regex("\\s+"))
+
+    val validNumbers = mutableListOf<String>()
+
+    for (number in potentialNumbers) {
+        if(PhoneNumberUtils.isWellFormedSmsAddress(number)) {
+            validNumbers.add(number)
+        } else return null
+    }
+
+    return validNumbers.toTypedArray()
 }

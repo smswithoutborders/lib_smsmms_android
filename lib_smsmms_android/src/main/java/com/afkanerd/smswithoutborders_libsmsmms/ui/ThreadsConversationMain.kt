@@ -194,9 +194,6 @@ fun ThreadConversationLayout(
 
     LaunchedEffect(isDefault) {
         if(!context.getNativesLoaded() && isDefault) {
-//            threadsViewModel.loadNatives(context) {
-//                context.setNativesLoaded(true)
-//            }
             threadsViewModel.loadNativesAsync(context) {
                 context.setNativesLoaded(true)
             }

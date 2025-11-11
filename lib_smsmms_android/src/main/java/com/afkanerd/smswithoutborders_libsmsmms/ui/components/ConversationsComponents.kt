@@ -1026,8 +1026,7 @@ fun MmsContentView(
         }
 
         if(LocalInspectionMode.current || type == Telephony.Sms.MESSAGE_TYPE_FAILED) {
-            Column(modifier = Modifier
-                .align(Alignment.CenterVertically)) {
+            Column(modifier = Modifier.align(Alignment.CenterVertically)) {
                 IconButton(onClick = {}) {
                     Icon(
                         Icons.Default.Info,

@@ -1,6 +1,7 @@
 package com.afkanerd.smswithoutborders_libsmsmms.ui
 
 import android.provider.Telephony
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -93,6 +94,16 @@ fun DeveloperModeMain(
                     context.getDatabase().conversationsDao()?.insert(conversation)
                     withContext(Dispatchers.Main) {
                         context.notify(conversation, DeveloperModeNotificationCls::class.java)
+                    }
+                }
+            }
+
+            DeveloperModeItems("Delete all") {
+                CoroutineScope(Dispatchers.IO).launch {
+                    context.getDatabase().conversationsDao()?.deleteAllThreads()
+                    context.getDatabase().conversationsDao()?.deleteAllConversations()
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(context, "Done!", Toast.LENGTH_LONG).show()
                     }
                 }
             }

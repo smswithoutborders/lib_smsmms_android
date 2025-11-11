@@ -747,19 +747,18 @@ fun ConversationsMainLayout(
                                     highlightedMessage = conversation
                                     showFailedRetryModal = true
                                 }
+                                else if(conversation.mms_content_uri != null) {
+                                    navController.navigate(ImageViewScreenNav(
+                                        contentUri = conversation.mms_content_uri.toString(),
+                                        address = contactName,
+                                        date = date,
+                                        filename = conversation.mms_filename
+                                            ?: System.currentTimeMillis().toString(),
+                                        mimeType = conversation.mms_mimetype ?: "image/jpeg",
+                                    ))
+                                }
                                 else {
-                                    if(typingMmsImage != null) {
-                                        navController.navigate(ImageViewScreenNav(
-                                            contentUri = typingMmsImage.toString(),
-                                            address = contactName,
-                                            date = date,
-                                            filename = conversation.mms_filename
-                                                ?: System.currentTimeMillis().toString(),
-                                            mimeType = conversation.mms_mimetype ?: "image/jpeg",
-                                        ))
-                                    } else {
-                                        showDate = !showDate
-                                    }
+                                    showDate = !showDate
                                 }
                             },
                             onLongClickCallback = {
