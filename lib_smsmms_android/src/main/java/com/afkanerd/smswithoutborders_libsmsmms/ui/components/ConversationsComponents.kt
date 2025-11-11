@@ -43,6 +43,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.PlayCircle
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.outlined.AddCircleOutline
 import androidx.compose.material.icons.outlined.SimCard
@@ -938,7 +939,7 @@ fun MmsContentView(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp),
+            .padding(top=8.dp, start=8.dp, end=8.dp),
         horizontalArrangement = if(isSending) Arrangement.End else Arrangement.Start
     ) {
         Box(
@@ -952,18 +953,18 @@ fun MmsContentView(
                         model = contentUri,
                         contentDescription = stringResource(R.string.mms_image),
                         contentScale = ContentScale.Crop,
-                        modifier = if(LocalInspectionMode.current) Modifier else Modifier
-                            .combinedClickable(
-                                onClick = {
-                                    onClickCallback?.let { it() }
-                                },
-                                onLongClick ={
-                                    onLongClickCallback?.let { it() }
-                                }
-                            )
+                        modifier = Modifier
                             .size(200.dp)
                             .aspectRatio(1f)  // This ensures a square aspect ratio
                             .clip(RoundedCornerShape(10.dp))
+                            .then(
+                                if(!LocalInspectionMode.current) {
+                                    Modifier.combinedClickable(
+                                        onClick = { onClickCallback?.invoke() },
+                                        onLongClick = { onLongClickCallback?.invoke() }
+                                    )
+                                } else Modifier
+                            )
                     )
                 }
                 mimeType.contains("video") -> {
@@ -978,15 +979,38 @@ fun MmsContentView(
                         imageLoader = imageLoader,
                     )
 
-                    Image(
-                        painter = painter,
-                        contentDescription = stringResource(R.string.mms_video),
-                        contentScale = ContentScale.Crop,
+                    // 1. Use a Box to stack the Image and the Icon
+                    Box(
                         modifier = Modifier
                             .size(200.dp)
-                            .aspectRatio(1f)  // This ensures a square aspect ratio
+                            .aspectRatio(1f)
+                            .then(
+                                if(!LocalInspectionMode.current) {
+                                    Modifier.combinedClickable(
+                                        onClick = { onClickCallback?.invoke() },
+                                        onLongClick = { onLongClickCallback?.invoke() }
+                                    )
+                                } else Modifier
+                            )
                             .clip(RoundedCornerShape(10.dp)),
-                    )
+                        contentAlignment = Alignment.Center // Center the play button icon
+                    ) {
+                        // 2. The Video Thumbnail (Image) is the bottom layer
+                        Image(
+                            painter = painter,
+                            contentDescription = stringResource(R.string.mms_video),
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.matchParentSize() // Make the image fill the Box size
+                        )
+
+                        // 3. The Play Button Icon is the top layer
+                        Icon(
+                            imageVector = Icons.Default.PlayCircle,
+                            contentDescription = "Play Video",
+                            tint = Color.White, // Set the color of the icon
+                            modifier = Modifier.size(48.dp) // Set a visible size for the icon
+                        )
+                    }
                 }
                 else -> {
                     val inPreview = LocalInspectionMode.current
@@ -999,14 +1023,13 @@ fun MmsContentView(
                             horizontalArrangement = Arrangement.Center,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            // TODO:
-//                            Icon(painterResource(R.drawable.ic_alert), "")
-//                            filename?.let {
-//                                Text(
-//                                    it,
-//                                    modifier = Modifier.padding(start=16.dp)
-//                                )
-//                            }
+                            Icon(painterResource(R.drawable.ic_alert), "")
+                            filename?.let {
+                                Text(
+                                    it,
+                                    modifier = Modifier.padding(start=16.dp)
+                                )
+                            }
                         }
                     }
                 }
@@ -1042,6 +1065,23 @@ fun MmsContentView(
 
 @Preview
 @Composable
+fun PreviewMmsImage_Video() {
+    val context = LocalContext.current
+    Column {
+        MmsContentView(
+            context.getUriForDrawable(R.drawable.github_mark)!!,
+            "video/mp4",
+            "demo.txt",
+            false,
+            Telephony.Mms.MESSAGE_BOX_SENT,
+            isSending = true,
+            onClickCallback = {}) {
+        }
+    }
+}
+
+@Preview
+@Composable
 fun PreviewMmsImage_Image() {
     val context = LocalContext.current
     Column {
@@ -1049,7 +1089,7 @@ fun PreviewMmsImage_Image() {
             context.getUriForDrawable(R.drawable.github_mark)!!,
             "image/jpeg",
             "demo.txt",
-            true,
+            false,
             Telephony.Mms.MESSAGE_BOX_SENT,
             isSending = true,
             onClickCallback = {}) {
