@@ -446,7 +446,6 @@ fun Context.registerIncomingSms(intent: Intent): Conversations {
     return conversation
 }
 
-
 @Throws
 fun Context.loadRawThreads() : List<Pair<String, Boolean>>{
     val threadIds = mutableListOf<Pair<String, Boolean>>()
@@ -512,6 +511,9 @@ fun Context.loadRawSmsMmsDb(threadId: String? = null, isMms: Boolean) : List<Con
                     do {
                         parseRawSmsContents(cursor)?.let { it ->
                             conversationsList.add(Conversations(sms = it.apply {
+                                this.address = findRCSPhoneNumbers(this.address!!)?.run {
+                                    this[0]
+                                } ?: this.address!!.trimEnd()
                                 this.thread_id = getThreadId(this.address!!)
                             }))
                         }
@@ -530,8 +532,8 @@ fun Context.loadRawSmsMmsDb(threadId: String? = null, isMms: Boolean) : List<Con
                 if(cursor.moveToFirst()) {
                     do {
                         val conversation = MmsParser.parse(this, cursor)
-                        if(!conversationsList.any {conv -> conv.mms?._id == conversation?.mms?._id}) {
-                            conversation?.sms?.let { conversationsList.add(conversation) }
+                        conversation?.sms?.let {
+                            conversationsList.add(conversation)
                         }
                     } while(cursor.moveToNext())
                     cursor.close()

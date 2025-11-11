@@ -14,6 +14,19 @@ interface ThreadsDao {
     @Query("SELECT * FROM Threads WHERE isArchive = 0 AND address IS NOT NULL ORDER BY date DESC")
     fun getThreads(): PagingSource<Int, Threads>
 
+//    @Query("""
+//        SELECT T1.* FROM Threads T1
+//        INNER JOIN (
+//            -- Subquery 1: Find the MAX date for each TRIMMED address
+//            SELECT TRIM(address) AS address_trimmed, MAX(date) AS max_date
+//            FROM Threads
+//            GROUP BY address_trimmed
+//        ) AS T2
+//        ON TRIM(T1.address) = T2.address_trimmed AND T1.date = T2.max_date
+//        ORDER BY T1.date DESC
+//    """)
+//    fun getThreads(): PagingSource<Int, Threads>
+
     @Query("SELECT * FROM Threads WHERE isArchive = 1 ORDER BY date DESC")
     fun getArchived(): PagingSource<Int, Threads>
 
