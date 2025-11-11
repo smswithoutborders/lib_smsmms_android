@@ -24,6 +24,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import androidx.window.layout.WindowLayoutInfo
 import com.afkanerd.lib_smsmms_android.R
+import com.afkanerd.smswithoutborders_libsmsmms.data.entities.Conversations
 import com.afkanerd.smswithoutborders_libsmsmms.ui.ComposeNewMessage
 import com.afkanerd.smswithoutborders_libsmsmms.ui.ContactDetails
 import com.afkanerd.smswithoutborders_libsmsmms.ui.ConversationsMainLayout
@@ -54,6 +55,7 @@ fun NavHostControllerInstance(
     customMenuItems: (@Composable ((Boolean) -> Unit) -> Unit)? = null,
     conversationsCustomComposable: (@Composable (CustomsConversationsViewModel?) -> Unit)? = null,
     conversationsCustomViewModel: CustomsConversationsViewModel? = null,
+    conversationsCustomDataView: (@Composable (Conversations) -> Unit)? = null,
     modalNavigationModalItems:
     (@Composable ((ThreadsViewModel.InboxType) -> () -> Unit) -> Unit)? = null,
     startDestination: Any = HomeScreenNav(),
@@ -97,6 +99,7 @@ fun NavHostControllerInstance(
                 customComposable = conversationsCustomComposable,
                 customMenuItems = customMenuItems,
                 customsConversationsViewModel = conversationsCustomViewModel,
+                customDataView = conversationsCustomDataView
             )
         }
         composable<SearchScreenNav> { backStackEntry ->

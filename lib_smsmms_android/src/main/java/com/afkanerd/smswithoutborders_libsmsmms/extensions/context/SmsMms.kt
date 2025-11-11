@@ -408,7 +408,10 @@ fun Context.sendMms(
 }
 
 
-fun Context.registerIncomingSms(intent: Intent): Conversations {
+fun Context.registerIncomingSms(
+    intent: Intent,
+    data: Boolean = false,
+): Conversations {
     val bundle = intent.extras
     val subscriptionId = bundle!!.getInt("subscription", -1)
     var address: String? = ""
@@ -439,7 +442,7 @@ fun Context.registerIncomingSms(intent: Intent): Conversations {
             thread_id = getThreadId(address),
             read = 0,
         ),
-        sms_data = if(bodyBuffer.isEmpty()) null else dataBuffer.toByteArray()
+        sms_data = if(data) dataBuffer.toByteArray() else null
     )
 
     insertSms(conversation)
