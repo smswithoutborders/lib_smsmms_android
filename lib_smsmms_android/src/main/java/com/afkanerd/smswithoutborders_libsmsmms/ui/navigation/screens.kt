@@ -33,6 +33,9 @@ data class ComposeNewMessageScreenNav(
 object SettingsScreenNav
 
 @Serializable
+object DeveloperModeScreen
+
+@Serializable
 data class ImageViewScreenNav(
     var contentUri: String,
     var address: String,

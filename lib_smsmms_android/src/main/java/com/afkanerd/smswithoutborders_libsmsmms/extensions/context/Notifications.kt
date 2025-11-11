@@ -7,6 +7,8 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.os.Build
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
@@ -22,7 +24,6 @@ import com.afkanerd.smswithoutborders_libsmsmms.receivers.SmsMmsActionsImpl
 import com.afkanerd.smswithoutborders_libsmsmms.receivers.SmsTextReceivedReceiver.Companion.SMS_SENT_BROADCAST_INTENT_LIB
 import com.google.gson.Gson
 import java.util.Properties
-import kotlin.jvm.java
 
 fun Context.notify(
     conversation: Conversations,
@@ -52,8 +53,8 @@ fun Context.notify(
         .setImportant(true)
         .build()
 
-    val style = NotificationCompat.MessagingStyle(user)
     if(actions) {
+        val style = NotificationCompat.MessagingStyle(user)
         val messages = getNotificationSession(conversation.sms?.thread_id!!)
         messages?.sortedWith(compareBy {it.date})?.forEach {
             style.addMessage(
@@ -82,6 +83,20 @@ fun Context.notify(
     else {
         builder.setContentTitle(title ?: (contactName ?: conversation.sms?.address!!))
         builder.setContentText(text ?: conversation.sms?.body)
+    }
+
+    if(conversation.mms_content_uri != null) {
+        val stream = contentResolver.openInputStream(conversation.mms_content_uri!!.toUri())
+        val bitmap = BitmapFactory.decodeStream(stream)
+        stream?.close()
+
+        builder.setLargeIcon(bitmap)
+        builder.setStyle(NotificationCompat.BigPictureStyle()
+            .bigPicture(bitmap)
+            .bigLargeIcon(null as Bitmap?)
+        )
+        builder.setSubText(getString(R.string.subject, conversation.mms?.sub))
+        builder.setContentText(conversation.mms_text)
     }
 
     with(NotificationManagerCompat.from(this)) {

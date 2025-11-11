@@ -485,5 +485,8 @@
     <string name="will_resume_sending_shortly">Will resume sending shortly…</string>
     <string name="not_default_sms_app">Not default SMS app</string>
     <string name="english">English1</string>
+    <string name="developers">Developers</string>
+    <string name="developer_mode">Developer mode</string>
+    <string name="subject">Subject: %1$s</string>
 
 </resources>

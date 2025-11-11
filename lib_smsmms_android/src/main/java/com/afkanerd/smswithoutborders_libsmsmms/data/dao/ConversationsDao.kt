@@ -32,7 +32,6 @@ interface ConversationsDao {
         conversationId: Long,
     ) {
         val threadId = mms?.thread_id ?: sms.thread_id
-//        val threadId = sms.thread_id
         val thread = getThread(threadId)
         val count = unreadCount(threadId)
 
@@ -99,7 +98,7 @@ interface ConversationsDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertConversation(conversation: Conversations): Long
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun insertConversations(conversation: List<Conversations>)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -126,29 +125,22 @@ interface ConversationsDao {
         return id
     }
 
-    @Query("DELETE FROM Conversations WHERE thread_id = :threadId")
-    fun deleteAllConversationsSorted(threadId: Int)
+    @Query("DELETE FROM Conversations WHERE thread_id = :threadId OR mms__id == :threadId")
+    fun deleteAllThreadConversations(threadId: Int)
 
     @Query("DELETE FROM Threads WHERE threadId = :threadId")
-    fun deleteAllThreadsSorted(threadId: Int)
+    fun deleteAllThread(threadId: Int)
 
     @Transaction
-    fun insertAllSorted(conversationsList: List<Conversations>, deleteDb: Boolean = false) {
-        val conversation = conversationsList.firstOrNull()
-        if(conversation == null) return
-
-        val threadId = conversation.mms?.thread_id ?: conversation.sms!!.thread_id
-        if(deleteDb) {
-            deleteAllConversationsSorted(threadId)
-            deleteAllThreadsSorted(threadId)
-        }
+    fun insertAllThreads(conversationsList: List<Conversations>, isMms: Boolean) {
+        val conversation = conversationsList.firstOrNull() ?: return
 
         insertConversations(conversationsList)
         conversation.sms?.let {
             insertUpdateThread(
                 it,
                 false,
-                !conversationsList.first().mms_content_uri.isNullOrEmpty(),
+                isMms,
                 conversation.mms,
                 conversation.id
             )
