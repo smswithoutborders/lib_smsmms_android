@@ -81,6 +81,7 @@ import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.ThreadsViewModel
 fun ContactDetails (
     address: String,
     navController: NavController,
+    isEncryptionEnabled: Boolean = false,
 ) {
     val context = LocalContext.current
     val inPreviewMode = LocalInspectionMode.current
@@ -91,7 +92,6 @@ fun ContactDetails (
     val contactPhotoUri by remember {
         mutableStateOf(context.retrieveContactPhoto(address) )
     }
-    val isEncryptionEnabled by remember { mutableStateOf(false) }
 
     var isDefault by remember{ mutableStateOf( inPreviewMode || context.isDefault()) }
 

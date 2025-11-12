@@ -26,6 +26,7 @@ import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.NotificationsOff
+import androidx.compose.material.icons.filled.Security
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -174,7 +175,7 @@ fun ConversationsMainLayout(
     customComposable: (@Composable (CustomsConversationsViewModel?) -> Unit)? = null,
     customMenuItems: (@Composable ((Boolean) -> Unit) -> Unit)? = null,
     customsConversationsViewModel: CustomsConversationsViewModel? = null,
-    _items: List<Conversations>? = null
+    customDataView: (@Composable (Conversations) -> Unit)? = null,
 ) {
     var text = text
     val readPhoneStatePermission = rememberPermissionState(requiredReadPhoneStatePermissions)
@@ -272,7 +273,6 @@ fun ConversationsMainLayout(
     val inboxMessagesItems = messages.collectAsLazyPagingItems()
 
     val selectedItems by viewModel.selectedItems.collectAsState()
-
 
     val scrollBehaviour = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
 
@@ -418,6 +418,143 @@ fun ConversationsMainLayout(
         rememberMenuExpanded = false
     }
 
+    @Composable
+    fun TextConversationCard(
+        conversation: Conversations,
+        index: Int,
+    ) {
+        var showDate by remember{ mutableStateOf(when {
+            index == 0 ||
+                    conversation.sms?.status == Telephony.Sms.STATUS_PENDING ||
+                    conversation.sms?.status == Telephony.Sms.STATUS_FAILED -> true
+            else -> false
+        }) }
+
+        val timestamp by remember { mutableStateOf(
+            if(inPreviewMode) "1234567"
+            else {
+                DateTimeUtils
+                    .formatDateExtended(
+                        context,
+                        conversation.sms?.date!!)
+            })
+        }
+
+        val subscriptionId by remember{
+            mutableStateOf(conversation.sms?.sub_id ?: subscriptionId) }
+
+        val date by remember { mutableStateOf(
+            if(inPreviewMode) "1234567"
+            else { deriveMetaDate(conversation) +
+                    if(dualSim) {
+                        " • " + context.getSubscriptionName(subscriptionId!!)
+                    } else ""
+            })
+        }
+
+        val position = if(!conversation.mms_content_uri.isNullOrEmpty()) {
+            ConversationPositionTypes.END
+        } else getConversationType(
+            index,
+            conversation,
+            inboxMessagesItems.itemSnapshotList.items
+        )
+
+
+        var text = if(LocalInspectionMode.current)
+            AnnotatedString(conversation.sms?.body ?: "")
+        else AnnotatedString.rememberAutoLinkText(
+            conversation.mms_text ?: (conversation.sms?.body ?: ""),
+            defaultLinkStyles = TextLinkStyles(
+                SpanStyle( textDecoration = TextDecoration.Underline )
+            )
+        )
+
+        if(!searchQuery.isNullOrEmpty()) {
+            text = buildAnnotatedString {
+                val startIndex = text
+                    .indexOf(searchQuery!!, ignoreCase = true)
+                val endIndex = startIndex + searchQuery!!.length
+
+                append(text)
+                if (startIndex >= 0) {
+                    addStyle(
+                        style = SpanStyle(
+                            background = Color.Yellow,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Black
+                        ),
+                        start = startIndex,
+                        end = endIndex
+                    )
+                }
+            }
+        }
+
+        ConversationsCard(
+            text= text,
+            timestamp = timestamp,
+            type= conversation.sms?.type!!,
+            status = conversation.sms?.status!!,
+            position = position,
+            date = date,
+            showDate = showDate,
+            mmsContentUri = conversation.mms_content_uri?.toUri(),
+            mmsMimeType = conversation.mms_mimetype,
+            mmsFilename = conversation.mms_filename,
+            onClickCallback = {
+                if (selectedItems.isNotEmpty()) {
+                    if (selectedItems.contains(conversation))
+                        viewModel.setSelectedItems(
+                            selectedItems.toMutableList().apply {
+                                this.remove(conversation)
+                            }
+                        )
+                    else
+                       viewModel.setSelectedItems(
+                            selectedItems.toMutableList().apply {
+                                this.add(conversation)
+                            }
+                        )
+                }
+                else if(conversation.sms?.type ==
+                    Telephony.Sms.MESSAGE_TYPE_FAILED) {
+                    highlightedMessage = conversation
+                    showFailedRetryModal = true
+                }
+                else if(conversation.mms_content_uri != null) {
+                    navController.navigate(ImageViewScreenNav(
+                        contentUri = conversation.mms_content_uri.toString(),
+                        address = contactName,
+                        date = date,
+                        filename = conversation.mms_filename
+                            ?: System.currentTimeMillis().toString(),
+                        mimeType = conversation.mms_mimetype ?: "image/jpeg",
+                    ))
+                }
+                else {
+                    showDate = !showDate
+                }
+            },
+            onLongClickCallback = {
+                if (selectedItems.contains(conversation))
+                    viewModel.setSelectedItems(
+                        selectedItems.toMutableList().apply {
+                            this.remove(conversation)
+                        }
+                    )
+                else
+                    viewModel.setSelectedItems(
+                        selectedItems.toMutableList().apply {
+                            this.add(conversation)
+                        }
+                    )
+            },
+            isSelected = selectedItems.contains(conversation),
+        )
+
+    }
+
     Scaffold (
         modifier = Modifier
             .safeDrawingPadding()
@@ -427,7 +564,13 @@ fun ConversationsMainLayout(
                 title = {
                     if(searchQuery.isNullOrEmpty()) {
                         TextButton(onClick = {
-                            navController.navigate(ContactDetailsScreenNav(address))
+                            navController.navigate(
+                                ContactDetailsScreenNav(
+                                    address,
+                                    customsConversationsViewModel
+                                        ?.isSecured == true
+                                )
+                            )
                         }) {
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
@@ -443,6 +586,16 @@ fun ConversationsMainLayout(
                                     Icon(
                                         Icons.Filled.NotificationsOff,
                                         "muted",
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                }
+                                if(customsConversationsViewModel?.isSecured == true ||
+                                    inPreviewMode
+                                ) {
+                                    Spacer(Modifier.padding(4.dp))
+                                    Icon(
+                                        Icons.Filled.Security,
+                                        "secured",
                                         modifier = Modifier.size(16.dp)
                                     )
                                 }
@@ -642,141 +795,14 @@ fun ConversationsMainLayout(
                 reverseLayout = true,
             ) {
                 items(
-                    count = if(inPreviewMode) _items!!.size else inboxMessagesItems.itemCount,
-                    key =  if(inPreviewMode) { index -> _items!![index].id }
-                    else inboxMessagesItems.itemKey{ it.id },
-                ) { index ->
-                    (
-                            if(inPreviewMode) _items!![index]
-                            else inboxMessagesItems[index]
-                    )?.let { conversation ->
-                        var showDate by remember{ mutableStateOf(when {
-                            index == 0 ||
-                                    conversation.sms?.status == Telephony.Sms.STATUS_PENDING ||
-                                    conversation.sms?.status == Telephony.Sms.STATUS_FAILED -> true
-                            else -> false
-                        }) }
-
-                        var timestamp by remember { mutableStateOf(
-                            if(inPreviewMode) "1234567"
-                            else {
-                                DateTimeUtils
-                                    .formatDateExtended(context,
-                                        conversation.sms?.date!!)
-                            })
+                    count = inboxMessagesItems.itemCount,
+                    key =  inboxMessagesItems.itemKey{ it.id }
+                ) { index -> inboxMessagesItems[index]?.let { conversation ->
+                        if(conversation.sms_data != null) {
+                            customDataView?.invoke(conversation)
+                        } else {
+                            TextConversationCard(conversation, index)
                         }
-
-                        val subscriptionId by remember{
-                            mutableStateOf(conversation.sms?.sub_id ?: subscriptionId) }
-
-                        var date by remember { mutableStateOf(
-                            if(inPreviewMode) "1234567"
-                            else { deriveMetaDate(conversation) +
-                                    if(dualSim) {
-                                        " • " + context.getSubscriptionName(subscriptionId!!)
-                                    } else ""
-                            })
-                        }
-
-                        val position = if(!conversation.mms_content_uri.isNullOrEmpty()) {
-                            ConversationPositionTypes.END
-                        } else getConversationType(
-                            index,
-                            conversation,
-                            inboxMessagesItems.itemSnapshotList.items
-                        )
-
-                        var text = if(LocalInspectionMode.current)
-                            AnnotatedString(conversation.sms?.body ?: "")
-                        else AnnotatedString.rememberAutoLinkText(
-                            conversation.mms_text ?: (conversation.sms?.body ?: ""),
-                            defaultLinkStyles = TextLinkStyles(
-                                SpanStyle( textDecoration = TextDecoration.Underline )
-                            )
-                        )
-
-                        if(!searchQuery.isNullOrEmpty()) {
-                            text = buildAnnotatedString {
-                                val startIndex = text
-                                    .indexOf(searchQuery!!, ignoreCase = true)
-                                val endIndex = startIndex + searchQuery!!.length
-
-                                append(text)
-                                if (startIndex >= 0) {
-                                    addStyle(
-                                        style = SpanStyle(
-                                            background = Color.Yellow,
-                                            fontWeight = FontWeight.Bold,
-                                            color = Color.Black
-                                        ),
-                                        start = startIndex,
-                                        end = endIndex
-                                    )
-                                }
-                            }
-                        }
-
-                        ConversationsCard(
-                            text= text,
-                            timestamp = timestamp,
-                            type= conversation.sms?.type!!,
-                            status = conversation.sms?.status!!,
-                            position = position,
-                            date = date,
-                            showDate = showDate,
-                            mmsContentUri = conversation.mms_content_uri?.toUri(),
-                            mmsMimeType = conversation.mms_mimetype,
-                            mmsFilename = conversation.mms_filename,
-                            onClickCallback = {
-                                if (selectedItems.isNotEmpty()) {
-                                    if (selectedItems.contains(conversation))
-                                        viewModel.setSelectedItems(
-                                            selectedItems.toMutableList().apply {
-                                                this.remove(conversation)
-                                            }
-                                        )
-                                    else
-                                        viewModel.setSelectedItems(
-                                            selectedItems.toMutableList().apply {
-                                                this.add(conversation)
-                                            }
-                                        )
-                                }
-                                else if(conversation.sms?.type ==
-                                    Telephony.Sms.MESSAGE_TYPE_FAILED) {
-                                    highlightedMessage = conversation
-                                    showFailedRetryModal = true
-                                }
-                                else if(conversation.mms_content_uri != null) {
-                                    navController.navigate(ImageViewScreenNav(
-                                        contentUri = conversation.mms_content_uri.toString(),
-                                        address = contactName,
-                                        date = date,
-                                        filename = conversation.mms_filename
-                                            ?: System.currentTimeMillis().toString(),
-                                        mimeType = conversation.mms_mimetype ?: "image/jpeg",
-                                    ))
-                                }
-                                else {
-                                    showDate = !showDate
-                                }
-                            },
-                            onLongClickCallback = {
-                                if (selectedItems.contains(conversation))
-                                    viewModel.setSelectedItems(
-                                        selectedItems.toMutableList().apply {
-                                            this.remove(conversation)
-                                        }
-                                    )
-                                else
-                                    viewModel.setSelectedItems(
-                                        selectedItems.toMutableList().apply {
-                                            this.add(conversation)
-                                        }
-                                    )
-                            },
-                            isSelected = selectedItems.contains(conversation),
-                        )
                     }
                 }
             }
@@ -898,7 +924,6 @@ fun ConversationsMainLayout(
             setConversationSubscriptionId(subscriptionId)
         })
     }
-
 }
 
 @Preview
@@ -907,6 +932,5 @@ fun ConversationsMainPreview() {
     ConversationsMainLayout(
         navController = rememberNavController(),
         address = "+1234567",
-        _items = emptyList()
     )
 }

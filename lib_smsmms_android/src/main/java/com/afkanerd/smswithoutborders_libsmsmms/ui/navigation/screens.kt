@@ -21,7 +21,10 @@ data class ConversationsScreenNav(
 data class SearchScreenNav(val address: String? = null)
 
 @Serializable
-data class ContactDetailsScreenNav(val address: String)
+data class ContactDetailsScreenNav(
+    val address: String,
+    var encryptionAvailable: Boolean,
+)
 
 @Serializable
 data class ComposeNewMessageScreenNav(
