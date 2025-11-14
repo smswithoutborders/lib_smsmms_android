@@ -79,7 +79,12 @@ fun Context.makeE16PhoneNumber(address: String): String {
 }
 
 fun Context.getThreadId(address: String): Int{
-    return Telephony.Threads.getOrCreateThreadId(this, address).toInt();
+    return try {
+        Telephony.Threads.getOrCreateThreadId(this, address).toInt()
+    } catch(e: Exception) {
+        e.printStackTrace()
+        throw e
+    }
 }
 
 @Throws

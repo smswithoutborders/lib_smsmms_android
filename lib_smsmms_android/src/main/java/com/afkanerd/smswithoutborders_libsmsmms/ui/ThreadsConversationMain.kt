@@ -429,7 +429,8 @@ fun ThreadConversationLayout(
                                 },
                                 navigationIcon = {
                                     IconButton(onClick = {
-                                        threadsViewModel.toggleDrawerValue()
+                                        if(inboxMessagesItems.loadState.isIdle)
+                                            threadsViewModel.toggleDrawerValue()
                                     }) {
                                         Icon(
                                             imageVector = Icons.Filled.Menu,
