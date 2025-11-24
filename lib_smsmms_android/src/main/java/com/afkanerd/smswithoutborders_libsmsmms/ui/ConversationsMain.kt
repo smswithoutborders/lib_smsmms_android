@@ -168,6 +168,7 @@ const val requiredReadPhoneStatePermissions = Manifest.permission.READ_PHONE_STA
 fun ConversationsMainLayout(
     address: String,
     navController: NavController,
+    threadsViewModel: ThreadsViewModel,
     searchQuery: String? = null,
     text: String = "",
     foldOpen: Boolean = false,
@@ -205,9 +206,15 @@ fun ConversationsMainLayout(
 
     var highlightedMessage by remember{ mutableStateOf<Conversations?>(null) }
 
-    var isBlocked by remember { mutableStateOf(viewModel.contactIsBlocked(context, address))}
+    var isBlocked by remember { mutableStateOf( false ) }
     var contactName by remember{ mutableStateOf( context.retrieveContactName(address)
         ?: address )}
+    LaunchedEffect(address) {
+        if(!inPreviewMode)
+            ConversationsViewModel().contactIsBlocked(context, address) {
+                isBlocked = it
+            }
+    }
     var isMute by remember { mutableStateOf(false) }
     var isArchived by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf(searchQuery) }
@@ -244,7 +251,6 @@ fun ConversationsMainLayout(
                     }
                 }
 
-                val threadsViewModel = ThreadsViewModel()
                 threadsViewModel.get(context, threadId) {
                     it?.let { thread ->
                         threadsViewModel.update(context, listOf(thread.apply {
@@ -293,20 +299,14 @@ fun ConversationsMainLayout(
             }
         }
 
-        ThreadsViewModel().isMuted(context, threadId) {
-            isMute = it
-        }
-
-        ThreadsViewModel().isMuted(context, threadId) {
-            isArchived = it
-        }
+        threadsViewModel.isMuted(context, threadId) { isMute = it }
+        threadsViewModel.isMuted(context, threadId) { isArchived = it }
     }
 
     LaunchedEffect(inboxMessagesItems.itemCount) {
         if (inboxMessagesItems.itemCount > 0) {
             listState.animateScrollToItem(0)
 
-            val threadsViewModel = ThreadsViewModel()
             threadsViewModel.get(context, threadId) {
                 it?.let { thread ->
                     threadsViewModel.update(context, listOf(thread.apply {
@@ -369,14 +369,15 @@ fun ConversationsMainLayout(
         },
         blockCallback = {
             if(isBlocked) {
-                ThreadsViewModel().setIsBlocked(context, listOf(address), false) {
+                threadsViewModel.setIsBlocked(context,
+                    listOf(address), false) {
                     context.unblockContact(listOf(address))
                     viewModel.removeAllSelectedItems()
                 }
                 isBlocked = false
             }
             else {
-                ThreadsViewModel().setIsBlocked(context, listOf(address), true) {
+                threadsViewModel.setIsBlocked(context, listOf(address), true) {
                     context.blockContact(listOf(address))
                     viewModel.removeAllSelectedItems()
                 }
@@ -931,6 +932,7 @@ fun ConversationsMainLayout(
 fun ConversationsMainPreview() {
     ConversationsMainLayout(
         navController = rememberNavController(),
+        threadsViewModel = remember { ThreadsViewModel() },
         address = "+1234567",
     )
 }

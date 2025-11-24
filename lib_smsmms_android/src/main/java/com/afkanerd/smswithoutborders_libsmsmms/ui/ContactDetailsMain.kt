@@ -39,6 +39,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -102,11 +103,14 @@ fun ContactDetails (
     )}
 
     val isShortCode = isShortCode(address)
-    var isBlocked by remember { mutableStateOf(
+
+    var isBlocked by remember { mutableStateOf( false ) }
+    LaunchedEffect(address) {
         if(!inPreviewMode)
-            ConversationsViewModel().contactIsBlocked(context, address)
-        else false
-    ) }
+            ConversationsViewModel().contactIsBlocked(context, address) {
+                isBlocked = it
+            }
+    }
 
     var isMute by remember { mutableStateOf(false) }
 

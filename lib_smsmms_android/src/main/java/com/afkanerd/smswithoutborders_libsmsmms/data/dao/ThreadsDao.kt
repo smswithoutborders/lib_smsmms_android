@@ -39,6 +39,9 @@ interface ThreadsDao {
     @Query("SELECT * FROM Threads WHERE isBlocked = 1 ORDER BY date DESC")
     fun getIsBlocked(): PagingSource<Int, Threads>
 
+    @Query("SELECT * FROM Threads WHERE address = :address ORDER BY date DESC")
+    fun get(address: String): Threads?
+
     @Query("SELECT * FROM Threads WHERE threadId = :threadId")
     fun get(threadId: Int): Threads?
 

@@ -74,11 +74,16 @@ class ConversationsViewModel : ViewModel(),  CustomConversationServices {
     fun contactIsBlocked(
         context: Context,
         address: String,
+        callback: (Boolean) -> Unit
     ): Boolean {
-        try {
-            return BlockedNumberContract.isBlocked(context,address)
-        } catch (e: Exception) {
-            e.printStackTrace()
+        viewModelScope.launch(Dispatchers.IO) {
+            val isBlocked = try {
+                BlockedNumberContract.isBlocked(context,address)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                context.getDatabase().threadsDao()?.get(address)?.isBlocked ?: false
+            }
+            callback(isBlocked)
         }
         return false
     }

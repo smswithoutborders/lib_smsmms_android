@@ -96,10 +96,11 @@ fun NavHostControllerInstance(
                 searchQuery = convScreen.query,
                 navController = navController,
                 threadId = convScreen.threadId,
+                threadsViewModel = threadsViewModel,
                 customComposable = conversationsCustomComposable,
                 customMenuItems = customMenuItems,
                 customsConversationsViewModel = conversationsCustomViewModel,
-                customDataView = conversationsCustomDataView
+                customDataView = conversationsCustomDataView,
             )
         }
         composable<SearchScreenNav> { backStackEntry ->
@@ -169,6 +170,7 @@ private fun FoldOpen(
             Column {
                 ConversationsMainLayout(
                     address = homeScreenNav.address,
+                    threadsViewModel = threadsViewModel,
                     searchQuery = homeScreenNav.query,
                     navController = navController,
                     foldOpen = true

@@ -1,7 +1,6 @@
 package com.afkanerd.smswithoutborders_libsmsmms.ui
 
 import android.provider.Telephony
-import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
@@ -83,13 +82,11 @@ import androidx.paging.compose.itemKey
 import com.afkanerd.lib_smsmms_android.R
 import com.afkanerd.smswithoutborders_libsmsmms.data.data.models.DateTimeUtils
 import com.afkanerd.smswithoutborders_libsmsmms.data.entities.Threads
-import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.blockContact
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getNativesLoaded
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.isDefault
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.retrieveContactName
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.setNativesLoaded
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.settingsGetEnableSwipeBehaviour
-import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.unblockContact
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.isScrollingUp
 import com.afkanerd.smswithoutborders_libsmsmms.ui.components.DeleteConfirmationAlert
 import com.afkanerd.smswithoutborders_libsmsmms.ui.components.ModalDrawerSheetLayout
@@ -105,8 +102,6 @@ import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.ThreadsViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
@@ -373,24 +368,7 @@ fun ThreadConversationLayout(
                                             selectedItems.map{ it.address },
                                             !state
                                         ) {
-                                            CoroutineScope(Dispatchers.IO).launch {
-                                                try {
-                                                    if(state) {
-                                                        context.unblockContact(selectedItems.map {
-                                                            it.address })
-                                                    } else {
-                                                        context.blockContact(selectedItems.map {
-                                                            it.address })
-                                                    }
-                                                } catch(e: Exception) {
-                                                    e.printStackTrace()
-                                                    Toast.makeText(
-                                                        context,
-                                                        "${e.message}",
-                                                        Toast.LENGTH_LONG).show()
-                                                }
-                                                threadsViewModel.removeAllSelectedItems()
-                                            }
+                                            threadsViewModel.removeAllSelectedItems()
                                         }
                                     }) {
                                         Icon(

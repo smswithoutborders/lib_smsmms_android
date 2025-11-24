@@ -19,9 +19,11 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.afkanerd.smswithoutborders_libsmsmms.data.entities.Threads
+import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.blockContact
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getDatabase
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.loadRawSmsMmsDb
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.loadRawThreads
+import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.unblockContact
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -197,6 +199,15 @@ class ThreadsViewModel: ViewModel() {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 context.getDatabase().threadsDao()?.setIsBlocked(isBlocked, addresses)
+                try {
+                    if(isBlocked) {
+                        context.unblockContact(addresses)
+                    } else {
+                        context.blockContact(addresses)
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
                 callback()
             }
         }
