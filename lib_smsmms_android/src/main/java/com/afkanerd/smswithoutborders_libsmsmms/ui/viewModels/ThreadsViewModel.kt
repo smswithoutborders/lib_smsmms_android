@@ -1,6 +1,8 @@
 package com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels
 
 import android.content.Context
+import android.os.Bundle
+import android.provider.BlockedNumberContract.AUTHORITY_URI
 import android.provider.Telephony
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
@@ -278,6 +280,20 @@ class ThreadsViewModel: ViewModel() {
                 }
                 callback(false)
             }
+        }
+    }
+
+    fun isBlocked(context: Context, thread: Threads, blockedList: List<Threads>?): Boolean {
+        val METHOD_IS_BLOCKED = "is_blocked"
+        val RES_NUMBER_IS_BLOCKED = "blocked"
+
+        return try {
+            val res: Bundle? = context.contentResolver.call(
+                AUTHORITY_URI, METHOD_IS_BLOCKED, thread.address, null);
+            res != null && res.getBoolean(RES_NUMBER_IS_BLOCKED, false);
+        } catch (e: Exception) {
+            e.printStackTrace()
+            blockedList?.contains(thread) ?: false
         }
     }
 

@@ -1,6 +1,5 @@
 package com.afkanerd.smswithoutborders_libsmsmms.ui
 
-import android.provider.BlockedNumberContract
 import android.provider.Telephony
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
@@ -539,7 +538,8 @@ fun ThreadConversationLayout(
 
                                     val address = thread!!.address
                                     val isBlocked = if(isDefault)
-                                        BlockedNumberContract.isBlocked(context, address)
+                                        threadsViewModel.isBlocked(context, thread,
+                                            blockedMessagesItems.itemSnapshotList.items)
                                     else false
 
                                     val contactName = if(isDefault)
