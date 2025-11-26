@@ -8,6 +8,7 @@ import android.provider.Telephony
 import androidx.core.net.toUri
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.NotificationTxType
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getDatabase
+import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.isSecondaryUser
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.registerIncomingSms
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.sendNotificationBroadcast
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.updateSms
@@ -29,6 +30,10 @@ class SmsTextReceivedReceiver : BroadcastReceiver() {
         when (intent.action) {
             Telephony.Sms.Intents.SMS_DELIVER_ACTION, Telephony.Sms.Intents.SMS_RECEIVED_ACTION -> {
                 if (resultCode == Activity.RESULT_OK) {
+                    if(intent.action == Telephony.Sms.Intents.SMS_RECEIVED_ACTION &&
+                        !context.isSecondaryUser()) {
+                        return
+                    }
                     CoroutineScope(Dispatchers.IO).launch {
                         val conversation = context.registerIncomingSms(intent)
                         context.getDatabase().threadsDao()?.get(conversation.sms?.thread_id!!)?.let {

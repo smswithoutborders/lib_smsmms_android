@@ -11,6 +11,7 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.net.Uri
 import android.os.Build
+import android.os.UserManager
 import android.provider.OpenableColumns
 import android.provider.Telephony
 import android.widget.Toast
@@ -18,8 +19,6 @@ import androidx.activity.ComponentActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.edit
 import androidx.core.os.ConfigurationCompat
-import androidx.core.os.LocaleListCompat
-import androidx.sqlite.db.SupportSQLiteOpenHelper
 import com.afkanerd.lib_smsmms_android.BuildConfig
 import com.afkanerd.lib_smsmms_android.R
 import com.afkanerd.smswithoutborders_libsmsmms.activities.ShareItem
@@ -162,4 +161,9 @@ fun Context.setLocale(languageLocale: String) {
             androidx.core.os.LocaleListCompat.forLanguageTags(languageLocale)
         AppCompatDelegate.setApplicationLocales(appLocale)
     }
+}
+
+fun Context.isSecondaryUser(): Boolean {
+    val userManager = getSystemService(Context.USER_SERVICE) as UserManager
+    return !userManager.isSystemUser
 }
