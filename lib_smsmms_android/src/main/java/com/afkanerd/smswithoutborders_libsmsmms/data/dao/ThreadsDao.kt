@@ -57,6 +57,9 @@ interface ThreadsDao {
     @Update
     fun update(threads: List<Threads>): Int
 
+    @Query("UPDATE Threads SET unread = 0")
+    fun markAllAsRead(): Int
+
     @Query("DELETE FROM Conversations WHERE thread_id IN (:threads)")
     fun deleteConversations(threads: List<Int>)
 

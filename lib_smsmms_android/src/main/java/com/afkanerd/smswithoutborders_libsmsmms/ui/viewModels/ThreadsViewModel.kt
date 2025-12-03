@@ -332,4 +332,10 @@ class ThreadsViewModel: ViewModel() {
             }
         }
     }
+
+    fun markAllAsRead(context: Context) {
+        viewModelScope.launch(Dispatchers.IO) {
+            context.getDatabase().threadsDao()?.markAllAsRead()
+        }
+    }
 }

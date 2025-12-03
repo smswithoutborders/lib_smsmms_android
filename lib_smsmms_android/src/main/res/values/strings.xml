@@ -488,5 +488,6 @@
     <string name="developers">Developers</string>
     <string name="developer_mode">Developer mode</string>
     <string name="subject">Subject: %1$s</string>
+    <string name="mark_all_read">Mark all read</string>
 
 </resources>

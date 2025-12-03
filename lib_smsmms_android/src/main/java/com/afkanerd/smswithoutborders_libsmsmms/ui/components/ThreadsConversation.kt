@@ -582,7 +582,9 @@ fun ThreadsNavMenuItems(
     ) {
         DropdownMenu(
             expanded = expanded,
-            onDismissRequest = { dismissCallback?.let{ it(false) } },
+            onDismissRequest = {
+                dismissCallback?.invoke(false)
+                   },
         ) {
             DropdownMenuItem(
                 text = {
@@ -592,7 +594,7 @@ fun ThreadsNavMenuItems(
                     )
                 },
                 onClick = {
-                    dismissCallback?.let { it(false) }
+                    dismissCallback?.invoke(false)
                     navController.navigate(SettingsScreenNav)
                 }
             )
@@ -606,7 +608,7 @@ fun ThreadsNavMenuItems(
                         )
                     },
                     onClick = {
-                        dismissCallback?.let { it(false) }
+                        dismissCallback?.invoke(false)
                         val filename = "Deku_SMS_All_Backup" + System.currentTimeMillis() + ".json";
                         exportLauncher.launch(filename)
                     }
@@ -621,10 +623,23 @@ fun ThreadsNavMenuItems(
                             )
                         },
                         onClick = {
-                            dismissCallback?.let { it(false) }
+                            dismissCallback?.invoke(false)
                             importLauncher.launch("application/json")
                         }
                     )
+
+                DropdownMenuItem(
+                    text = {
+                        Text(
+                            text= stringResource(R.string.mark_all_read),
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                    },
+                    onClick = {
+                        dismissCallback?.invoke(false)
+                        threadsViewModel.markAllAsRead(context)
+                    }
+                )
             }
 
             HorizontalDivider()
