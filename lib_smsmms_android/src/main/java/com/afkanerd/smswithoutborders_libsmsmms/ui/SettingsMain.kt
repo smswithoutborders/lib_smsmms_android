@@ -43,6 +43,7 @@ import androidx.navigation.compose.rememberNavController
 import com.afkanerd.lib_smsmms_android.R
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getCurrentLocale
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.setLocale
+import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.settingsGetDeleteSystem
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.settingsGetEnable24HourFormat
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.settingsGetEnableContextReplies
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.settingsGetEnableSwipeBehaviour
@@ -51,6 +52,7 @@ import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.settingsGetKe
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.settingsGetStoreTelephonyDb
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.settingsGetTheme
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.settingsSetCanSwipeBehaviour
+import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.settingsSetDeleteSystem
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.settingsSetEnable24HourFormat
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.settingsSetEnableContextReplies
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.settingsSetGetDeliveryReports
@@ -77,6 +79,10 @@ fun SettingsMain(
 
     var theme by remember {
         mutableStateOf(context.settingsGetTheme)
+    }
+
+    var deleteFromTelephonyDb by remember {
+        mutableStateOf(context.settingsGetDeleteSystem)
     }
 
     var storeTelephonyDb by remember {
@@ -212,6 +218,15 @@ fun SettingsMain(
             ) {
                 context.settingsSetStoreTelephonyDb(it ?: storeTelephonyDb)
                 storeTelephonyDb = it ?: storeTelephonyDb
+            }
+
+            SettingsItem(
+                itemTitle = stringResource(R.string.delete_messages_from_system_s_database),
+                itemDescription = stringResource(R.string.this_would_delete_messages_from_system_s_database_accessible_by_other_apps),
+                checked = deleteFromTelephonyDb,
+            ) {
+                context.settingsSetDeleteSystem(it ?: deleteFromTelephonyDb)
+                deleteFromTelephonyDb = it ?: deleteFromTelephonyDb
             }
 
             SettingsItem(

@@ -489,5 +489,7 @@
     <string name="developer_mode">Developer mode</string>
     <string name="subject">Subject: %1$s</string>
     <string name="mark_all_read">Mark all read</string>
+    <string name="delete_messages_from_system_s_database">Delete messages from system\'s database</string>
+    <string name="this_would_delete_messages_from_system_s_database_accessible_by_other_apps">This would delete messages from system\'s database accessible by other apps</string>
 
 </resources>

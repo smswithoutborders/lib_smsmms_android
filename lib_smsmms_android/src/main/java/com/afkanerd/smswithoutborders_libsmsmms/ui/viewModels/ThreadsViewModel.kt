@@ -20,9 +20,11 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.afkanerd.smswithoutborders_libsmsmms.data.entities.Threads
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.blockContact
+import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.deleteSmsThreads
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getDatabase
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.loadRawSmsMmsDb
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.loadRawThreads
+import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.settingsGetDeleteSystem
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.unblockContact
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -186,6 +188,10 @@ class ThreadsViewModel: ViewModel() {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 context.getDatabase().threadsDao()?.delete(threads)
+                if(context.settingsGetDeleteSystem) {
+                    context.deleteSmsThreads(threads
+                        .map { it.threadId.toString() }.toTypedArray())
+                }
             }
         }
     }

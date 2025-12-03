@@ -12,6 +12,7 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.Telephony
 import android.telephony.SmsManager
+import android.text.TextUtils
 import android.util.Base64
 import android.widget.Toast
 import androidx.core.database.getIntOrNull
@@ -31,6 +32,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
+import java.util.Collections
+
 
 @Throws
 fun Context.updateMms(conversation: Conversations) {
@@ -52,6 +55,16 @@ fun Context.updateSms(uri: Uri, conversation: Conversations) {
         e.printStackTrace()
         throw e
     }
+}
+
+fun Context.deleteSmsThreads(threadIds: Array<String>): Int {
+    return contentResolver.delete(
+        Telephony.Sms.CONTENT_URI,
+        Telephony.TextBasedSmsColumns.THREAD_ID + " in (" +
+                TextUtils.join(",",
+                    Collections.nCopies(threadIds.size, "?")) + ")",
+        threadIds
+    )
 }
 
 @Throws

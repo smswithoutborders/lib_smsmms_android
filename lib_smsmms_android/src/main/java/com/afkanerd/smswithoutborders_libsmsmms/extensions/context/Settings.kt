@@ -8,6 +8,7 @@ private object Settings {
     const val SETTINGS_CAN_SWIPE = "SETTINGS_CAN_SWIPE"
     const val SETTINGS_STORE_IN_TELEPHONY = "SETTINGS_STORE_IN_TELEPHONY"
     const val SETTINGS_THEME = "SETTINGS_THEME"
+    const val SETTINGS_DELETE_SYSTEM = "SETTINGS_DELETE_SYSTEM"
     const val SETTINGS_GET_DELIVERY_REPORTS = "SETTINGS_GET_DELIVERY_REPORTS"
     const val SETTINGS_KEEP_MESSAGES_ARCHIVED = "SETTINGS_KEEP_MESSAGES_ARCHIVED"
     const val SETTINGS_ENABLE_CONTEXT_REPLIES = "SETTINGS_ENABLE_CONTEXT_REPLIES"
@@ -56,6 +57,12 @@ val Context.settingsGetEnable24HourFormat get(): Boolean {
     return sharedPreferences.getBoolean(Settings.SETTINGS_ENABLE_24_HOUR_FORMAT, false)
 }
 
+val Context.settingsGetDeleteSystem get(): Boolean {
+    val sharedPreferences = getSharedPreferences(
+        Settings.FILENAME, Context.MODE_PRIVATE)
+    return sharedPreferences.getBoolean(Settings.SETTINGS_DELETE_SYSTEM, true)
+}
+
 fun Context.settingsSetTheme(theme: Int) {
     getSharedPreferences( Settings.FILENAME, Context.MODE_PRIVATE).edit {
         putInt(Settings.SETTINGS_THEME, theme)
@@ -94,6 +101,13 @@ fun Context.settingsSetGetDeliveryReports(state: Boolean) {
 fun Context.settingsSetEnableContextReplies(state: Boolean) {
     getSharedPreferences( Settings.FILENAME, Context.MODE_PRIVATE).edit {
         putBoolean(Settings.SETTINGS_ENABLE_CONTEXT_REPLIES, state)
+        apply()
+    }
+}
+
+fun Context.settingsSetDeleteSystem(state: Boolean) {
+    getSharedPreferences(Settings.FILENAME, Context.MODE_PRIVATE).edit {
+        putBoolean(Settings.SETTINGS_DELETE_SYSTEM, state)
         apply()
     }
 }
