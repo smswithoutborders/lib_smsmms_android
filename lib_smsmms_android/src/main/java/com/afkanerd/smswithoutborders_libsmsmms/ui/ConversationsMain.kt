@@ -202,7 +202,7 @@ fun ConversationsMainLayout(
     var typingMmsImage by remember{ mutableStateOf<Uri?>(null) }
 
     var subscriptionId by remember{ mutableStateOf( if(inPreviewMode) -1 else
-        context.getDefaultSimSubscription()) }
+        context.getDefaultSimSubscription() ?: -1) }
 
     var highlightedMessage by remember{ mutableStateOf<Conversations?>(null) }
 
