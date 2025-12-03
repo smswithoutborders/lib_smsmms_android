@@ -7,6 +7,7 @@ private object Settings {
     const val FILENAME: String = "com.afkanerd.deku.settings"
     const val SETTINGS_CAN_SWIPE = "SETTINGS_CAN_SWIPE"
     const val SETTINGS_STORE_IN_TELEPHONY = "SETTINGS_STORE_IN_TELEPHONY"
+    const val SETTINGS_THEME = "SETTINGS_THEME"
     const val SETTINGS_GET_DELIVERY_REPORTS = "SETTINGS_GET_DELIVERY_REPORTS"
     const val SETTINGS_KEEP_MESSAGES_ARCHIVED = "SETTINGS_KEEP_MESSAGES_ARCHIVED"
     const val SETTINGS_ENABLE_CONTEXT_REPLIES = "SETTINGS_ENABLE_CONTEXT_REPLIES"
@@ -23,6 +24,12 @@ val Context.settingsGetEnableSwipeBehaviour get(): Boolean {
     val sharedPreferences = getSharedPreferences(
         Settings.FILENAME, Context.MODE_PRIVATE)
     return sharedPreferences.getBoolean(Settings.SETTINGS_CAN_SWIPE, false)
+}
+
+val Context.settingsGetTheme get(): Int {
+    val sharedPreferences = getSharedPreferences(
+        Settings.FILENAME, Context.MODE_PRIVATE)
+    return sharedPreferences.getInt(Settings.SETTINGS_THEME, -1)
 }
 
 val Context.settingsGetStoreTelephonyDb get(): Boolean {
@@ -47,6 +54,13 @@ val Context.settingsGetEnable24HourFormat get(): Boolean {
     val sharedPreferences = getSharedPreferences(
         Settings.FILENAME, Context.MODE_PRIVATE)
     return sharedPreferences.getBoolean(Settings.SETTINGS_ENABLE_24_HOUR_FORMAT, false)
+}
+
+fun Context.settingsSetTheme(theme: Int) {
+    getSharedPreferences( Settings.FILENAME, Context.MODE_PRIVATE).edit {
+        putInt(Settings.SETTINGS_THEME, theme)
+        apply()
+    }
 }
 
 fun Context.settingsSetKeepMessagesArchived(state: Boolean) {

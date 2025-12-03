@@ -1,6 +1,5 @@
 package com.afkanerd.smswithoutborders_libsmsmms.ui
 
-import android.R.attr.textColor
 import android.content.res.Configuration
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.clickable
@@ -50,12 +49,14 @@ import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.settingsGetEn
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.settingsGetGetDeliveryReports
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.settingsGetKeepMessagesArchived
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.settingsGetStoreTelephonyDb
+import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.settingsGetTheme
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.settingsSetCanSwipeBehaviour
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.settingsSetEnable24HourFormat
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.settingsSetEnableContextReplies
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.settingsSetGetDeliveryReports
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.settingsSetKeepMessagesArchived
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.settingsSetStoreTelephonyDb
+import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.settingsSetTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -73,6 +74,10 @@ fun SettingsMain(
 
     var localeExpanded by remember { mutableStateOf(inPreviewMode) }
     var themeExpanded by remember { mutableStateOf(false) }
+
+    var theme by remember {
+        mutableStateOf(context.settingsGetTheme)
+    }
 
     var storeTelephonyDb by remember {
         mutableStateOf(context.settingsGetStoreTelephonyDb)
@@ -151,9 +156,9 @@ fun SettingsMain(
 
             SettingsItem(
                 itemTitle = stringResource(R.string.theme),
-                itemDescription = when(currentNightMode) {
-                    Configuration.UI_MODE_NIGHT_YES -> stringResource(R.string.dark)
-                    Configuration.UI_MODE_NIGHT_NO -> stringResource(R.string.light)
+                itemDescription = when(theme) {
+                    AppCompatDelegate.MODE_NIGHT_YES -> stringResource(R.string.dark)
+                    AppCompatDelegate.MODE_NIGHT_NO -> stringResource(R.string.light)
                     else -> stringResource(R.string.system_default)
                 },
                 checked = null,
@@ -170,28 +175,31 @@ fun SettingsMain(
                     expanded = themeExpanded,
                     onDismissRequest = { themeExpanded = false }
                 ) {
+                    fun onThemeSelect(selectedTheme: Int) {
+                        theme = selectedTheme
+                        AppCompatDelegate.setDefaultNightMode(theme)
+                        themeExpanded = false
+                        context.settingsSetTheme(theme)
+                    }
+
                     DropdownMenuItem(
                         text = { Text(stringResource(R.string.light)) },
                         onClick = {
-                            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-                            themeExpanded = false
+                            onThemeSelect(AppCompatDelegate.MODE_NIGHT_NO)
                         }
                     )
 
                     DropdownMenuItem(
                         text = { Text(stringResource(R.string.dark)) },
                         onClick = {
-                            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-                            themeExpanded = false
+                            onThemeSelect(AppCompatDelegate.MODE_NIGHT_YES)
                         }
                     )
 
                     DropdownMenuItem(
                         text = { Text(stringResource(R.string.system_default)) },
                         onClick = {
-                            AppCompatDelegate
-                                .setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
-                            themeExpanded = false
+                            onThemeSelect(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
                         }
                     )
                 }
