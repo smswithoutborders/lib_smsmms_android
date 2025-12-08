@@ -250,6 +250,7 @@ class ThreadsViewModel: ViewModel() {
                         messagesLoading = false
                         secondaryMessagesLoading = true
                     }
+                    messagesLoading = false
                 } catch(e: Exception) {
                     e.printStackTrace()
                 } finally {
