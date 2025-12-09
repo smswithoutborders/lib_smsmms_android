@@ -45,6 +45,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -442,7 +443,8 @@ fun ConversationsMainLayout(
         }
 
         val subscriptionId by remember{
-            mutableStateOf(conversation.sms?.sub_id ?: subscriptionId) }
+            mutableLongStateOf(conversation.sms?.sub_id ?: subscriptionId)
+        }
 
         val date by remember { mutableStateOf(
             if(inPreviewMode) "1234567"
@@ -455,10 +457,12 @@ fun ConversationsMainLayout(
 
         val position = if(!conversation.mms_content_uri.isNullOrEmpty()) {
             ConversationPositionTypes.END
-        } else getConversationType(
+        } else viewModel.getMessagePositionType(
             index,
             conversation,
-            inboxMessagesItems.itemSnapshotList.items
+            if(index == 0) null else inboxMessagesItems.peek(index - 1),
+            if(index + 1 >= inboxMessagesItems.itemCount) null else
+                inboxMessagesItems.peek(index + 1),
         )
 
 

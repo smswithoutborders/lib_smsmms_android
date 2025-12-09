@@ -13,12 +13,14 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.afkanerd.lib_smsmms_android.R
+import com.afkanerd.smswithoutborders_libsmsmms.data.data.models.DateTimeUtils
 import com.afkanerd.smswithoutborders_libsmsmms.data.data.models.SmsMmsNatives
 import com.afkanerd.smswithoutborders_libsmsmms.data.entities.Conversations
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getDatabase
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.sendMms
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.sendSms
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.settingsGetKeepMessagesArchived
+import com.afkanerd.smswithoutborders_libsmsmms.ui.components.ConversationPositionTypes
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -326,4 +328,86 @@ class ConversationsViewModel : ViewModel(),  CustomConversationServices {
             }
         }
     }
+
+    private fun isGroup(
+        index: Int,
+        conversation: Conversations,
+        previousConversation: Conversations?,
+        nextConversation: Conversations?
+    ) : ConversationPositionTypes? {
+        if(index == 0) {
+            // check next
+            if(nextConversation?.sms?.type == conversation.sms?.type) {
+                if(DateTimeUtils.isSameMinute(conversation.sms!!.date,
+                        nextConversation?.sms!!.date)) {
+                    return ConversationPositionTypes.END
+                }
+            }
+        }
+        else if(nextConversation == null) {
+            if(DateTimeUtils.isSameMinute(conversation.sms!!.date,
+                    previousConversation?.sms!!.date)) {
+                return ConversationPositionTypes.START_TIMESTAMP
+            }
+        }
+        else {
+            if(nextConversation.sms?.type == conversation.sms?.type &&
+                previousConversation?.sms?.type == conversation.sms?.type) {
+                if(DateTimeUtils.isSameMinute(conversation.sms!!.date,
+                            previousConversation?.sms!!.date) &&
+                    DateTimeUtils.isSameMinute(conversation.sms!!.date,
+                        nextConversation.sms!!.date)) {
+                    return ConversationPositionTypes.MIDDLE
+                }
+
+                if(DateTimeUtils.isSameMinute(conversation.sms!!.date,
+                        previousConversation.sms!!.date) &&
+                    !DateTimeUtils.isSameMinute(conversation.sms!!.date,
+                        nextConversation.sms!!.date)) {
+                    if(!DateTimeUtils.isSameHour(conversation.sms!!.date,
+                            nextConversation.sms!!.date)) {
+                        return ConversationPositionTypes.START_TIMESTAMP
+                    }
+                    return ConversationPositionTypes.START
+                }
+
+                if(!DateTimeUtils.isSameMinute(conversation.sms!!.date,
+                        previousConversation.sms!!.date) &&
+                    DateTimeUtils.isSameMinute(conversation.sms!!.date,
+                        nextConversation.sms!!.date)) {
+                    return ConversationPositionTypes.END
+                }
+            }
+        }
+        return null
+    }
+
+    fun getMessagePositionType(
+        index: Int,
+        conversation: Conversations,
+        previousConversation: Conversations?,
+        nextConversation: Conversations?
+    ) : ConversationPositionTypes {
+        if(index == 0 && nextConversation == null) {
+            return ConversationPositionTypes.NORMAL_TIMESTAMP
+        }
+
+        val groupType = isGroup(
+            index,
+            conversation,
+            previousConversation,
+            nextConversation
+        )
+
+        if(groupType != null) return groupType
+
+        if(nextConversation == null || !DateTimeUtils.isSameHour(conversation.sms!!.date,
+                nextConversation.sms?.date)) {
+            return ConversationPositionTypes.NORMAL_TIMESTAMP
+        }
+
+        return ConversationPositionTypes.NORMAL
+    }
+
+
 }
