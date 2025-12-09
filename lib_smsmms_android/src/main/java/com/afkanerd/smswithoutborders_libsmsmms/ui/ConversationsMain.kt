@@ -234,7 +234,7 @@ fun ConversationsMainLayout(
                         body = typingText,
                         mmsUri = typingMmsImage,
                         address = address,
-                        subId = subscriptionId!!,
+                        subId = subscriptionId,
                         threadId = threadId,
                     ) {}
                 }
@@ -338,7 +338,7 @@ fun ConversationsMainLayout(
                     if(it.sub_id > -1) {
                         subscriptionId = it.sub_id
                         println("Custom subscription: $subscriptionId: " +
-                                context.getSubscriptionName(subscriptionId!!)
+                                context.getSubscriptionName(subscriptionId)
                         )
                     }
                 }
@@ -353,7 +353,7 @@ fun ConversationsMainLayout(
             text = typingText,
             mmsUri = typingMmsImage,
             address = address,
-            subId = subscriptionId!!,
+            subId = subscriptionId,
             viewModel = viewModel,
             navController = navController,
             threadId = threadId,
@@ -400,7 +400,7 @@ fun ConversationsMainLayout(
                 typingText,
                 typingMmsImage,
                 address,
-                subscriptionId!!,
+                subscriptionId,
                 viewModel = viewModel,
                 navController=navController,
                 threadId = threadId,
@@ -424,14 +424,11 @@ fun ConversationsMainLayout(
     fun TextConversationCard(
         conversation: Conversations,
         index: Int,
+        showDate: Boolean,
+        date: String,
+        onLongClickCallback: () -> Unit,
+        onClickCallback: () -> Unit,
     ) {
-        var showDate by remember{ mutableStateOf(when {
-            index == 0 ||
-                    conversation.sms?.status == Telephony.Sms.STATUS_PENDING ||
-                    conversation.sms?.status == Telephony.Sms.STATUS_FAILED -> true
-            else -> false
-        }) }
-
         val timestamp by remember { mutableStateOf(
             if(inPreviewMode) "1234567"
             else {
@@ -444,15 +441,6 @@ fun ConversationsMainLayout(
 
         val subscriptionId by remember{
             mutableLongStateOf(conversation.sms?.sub_id ?: subscriptionId)
-        }
-
-        val date by remember { mutableStateOf(
-            if(inPreviewMode) "1234567"
-            else { deriveMetaDate(conversation) +
-                    if(dualSim) {
-                        " • " + context.getSubscriptionName(subscriptionId!!)
-                    } else ""
-            })
         }
 
         val position = if(!conversation.mms_content_uri.isNullOrEmpty()) {
@@ -507,54 +495,8 @@ fun ConversationsMainLayout(
             mmsContentUri = conversation.mms_content_uri?.toUri(),
             mmsMimeType = conversation.mms_mimetype,
             mmsFilename = conversation.mms_filename,
-            onClickCallback = {
-                if (selectedItems.isNotEmpty()) {
-                    if (selectedItems.contains(conversation))
-                        viewModel.setSelectedItems(
-                            selectedItems.toMutableList().apply {
-                                this.remove(conversation)
-                            }
-                        )
-                    else
-                       viewModel.setSelectedItems(
-                            selectedItems.toMutableList().apply {
-                                this.add(conversation)
-                            }
-                        )
-                }
-                else if(conversation.sms?.type ==
-                    Telephony.Sms.MESSAGE_TYPE_FAILED) {
-                    highlightedMessage = conversation
-                    showFailedRetryModal = true
-                }
-                else if(conversation.mms_content_uri != null) {
-                    navController.navigate(ImageViewScreenNav(
-                        contentUri = conversation.mms_content_uri.toString(),
-                        address = contactName,
-                        date = date,
-                        filename = conversation.mms_filename
-                            ?: System.currentTimeMillis().toString(),
-                        mimeType = conversation.mms_mimetype ?: "image/jpeg",
-                    ))
-                }
-                else {
-                    showDate = !showDate
-                }
-            },
-            onLongClickCallback = {
-                if (selectedItems.contains(conversation))
-                    viewModel.setSelectedItems(
-                        selectedItems.toMutableList().apply {
-                            this.remove(conversation)
-                        }
-                    )
-                else
-                    viewModel.setSelectedItems(
-                        selectedItems.toMutableList().apply {
-                            this.add(conversation)
-                        }
-                    )
-            },
+            onClickCallback = onClickCallback,
+            onLongClickCallback = onLongClickCallback,
             isSelected = selectedItems.contains(conversation),
         )
 
@@ -626,7 +568,7 @@ fun ConversationsMainLayout(
                                 text = typingText,
                                 mmsUri = typingMmsImage,
                                 address = address,
-                                subId = subscriptionId!!,
+                                subId = subscriptionId,
                                 viewModel = viewModel,
                                 navController = navController,
                                 threadId = threadId,
@@ -735,7 +677,7 @@ fun ConversationsMainLayout(
                 ) {
                     ChatCompose(
                         value = typingText,
-                        subscriptionId = subscriptionId!!,
+                        subscriptionId = subscriptionId,
                         simCardChooserCallback = if(dualSim) {
                             { openSimCardChooser = true}
                         } else null,
@@ -754,7 +696,7 @@ fun ConversationsMainLayout(
                                 it,
                                 text = typingText,
                                 address = address,
-                                subscriptionId = subscriptionId!!,
+                                subscriptionId = subscriptionId,
                                 threadId = threadId,
                                 filename = context.getFileNameFromUri(it)
                                     ?: System.currentTimeMillis().toString(),
@@ -768,7 +710,7 @@ fun ConversationsMainLayout(
                                 context,
                                 text = typingText,
                                 address = address,
-                                subscriptionId = subscriptionId!!,
+                                subscriptionId = subscriptionId,
                                 threadId = threadId,
                                 data = null
                             ){}
@@ -801,12 +743,93 @@ fun ConversationsMainLayout(
             ) {
                 items(
                     count = inboxMessagesItems.itemCount,
+                    contentType = {
+                        viewModel.getMessagePositionType(
+                            it,
+                            inboxMessagesItems.peek(it)!!,
+                            if(it > 0)
+                                inboxMessagesItems.peek(it - 1)!! else null,
+                            if(it + 1 < inboxMessagesItems.itemCount)
+                                inboxMessagesItems.peek(it + 1)!! else null,
+                        )
+                    },
                     key =  inboxMessagesItems.itemKey{ it.id }
                 ) { index -> inboxMessagesItems[index]?.let { conversation ->
                         if(conversation.sms_data != null) {
                             customDataView?.invoke(conversation)
                         } else {
-                            TextConversationCard(conversation, index)
+                            var showDate by remember(index){
+                                mutableStateOf(
+                                    when {
+                                        index == 0 ||
+                                        conversation.sms?.status == Telephony.Sms.STATUS_PENDING ||
+                                        conversation.sms?.status ==
+                                                Telephony.Sms.STATUS_FAILED -> true
+                                else -> false
+                            })}
+
+                            val date by remember { mutableStateOf(
+                                if(inPreviewMode) "1234567"
+                                else { deriveMetaDate(conversation) +
+                                        if(dualSim) {
+                                            " • " + context.getSubscriptionName(subscriptionId)
+                                        } else ""
+                                })
+                            }
+
+                            TextConversationCard(
+                                conversation,
+                                index,
+                                showDate,
+                                date,
+                                onLongClickCallback = {
+                                    if (selectedItems.contains(conversation))
+                                        viewModel.setSelectedItems(
+                                            selectedItems.toMutableList().apply {
+                                                this.remove(conversation)
+                                            }
+                                        )
+                                    else
+                                        viewModel.setSelectedItems(
+                                            selectedItems.toMutableList().apply {
+                                                this.add(conversation)
+                                            }
+                                        )
+                                }
+                            ) {
+                                if (selectedItems.isNotEmpty()) {
+                                    if (selectedItems.contains(conversation))
+                                        viewModel.setSelectedItems(
+                                            selectedItems.toMutableList().apply {
+                                                this.remove(conversation)
+                                            }
+                                        )
+                                    else
+                                        viewModel.setSelectedItems(
+                                            selectedItems.toMutableList().apply {
+                                                this.add(conversation)
+                                            }
+                                        )
+                                }
+                                else if(conversation.sms?.type ==
+                                    Telephony.Sms.MESSAGE_TYPE_FAILED) {
+                                    highlightedMessage = conversation
+                                    showFailedRetryModal = true
+                                }
+                                else if(conversation.mms_content_uri != null) {
+                                    navController.navigate(ImageViewScreenNav(
+                                        contentUri = conversation.mms_content_uri.toString(),
+                                        address = contactName,
+                                        date = date,
+                                        filename = conversation.mms_filename
+                                            ?: System.currentTimeMillis().toString(),
+                                        mimeType = conversation.mms_mimetype ?: "image/jpeg",
+                                    ))
+                                }
+                                else {
+                                    showDate = !showDate
+                                }
+                            }
                         }
                     }
                 }
@@ -872,7 +895,7 @@ fun ConversationsMainLayout(
                                     uri,
                                     text = conversation.mms_text ?: conversation.sms?.body ?: "",
                                     address = address,
-                                    subscriptionId = subscriptionId!!,
+                                    subscriptionId = subscriptionId,
                                     threadId = threadId,
                                     filename = context.getFileNameFromUri(uri)
                                         ?: System.currentTimeMillis().toString(),
@@ -885,7 +908,7 @@ fun ConversationsMainLayout(
                                     context,
                                     text = typingText,
                                     address = address,
-                                    subscriptionId = subscriptionId!!,
+                                    subscriptionId = subscriptionId,
                                     threadId = threadId,
                                     data = null
                                 ){
