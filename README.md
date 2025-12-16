@@ -11,13 +11,13 @@ The [requirements](https://developer.android.com/guide/topics/permissions/defaul
   
 - Make as default Composable
 
-- Messaging threads View: \
+- Messaging threads View:
   - Includes search, CRUD, Navigation modals and toolbar dropdowns for settings (extenable), muting etc...
 
 - Search threads View
   
-- Conversation Views: \
-  - Message composition (typing) view with multi-sim and MMS support \
+- Conversation Views:
+  - Message composition (typing) view with multi-sim and MMS support
   - Includes search, CRUD, Contact details view, muting etc..
 
 
