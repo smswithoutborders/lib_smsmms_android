@@ -5,7 +5,20 @@ Lib SMS/MMS is an Android based library which provides the defaults necessary to
 The [requirements](https://developer.android.com/guide/topics/permissions/default-handlers#follow-requirements-default-handlers) to be a default SMS app as put by Google's Playstore includes:
 - Ability to send and receive SMS/MMS messages; Receiving MMS does not mean processing it - just the ability for the system to know your app is the receipien of the incoming broadcast.
 - Ability to present users with a thread of their incoming/outgoing messages; this is written in the requirements of the playstore documents, but upon submission of your SMS app the Playstore review would send a request for this.
-- 
+
+## Features
+- Jetpack Compose Navigation Graph (extendable to include custom routes)
+  
+- Make as default Composable
+
+- Messaging threads View: \
+  -- Includes search, CRUD, Navigation modals and toolbar dropdowns for settings (extenable), muting etc...
+
+- Search threads View
+  
+- Conversation Views: \
+  -- Message composition (typing) view with multi-sim and MMS support \
+  -- Includes search, CRUD, Contact details view, muting etc..
 
 
 ## Dependencies
@@ -66,4 +79,35 @@ override fun onReceive(context: Context?, intent: Intent?) {
                 }
 
                 ....
+```
+
+## Implementing within your app
+Within your app, you may need to implement some default Composable functionalities of `lib_sms_mms_android`. 
+
+### Navigation
+In your main activity handling your navigation, you can utilize the `NavHostControllerInstance(...)` to provide navigation from within your app and the library.
+
+```kotlin
+@Composable
+fun NavHostControllerInstance(
+    newLayoutInfo: WindowLayoutInfo,
+    navController: NavHostController,
+    threadsViewModel: ThreadsViewModel,
+    searchViewModel: SearchViewModel,
+    threadsMainMenuItems: (@Composable ((Boolean) -> Unit) -> Unit)? = null,
+    customMenuItems: (@Composable ((Boolean) -> Unit) -> Unit)? = null,
+    conversationsCustomComposable: (@Composable (CustomsConversationsViewModel?) -> Unit)? = null,
+    conversationsCustomViewModel: CustomsConversationsViewModel? = null,
+    conversationsCustomDataView: (@Composable (Conversations) -> Unit)? = null,
+    modalNavigationModalItems:
+    (@Composable ((ThreadsViewModel.InboxType) -> () -> Unit) -> Unit)? = null,
+    startDestination: Any = HomeScreenNav(),
+    customBottomBar: @Composable (() -> Unit)? = null,
+    customThreadsView: @Composable (() -> Unit)? = null,
+    showThreadsTopBar: Boolean = true,
+    appName: String = stringResource(R.string.lib_app_name),
+    builder: NavGraphBuilder.() -> Unit,
+) {
+    ...
+}
 ```
