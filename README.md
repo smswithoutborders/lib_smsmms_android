@@ -110,4 +110,61 @@ fun NavHostControllerInstance(
 ) {
     ...
 }
+
+// Usage in your main activity
+
+private lateinit var navController: NavHostController
+
+private val threadsViewModel: ThreadsViewModel by viewModels()
+private lateinit var searchViewModel: SearchViewModel
+
+AppTheme {
+      Surface(Modifier.fillMaxSize()) {
+          NavHostControllerInstance(
+              newLayoutInfo = newLayoutInfo,
+              navController = navController,
+              threadsViewModel = threadsViewModel,
+              searchViewModel = searchViewModel,
+              threadsMainMenuItems = {
+                  DropdownMenuItem(
+                      text = {
+                          Text(
+                              text= stringResource(R.string.homepage_menu_routed),
+                              color = MaterialTheme.colorScheme.onBackground
+                          )
+                      },
+                      onClick = {
+                          navController.navigate(RemoteForwardingScreen)
+                          it(false)
+                      }
+                  ),
+
+                  ...
+              },
+              customMenuItems = {
+                  DropdownMenuItem(
+                      text = {
+                          Text(
+                              text= stringResource(com.afkanerd.deku.DefaultSMS.R.string.secure),
+                              color = MaterialTheme.colorScheme.onBackground
+                          )
+                      },
+                      onClick = {
+                          secureViewModel.setModal(true)
+                      }
+                  )
+              },
+              conversationsCustomViewModel = secureViewModel,
+              conversationsCustomComposable = { vm ->
+                  ...
+              },
+              conversationsCustomDataView = { 
+                  ...
+              }
+          ) {
+              composable<Screen> {
+                  ...
+              }
+              ...
+          }
 ```
