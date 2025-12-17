@@ -111,7 +111,7 @@ fun NavHostControllerInstance(
     ...
 }
 
-// Usage in your main activity
+// Example usage in your main activity
 
 private lateinit var navController: NavHostController
 
