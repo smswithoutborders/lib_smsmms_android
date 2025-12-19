@@ -22,6 +22,28 @@ The [requirements](https://developer.android.com/guide/topics/permissions/defaul
 
 
 ## Dependencies
+
+Add it in your root settings.gradle at the end of repositories:
+
+```gradle
+dependencyResolutionManagement {
+  repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+  repositories {
+    mavenCentral()
+    maven { url 'https://jitpack.io' }
+  }
+}
+```
+
+Step 2. Add the dependency
+```gradle
+dependencies {
+	        implementation 'com.github.smswithoutborders:lib_smsmms_android:Tag'
+}
+```
+
+
+
 While `lib_sms_mms` provides the [default permissions](https://developer.android.com/guide/topics/permissions/default-handlers#follow-requirements-default-handlers) required to be a default SMS messaging app for Android, the developer would need to handle configuration of the following.
 
 The library broadcast incoming messages (including delivery reports) using the - add this receiver in your app and handle the incoming broadcast
@@ -42,7 +64,7 @@ The library broadcast incoming messages (including delivery reports) using the -
 ...
 ```
 
-## Parsing incoming messages
+## Handling incoming messages
 When the lib_sms_mms receives an incoming message, it processes the message and stores in Conversations Database. The incoming broadcast is rebroadcasted with the actions above which handled and provide notifications for the users.
 
 The notification can be done with `context.notify(...)`.
