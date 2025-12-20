@@ -395,7 +395,7 @@ fun ConversationsMainDropDownMenu(
         ) {
 
             customMenuCallbacks?.invoke {
-                dismissCallback?.invoke(it)
+                dismissCallback?.invoke( it )
             }
 
             HorizontalDivider()
