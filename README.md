@@ -87,7 +87,8 @@ override fun onReceive(context: Context?, intent: Intent?) {
                 val type = intent.getStringExtra("type")
                 CoroutineScope(Dispatchers.IO).launch {
                     context?.getDatabase()?.conversationsDao()?.getConversation(id)?.let { conversation ->
-                    ...
+	                    ...
+					}
 
                     if(type == NotificationTxType.DATA.name) {
                         // The incoming SMS is a data type
