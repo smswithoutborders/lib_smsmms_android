@@ -81,11 +81,11 @@ class ThreadsViewModel: ViewModel() {
         _selectedItems.value = emptyList()
     }
 
-    var pageSize: Int = 50
+    var pageSize: Int = 200
     var prefetchDistance: Int = 3 * pageSize
     var enablePlaceholder: Boolean = true
     var initialLoadSize: Int = 2 * pageSize
-    var maxSize: Int = PagingConfig.Companion.MAX_SIZE_UNBOUNDED
+    var maxSize: Int = PagingConfig.MAX_SIZE_UNBOUNDED
 
     private var threadsPager: Flow<PagingData<Threads>>? = null
     private var archivePager: Flow<PagingData<Threads>>? = null
