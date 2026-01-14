@@ -172,7 +172,6 @@ fun SearchThreadsMain(
                     else "Tues"
 
                     ThreadConversationCard(
-                        phoneNumber = message.address,
                         id = message.threadId,
                         firstName = firstName,
                         lastName = lastName,
@@ -189,6 +188,7 @@ fun SearchThreadsMain(
                             },
                         ),
                         type = message.type,
+                        contactPhotoUri = ""
                     )
                 }
             }

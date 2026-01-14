@@ -1,12 +1,12 @@
 package com.afkanerd.smswithoutborders_libsmsmms.ui.components
 
 import android.Manifest
-import android.content.Context
 import android.content.res.Configuration
 import android.provider.Telephony
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -50,6 +50,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -71,7 +72,6 @@ import coil3.compose.AsyncImage
 import com.afkanerd.lib_smsmms_android.BuildConfig
 import com.afkanerd.lib_smsmms_android.R
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.exportRawWithColumnGuesses
-import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.retrieveContactPhoto
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.toHslColor
 import com.afkanerd.smswithoutborders_libsmsmms.ui.navigation.SettingsScreenNav
 import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.ThreadsViewModel
@@ -210,20 +210,18 @@ fun ImportDetails(
 
 @Composable
 private fun ThreadConversationsAvatar(
-    context: Context,
     id: Int,
     firstName: String,
     lastName: String,
-    phoneNumber: String,
-    isContact: Boolean = true
+    isContact: Boolean = true,
+    contactPhotoUri: String?,
 ) {
-
     Box(Modifier.size(40.dp), contentAlignment = Alignment.Center) {
         if (isContact) {
-            val contactPhotoUri = remember(phoneNumber) {
-                context.retrieveContactPhoto(phoneNumber)
-            }
-            if (!contactPhotoUri.isNullOrEmpty() && contactPhotoUri != "null") {
+//            val contactPhotoUri = remember(phoneNumber) {
+//                context.retrieveContactPhoto(phoneNumber)
+//            }
+            if (!contactPhotoUri.isNullOrEmpty()) {
                 AsyncImage(
                     model = contactPhotoUri,
                     contentDescription = "Contact Image",
@@ -232,9 +230,7 @@ private fun ThreadConversationsAvatar(
                         .clip(CircleShape)
                 )
             } else {
-                val color = remember(id, firstName, lastName) {
-                    Color("$id / $firstName".toHslColor())
-                }
+                val color = Color("$id / $firstName".toHslColor())
                 val initials = (firstName.take(1) + lastName.take(1)).uppercase()
                 Canvas(modifier = Modifier.fillMaxSize()) {
                     drawCircle(SolidColor(color))
@@ -256,7 +252,6 @@ private fun ThreadConversationsAvatar(
 
 @Composable
 fun ThreadConversationCard(
-    phoneNumber: String,
     id: Int,
     firstName: String,
     lastName: String,
@@ -266,22 +261,27 @@ fun ThreadConversationCard(
     isContact: Boolean,
     unreadCount: Int = 0,
     modifier: Modifier,
+    contactPhotoUri: String?,
     isSelected: Boolean = false,
     isMuted: Boolean = false,
     isBlocked: Boolean = false,
     type: Int,
-    mms: Boolean = false
+    mms: Boolean = false,
 ) {
     val context = LocalContext.current
 
-    var weight = FontWeight.Bold
-    val colorHeadline = when {
-        isRead || isBlocked -> {
-            weight = FontWeight.Normal
-            MaterialTheme.colorScheme.secondary
-        }
-        else -> MaterialTheme.colorScheme.onBackground
+    val weight = if(isRead || isBlocked) {
+        FontWeight.Normal
+    } else {
+        FontWeight.Bold
     }
+
+    val colorHeadline = if(isRead || isBlocked) {
+        MaterialTheme.colorScheme.secondary
+    } else {
+        MaterialTheme.colorScheme.onBackground
+    }
+
     val colorContent = when(type) {
         Telephony.Sms.MESSAGE_TYPE_FAILED ->
             MaterialTheme.colorScheme.error
@@ -289,16 +289,67 @@ fun ThreadConversationCard(
         else -> colorHeadline
     }
 
+    val containerColor by animateColorAsState(
+        if (isSelected)
+            MaterialTheme.colorScheme.primaryContainer
+        else
+            MaterialTheme.colorScheme.background,
+        label = "containerColor"
+    )
+
+    val name = remember(firstName, lastName) {
+        "$firstName $lastName"
+    }
+
+    val supportContent = remember(type) {
+        when(type) {
+            Telephony.Sms.MESSAGE_TYPE_DRAFT ->
+                context.getString(R.string.thread_conversation_type_draft) + ": $content"
+            Telephony.Sms.MESSAGE_TYPE_QUEUED,
+            Telephony.Sms.MESSAGE_TYPE_OUTBOX ->
+                context.getString(R.string.sms_status_sending)+ ": $content"
+            Telephony.Sms.MESSAGE_TYPE_FAILED ->
+                context.getString(R.string.sms_status_failed_only)+ ": $content"
+            Telephony.Sms.MESSAGE_TYPE_SENT ->
+                context.getString(R.string.messages_thread_you)+ " $content"
+            else -> content.ifEmpty {
+                if (mms) {
+                    context.getString(R.string.image)
+                }
+                else ""
+            }
+        }
+    }
+
+    val fontStyle = remember(type) {
+        if(
+            type == Telephony.Sms.MESSAGE_TYPE_DRAFT ||
+            type == Telephony.Sms.MESSAGE_TYPE_QUEUED ||
+            type == Telephony.Sms.MESSAGE_TYPE_FAILED
+        ) FontStyle.Italic else null
+    }
+
+    val maxLine = if(isRead) 1 else 3
+
+    val avatar = @androidx.compose.runtime.Composable {
+        ThreadConversationsAvatar(
+            id,
+            firstName,
+            lastName,
+            isContact,
+            contactPhotoUri,
+        )
+    }
+
     ListItem(
         modifier = modifier,
         colors = ListItemDefaults.colors(
-            containerColor = if(isSelected) MaterialTheme.colorScheme.primaryContainer
-            else MaterialTheme.colorScheme.background
+            containerColor =containerColor
         ),
         headlineContent = {
             Row {
                 Text(
-                    text = "$firstName $lastName",
+                    text = name,
                     color = colorHeadline,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = weight
@@ -319,29 +370,12 @@ fun ThreadConversationCard(
         },
         supportingContent = {
             Text(
-                text = when(type) {
-                    Telephony.Sms.MESSAGE_TYPE_DRAFT ->
-                        stringResource(R.string.thread_conversation_type_draft) + ": $content"
-                    Telephony.Sms.MESSAGE_TYPE_QUEUED,
-                    Telephony.Sms.MESSAGE_TYPE_OUTBOX ->
-                        stringResource(R.string.sms_status_sending)+ ": $content"
-                    Telephony.Sms.MESSAGE_TYPE_FAILED ->
-                        stringResource(R.string.sms_status_failed_only)+ ": $content"
-                    Telephony.Sms.MESSAGE_TYPE_SENT ->
-                        stringResource(R.string.messages_thread_you)+ " $content"
-                    else -> content.ifEmpty {
-                        if(mms) { stringResource(R.string.image) } else ""
-                    }
-                },
+                text = supportContent,
                 color = colorContent,
                 style = MaterialTheme.typography.bodySmall,
-                fontStyle = if(
-                    type == Telephony.Sms.MESSAGE_TYPE_DRAFT ||
-                    type == Telephony.Sms.MESSAGE_TYPE_QUEUED ||
-                    type == Telephony.Sms.MESSAGE_TYPE_FAILED
-                    ) FontStyle.Italic else null,
+                fontStyle = fontStyle,
                 fontWeight = weight,
-                maxLines = if(isRead) 1 else 3,
+                maxLines = maxLine,
             )
         },
         trailingContent = {
@@ -353,16 +387,7 @@ fun ThreadConversationCard(
                 modifier = Modifier.padding(bottom = 24.dp)
             )
         },
-        leadingContent = {
-            ThreadConversationsAvatar(
-                context,
-                id,
-                firstName,
-                lastName,
-                phoneNumber,
-                isContact
-            )
-        }
+        leadingContent = avatar
     )
 }
 
@@ -803,7 +828,6 @@ fun MainMenuDropDown_Preview() {
 @Composable
 fun ThreadConversationCard_Preview() {
     ThreadConversationCard(
-        phoneNumber = "+237652156811",
         id = 1,
         firstName = "Jane",
         lastName = "Doe",
@@ -816,7 +840,8 @@ fun ThreadConversationCard_Preview() {
         isSelected = false,
         isMuted = false,
         isBlocked = false,
-        type = 0
+        type = 0,
+        contactPhotoUri = ""
     )
 }
 

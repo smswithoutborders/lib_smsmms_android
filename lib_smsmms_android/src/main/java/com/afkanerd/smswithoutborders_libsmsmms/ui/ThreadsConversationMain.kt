@@ -512,33 +512,7 @@ fun ThreadConversationLayout(
                                     count = displayedInbox.itemCount,
                                     key = displayedInbox.itemKey { it.threadId }
                                 ) { index ->
-                                    val thread = displayedInbox[index]
-
-                                    val address = thread!!.address
-                                    val isBlocked = if(isDefault)
-                                        threadsViewModel.isBlocked(context, thread,
-                                            blockedMessagesItems.itemSnapshotList.items)
-                                    else false
-
-                                    val contactName = if(isDefault)
-                                        context.retrieveContactName(address)
-                                    else address
-
-                                    var firstName by remember { mutableStateOf(address) }
-                                    var lastName by remember { mutableStateOf("") }
-
-                                    if (!contactName.isNullOrEmpty()) {
-                                        contactName.split(" ").let {
-                                            firstName = it[0]
-                                            if (it.size > 1)
-                                                lastName = it[1]
-                                        }
-                                    }
-
-                                    val date = if(!inPreviewMode) DateTimeUtils.formatDate(
-                                        context,
-                                        thread.date
-                                    ) ?: "" else "Tues"
+                                    val thread = displayedInbox[index] ?: return@items
 
                                     val offsetX = remember { Animatable(0f) }
                                     val threshold = 300f
@@ -604,11 +578,53 @@ fun ThreadConversationLayout(
                                                     }
                                                 }
                                         ) {
+                                            val address = thread.address
+
+                                            val isBlocked = remember(thread.threadId) {
+                                                if(isDefault)
+                                                    threadsViewModel.isBlocked(context, thread,
+                                                        blockedMessagesItems.itemSnapshotList.items)
+                                                else false
+                                            }
+
+                                            val contactName = remember(address) {
+                                                if(isDefault)
+                                                    context.retrieveContactName(address)
+                                                else address
+                                            }
+
+
+                                            val firstName = remember(address) { mutableStateOf(address) }
+                                            val lastName = remember(firstName) {
+                                                if (!contactName.isNullOrEmpty()) {
+                                                    contactName.split(" ").let { name ->
+                                                        firstName.value = name[0]
+                                                        if (name.size > 1)
+                                                            name[1]
+                                                    }
+                                                }
+                                                ""
+                                            }
+
+                                            val contactPhotoUri by threadsViewModel
+                                                .contactPhoto(context, address)
+                                                .collectAsState()
+
+                                            val isSelected = remember(selectedItems) {
+                                                selectedItems.contains(thread)
+                                            }
+
+                                            val date = remember(thread.date) {
+                                                if(!inPreviewMode) DateTimeUtils.formatDate(
+                                                    context,
+                                                    thread.date
+                                                ) ?: "" else "Tues"
+                                            }
+
                                             ThreadConversationCard(
                                                 id = thread.threadId,
-                                                firstName = firstName,
+                                                firstName = firstName.value,
                                                 lastName = lastName,
-                                                phoneNumber = address,
                                                 content = thread.snippet,
                                                 date = date,
                                                 isRead = !thread.unread,
@@ -649,11 +665,12 @@ fun ThreadConversationLayout(
                                                         )
                                                     }
                                                 ),
-                                                isSelected = selectedItems.contains(thread),
+                                                isSelected = isSelected,
                                                 isMuted = thread.isMute,
                                                 type = thread.type,
                                                 unreadCount = thread.unreadCount,
-                                                mms = thread.isMms
+                                                mms = thread.isMms,
+                                                contactPhotoUri = contactPhotoUri,
                                             )
                                         }
                                     }

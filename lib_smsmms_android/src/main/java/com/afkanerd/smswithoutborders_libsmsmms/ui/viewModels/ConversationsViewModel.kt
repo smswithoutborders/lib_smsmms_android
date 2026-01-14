@@ -409,5 +409,4 @@ class ConversationsViewModel : ViewModel(),  CustomConversationServices {
         return ConversationPositionTypes.NORMAL
     }
 
-
 }

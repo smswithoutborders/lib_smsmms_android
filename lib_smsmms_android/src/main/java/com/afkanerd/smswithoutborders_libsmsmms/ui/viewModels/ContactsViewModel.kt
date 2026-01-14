@@ -9,7 +9,6 @@ import com.afkanerd.lib_smsmms_android.R
 import com.afkanerd.smswithoutborders_libsmsmms.data.data.models.Contacts
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.filterContacts
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getPhonebookContacts
-import java.util.ArrayList
 
 class ContactsViewModel : ViewModel() {
     var contactsMutableLiveData: MutableLiveData<MutableList<Contacts>>? = null

@@ -24,13 +24,18 @@ import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.deleteSmsThre
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getDatabase
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.loadRawSmsMmsDb
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.loadRawThreads
+import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.retrieveContactPhoto
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.settingsGetDeleteSystem
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.unblockContact
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -83,7 +88,7 @@ class ThreadsViewModel: ViewModel() {
 
     var pageSize: Int = 200
     var prefetchDistance: Int = 3 * pageSize
-    var enablePlaceholder: Boolean = true
+    var enablePlaceholder: Boolean = false
     var initialLoadSize: Int = 2 * pageSize
     var maxSize: Int = PagingConfig.MAX_SIZE_UNBOUNDED
 
@@ -345,4 +350,28 @@ class ThreadsViewModel: ViewModel() {
             context.getDatabase().threadsDao()?.markAllAsRead()
         }
     }
+
+    private val cache = mutableMapOf<String, StateFlow<String?>>()
+    private val contactRepository = ContactRepository()
+
+    fun contactPhoto(context: Context, phoneNumber: String): StateFlow<String?> {
+        return cache.getOrPut(phoneNumber) {
+            contactRepository
+                .contactPhoto(context, phoneNumber)
+                .stateIn(
+                    scope = viewModelScope,
+                    started = SharingStarted.WhileSubscribed(5_000),
+                    initialValue = null
+                )
+        }
+    }
+
+    class ContactRepository() {
+        fun contactPhoto(context: Context, phoneNumber: String): Flow<String?> = flow {
+            val uri = context.retrieveContactPhoto(phoneNumber)
+            emit(uri)
+        }.flowOn(Dispatchers.IO)
+    }
+
+
 }
