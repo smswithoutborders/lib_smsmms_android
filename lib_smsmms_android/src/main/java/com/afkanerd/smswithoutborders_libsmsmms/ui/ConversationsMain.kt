@@ -906,10 +906,10 @@ fun ConversationsMainLayout(
                             } else {
                                 smsManager.sendSms(
                                     context,
-                                    text = typingText,
-                                    address = address,
-                                    subscriptionId = subscriptionId,
-                                    threadId = threadId,
+                                    text = conversation.sms?.body!!,
+                                    address = conversation.sms?.address!!,
+                                    subscriptionId = conversation.sms?.sub_id!!,
+                                    threadId = conversation.sms?.thread_id!!,
                                     data = null
                                 ){
                                     highlightedMessage = null
