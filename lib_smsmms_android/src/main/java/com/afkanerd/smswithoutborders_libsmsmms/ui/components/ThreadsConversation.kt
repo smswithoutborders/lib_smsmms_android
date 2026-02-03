@@ -1,6 +1,7 @@
 package com.afkanerd.smswithoutborders_libsmsmms.ui.components
 
 import android.Manifest
+import android.R.attr.text
 import android.content.res.Configuration
 import android.provider.Telephony
 import android.widget.Toast
@@ -211,16 +212,12 @@ fun ImportDetails(
 @Composable
 private fun ThreadConversationsAvatar(
     id: Int,
-    firstName: String,
-    lastName: String,
-    isContact: Boolean = true,
+    name: String,
+    isContact: Boolean = false,
     contactPhotoUri: String?,
 ) {
     Box(Modifier.size(40.dp), contentAlignment = Alignment.Center) {
         if (isContact) {
-//            val contactPhotoUri = remember(phoneNumber) {
-//                context.retrieveContactPhoto(phoneNumber)
-//            }
             if (!contactPhotoUri.isNullOrEmpty()) {
                 AsyncImage(
                     model = contactPhotoUri,
@@ -230,8 +227,13 @@ private fun ThreadConversationsAvatar(
                         .clip(CircleShape)
                 )
             } else {
-                val color = Color("$id / $firstName".toHslColor())
-                val initials = (firstName.take(1) + lastName.take(1)).uppercase()
+                val color = remember(id, name) { Color("$id / $name".toHslColor()) }
+                val initials = remember(id, name) {
+                    name.run { this.split(" ").run {
+                        if(this.size > 1) this[0].take(1) + this[1].take(1)
+                        else this[0].take(1) }
+                    }.uppercase()
+                }
                 Canvas(modifier = Modifier.fillMaxSize()) {
                     drawCircle(SolidColor(color))
                 }
@@ -253,8 +255,7 @@ private fun ThreadConversationsAvatar(
 @Composable
 fun ThreadConversationCard(
     id: Int,
-    firstName: String,
-    lastName: String,
+    name: String,
     content: String,
     date: String,
     isRead: Boolean,
@@ -297,10 +298,6 @@ fun ThreadConversationCard(
         label = "containerColor"
     )
 
-    val name = remember(firstName, lastName) {
-        "$firstName $lastName"
-    }
-
     val supportContent = remember(type) {
         when(type) {
             Telephony.Sms.MESSAGE_TYPE_DRAFT ->
@@ -329,13 +326,12 @@ fun ThreadConversationCard(
         ) FontStyle.Italic else null
     }
 
-    val maxLine = if(isRead) 1 else 3
+    val maxLine = remember(isRead) { if(isRead) 1 else 3 }
 
     val avatar = @androidx.compose.runtime.Composable {
         ThreadConversationsAvatar(
             id,
-            firstName,
-            lastName,
+            name,
             isContact,
             contactPhotoUri,
         )
@@ -829,8 +825,7 @@ fun MainMenuDropDown_Preview() {
 fun ThreadConversationCard_Preview() {
     ThreadConversationCard(
         id = 1,
-        firstName = "Jane",
-        lastName = "Doe",
+        name = "John Doe",
         content = "Hello world",
         date = "today",
         isRead = false,
