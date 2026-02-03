@@ -1,5 +1,6 @@
 package com.afkanerd.smswithoutborders_libsmsmms.ui
 
+import android.provider.BlockedNumberContract.isBlocked
 import android.provider.Telephony
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.Animatable
@@ -77,8 +78,12 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import androidx.paging.LoadState.Loading
+import androidx.paging.PagingData
+import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
+import coil3.Uri
+import coil3.toUri
 import com.afkanerd.lib_smsmms_android.R
 import com.afkanerd.smswithoutborders_libsmsmms.data.data.models.DateTimeUtils
 import com.afkanerd.smswithoutborders_libsmsmms.data.entities.Threads
@@ -102,6 +107,7 @@ import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.ThreadsViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
@@ -138,6 +144,7 @@ fun ThreadConversationLayout(
     val secondaryMessagesAreLoading = threadsViewModel.secondaryMessagesLoading
 
     var inboxType by remember { mutableStateOf(ThreadsViewModel.InboxType.INBOX )}
+
     DisposableEffect(lifeCycleOwner) {
         val observer = Observer<ThreadsViewModel.InboxType> { newInboxType ->
             inboxType = newInboxType
@@ -162,6 +169,14 @@ fun ThreadConversationLayout(
     val draftMessagesItems = draftMessagesPagers.collectAsLazyPagingItems()
     val mutedMessagesItems = mutedMessagesPagers.collectAsLazyPagingItems()
     val blockedMessagesItems = blockedMessagesPager.collectAsLazyPagingItems()
+
+//    val emptyPagingDataFlow = flowOf(PagingData.empty<Threads>())
+//    val inboxMessagesItems = emptyPagingDataFlow.collectAsLazyPagingItems()
+//
+//    val archivedMessagesItems = emptyPagingDataFlow.collectAsLazyPagingItems()
+//    val draftMessagesItems = emptyPagingDataFlow.collectAsLazyPagingItems()
+//    val mutedMessagesItems = emptyPagingDataFlow.collectAsLazyPagingItems()
+//    val blockedMessagesItems = emptyPagingDataFlow.collectAsLazyPagingItems()
 
     val listState = rememberLazyListState()
     val scrollBehaviour = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
@@ -545,9 +560,12 @@ fun ThreadConversationLayout(
                                             )
                                         }
 
+                                        val offset = remember(offsetX) {
+                                            IntOffset(offsetX.value.roundToInt(), 0)
+                                        }
                                         Box(
                                             modifier = Modifier
-                                                .offset { IntOffset(offsetX.value.roundToInt(), 0) }
+                                                .offset { offset }
                                                 .fillMaxSize()
                                                 .background(Color.White)
                                                 .apply {
@@ -588,22 +606,7 @@ fun ThreadConversationLayout(
                                             }
 
                                             val contactName = remember(address) {
-                                                if(isDefault)
-                                                    context.retrieveContactName(address)
-                                                else address
-                                            }
-
-
-                                            val firstName = remember(address) { mutableStateOf(address) }
-                                            val lastName = remember(firstName) {
-                                                if (!contactName.isNullOrEmpty()) {
-                                                    contactName.split(" ").let { name ->
-                                                        firstName.value = name[0]
-                                                        if (name.size > 1)
-                                                            name[1]
-                                                    }
-                                                }
-                                                ""
+                                                context.retrieveContactName(address)
                                             }
 
                                             val contactPhotoUri by threadsViewModel
@@ -623,8 +626,7 @@ fun ThreadConversationLayout(
 
                                             ThreadConversationCard(
                                                 id = thread.threadId,
-                                                firstName = firstName.value,
-                                                lastName = lastName,
+                                                name = contactName ?: address,
                                                 content = thread.snippet,
                                                 date = date,
                                                 isRead = !thread.unread,
@@ -665,7 +667,7 @@ fun ThreadConversationLayout(
                                                         )
                                                     }
                                                 ),
-                                                isSelected = isSelected,
+                                                isSelected = isSelected, // TODO:
                                                 isMuted = thread.isMute,
                                                 type = thread.type,
                                                 unreadCount = thread.unreadCount,

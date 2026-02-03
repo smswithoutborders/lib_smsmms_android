@@ -50,7 +50,7 @@ fun NavHostControllerInstance(
     newLayoutInfo: WindowLayoutInfo,
     navController: NavHostController,
     threadsViewModel: ThreadsViewModel,
-    searchViewModel: SearchViewModel,
+    searchViewModel: SearchViewModel?,
     threadsMainMenuItems: (@Composable ((Boolean) -> Unit) -> Unit)? = null,
     customMenuItems: (@Composable ((Boolean) -> Unit) -> Unit)? = null,
     conversationsCustomComposable: (@Composable (CustomsConversationsViewModel?) -> Unit)? = null,
@@ -66,9 +66,9 @@ fun NavHostControllerInstance(
     builder: NavGraphBuilder.() -> Unit,
 ) {
     // TODO: fix folding
-    val isFolded by remember {
-        mutableStateOf(newLayoutInfo.displayFeatures.isNotEmpty())
-    }
+//    val isFolded by remember {
+//        mutableStateOf(newLayoutInfo.displayFeatures.isNotEmpty())
+//    }
     NavHost(
         modifier = Modifier,
         navController = navController,
@@ -107,7 +107,7 @@ fun NavHostControllerInstance(
             val searchScreen: SearchScreenNav = backStackEntry.toRoute()
             SearchThreadsMain(
                 address = searchScreen.address,
-                searchViewModel = searchViewModel,
+                searchViewModel = searchViewModel!!,
                 navController = navController
             )
         }

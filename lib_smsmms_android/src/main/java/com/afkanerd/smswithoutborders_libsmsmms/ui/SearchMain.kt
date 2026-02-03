@@ -173,8 +173,7 @@ fun SearchThreadsMain(
 
                     ThreadConversationCard(
                         id = message.threadId,
-                        firstName = firstName,
-                        lastName = lastName,
+                        name = contactName ?: firstName,
                         content = message.snippet,
                         date = date,
                         isRead = !message.unread,
