@@ -189,4 +189,8 @@ dependencies {
     implementation "androidx.work:work-runtime-ktx:2.10.5"
     implementation "androidx.datastore:datastore-preferences:1.1.7"
     implementation "androidx.compose.material:material-icons-extended:1.7.8"
+
+    implementation 'net.zetetic:sqlcipher-android:4.12.0@aar'
+    implementation 'androidx.sqlite:sqlite:2.2.0'
+    implementation "androidx.security:security-crypto:1.1.0"
 }

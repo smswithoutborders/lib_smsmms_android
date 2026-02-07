@@ -29,15 +29,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import com.afkanerd.lib_smsmms_android.R
 import com.afkanerd.smswithoutborders_libsmsmms.data.data.models.DateTimeUtils
-import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getDatabase
-import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getThreadId
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.isDefault
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.retrieveContactName
 import com.afkanerd.smswithoutborders_libsmsmms.ui.components.ThreadConversationCard
@@ -48,21 +45,12 @@ import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.SearchViewModel
 @Composable
 fun SearchThreadsMain(
     address: String? = null,
+    threadId: Int? = null,
     searchViewModel: SearchViewModel,
     navController: NavController = rememberNavController()
 ) {
     val inPreviewMode = LocalInspectionMode.current
     val context = LocalContext.current
-
-    val searchViewModel = if(address == null) searchViewModel
-    else {
-        remember {
-            SearchViewModel(
-                context.getDatabase().threadsDao()!!,
-                threadId = context.getThreadId(address)
-            )
-        }
-    }
 
     var expanded by rememberSaveable { mutableStateOf(false) }
 
@@ -76,9 +64,9 @@ fun SearchThreadsMain(
 
     BackHandler {
         if(!searchViewModel.searchQuery.value.isEmpty())
-            searchViewModel.setSearchQuery("")
+            searchViewModel.clearSearch()
         else {
-            searchViewModel.setSearchQuery("")
+            searchViewModel.clearSearch()
             navController.popBackStack()
         }
     }
@@ -92,11 +80,11 @@ fun SearchThreadsMain(
                         query= searchQuery,
                         onQueryChange = {
                             searchQuery = it
-                            searchViewModel.setSearchQuery(it)
+                            searchViewModel.setSearchQuery(context, "", threadId)
                             if(it.length > 1) {
-                                searchViewModel.setSearchQuery(it)
+                                searchViewModel.setSearchQuery(context, it, threadId)
                             }
-                            else searchViewModel.setSearchQuery("")
+                            else searchViewModel.setSearchQuery(context, "", null)
                         },
                         onSearch = {
                             expanded = false
@@ -110,10 +98,10 @@ fun SearchThreadsMain(
                             IconButton(onClick = {
                                 if(searchQuery.isNotEmpty()) {
                                     searchQuery = ""
-                                    searchViewModel.setSearchQuery(searchQuery)
+                                    searchViewModel.setSearchQuery(context, searchQuery, threadId)
                                 }
                                 else {
-                                    searchViewModel.setSearchQuery("")
+                                    searchViewModel.setSearchQuery(context, "", threadId)
                                     navController.popBackStack()
                                 }
                             }) {
@@ -125,7 +113,7 @@ fun SearchThreadsMain(
                             if(searchQuery.isNotEmpty()) {
                                 IconButton(onClick = {
                                     searchQuery = ""
-                                    searchViewModel.setSearchQuery(searchQuery)
+                                    searchViewModel.setSearchQuery(context, searchQuery, threadId)
                                 }) {
                                     Icon(Icons.Default.Cancel, contentDescription = null)
                                 }

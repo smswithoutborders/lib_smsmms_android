@@ -5,27 +5,40 @@ import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.afkanerd.smswithoutborders_libsmsmms.data.dao.ConversationsDao
 import com.afkanerd.smswithoutborders_libsmsmms.data.dao.ThreadsDao
 import com.afkanerd.smswithoutborders_libsmsmms.data.entities.Conversations
 import com.afkanerd.smswithoutborders_libsmsmms.data.entities.Threads
+import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.setNativesLoaded
+import net.zetetic.database.sqlcipher.SupportOpenHelperFactory
 import kotlin.concurrent.Volatile
+
 
 @Database(
     entities = [
         Conversations::class,
         Threads::class],
-    version = 1,
-    exportSchema = true
+    version = 2,
+    exportSchema = true,
+    autoMigrations = [
+        AutoMigration(from = 1, to = 2),
+    ]
 )
 abstract class DatabaseImpl : RoomDatabase() {
     abstract fun conversationsDao(): ConversationsDao?
     abstract fun threadsDao(): ThreadsDao?
 
+    init {
+        System.loadLibrary("sqlcipher")
+    }
+
     companion object {
         @Volatile
         private var datastore: DatabaseImpl? = null
-        private var databaseName: String = "afkanerd.DekuSms"
+        private var databaseName: String = "afkanerd.smswithoutborders.db"
+        private var dbKeystoreAlias: String = "afkanerd.smswithoutborders.sms_mms_keystore_alias"
 
         @Synchronized
         fun setDatabaseName(databaseName: String) {
@@ -41,11 +54,25 @@ abstract class DatabaseImpl : RoomDatabase() {
         }
 
         private fun create(context: Context): DatabaseImpl {
+            val password = Cryptography.getDatabasePassword(context, dbKeystoreAlias)
+
+            val databaseFile = context.getDatabasePath(this.databaseName)
+            val factory = SupportOpenHelperFactory(password)
             return Room.databaseBuilder(
-                context,
-                DatabaseImpl::class.java,
-                databaseName
-            ).enableMultiInstanceInvalidation().build()
+                context, DatabaseImpl::class.java,
+                databaseFile.absolutePath,
+            )
+                .addMigrations(Migrate1To2(context))
+                .enableMultiInstanceInvalidation()
+                .openHelperFactory(factory)
+                .build()
+        }
+    }
+
+    class Migrate1To2(private val context: Context) : Migration(1, 2) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            super.migrate(db)
+            context.setNativesLoaded(false)
         }
     }
 }

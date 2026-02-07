@@ -1,46 +1,48 @@
 package com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels
 
 import android.content.Context
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import com.afkanerd.smswithoutborders_libsmsmms.data.DatabaseImpl
 import com.afkanerd.smswithoutborders_libsmsmms.data.dao.ThreadsDao
-import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getDatabase
-import com.afkanerd.smswithoutborders_libsmsmms.data.entities.Conversations
 import com.afkanerd.smswithoutborders_libsmsmms.data.entities.Threads
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getDatabase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.launch
 
-class SearchViewModel(
-    threadsDao: ThreadsDao,
-    threadId: Int? = null,
-) : ViewModel() {
+class SearchViewModel : ViewModel() {
 //    var pageSize: Int = 10
 //    var prefetchDistance: Int = 3 * pageSize
 //    var enablePlaceholder: Boolean = true
 //    var initialLoadSize: Int = 2 * pageSize
 //    var maxSize: Int = PagingConfig.Companion.MAX_SIZE_UNBOUNDED
 
+    private val _threadId = MutableStateFlow<Int?>(null)
+    val threadId = _threadId.asStateFlow()
+
     private val _searchQuery = MutableStateFlow("")
     val searchQuery = _searchQuery.asStateFlow()
 
-    fun setSearchQuery(query: String) {
+    lateinit var database: ThreadsDao
+
+    fun clearSearch() {
+        _searchQuery.value = ""
+        _threadId.value = null
+    }
+
+    fun setSearchQuery(context: Context, query: String, threadId: Int?) {
+        if(!::database.isInitialized) {
+            database = context.getDatabase().threadsDao()!!
+        }
         _searchQuery.value = query
+        _threadId.value = threadId
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -55,8 +57,8 @@ class SearchViewModel(
                     enablePlaceholders = false
                 ),
                 pagingSourceFactory = {
-                    if(threadId == null) threadsDao.search(query)
-                    else threadsDao.search(query, threadId)
+                    if(_threadId.value == null) database.search(query)
+                    else database.search(query, _threadId.value!!)
                 }
             ).flow
         }
