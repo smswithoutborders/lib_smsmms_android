@@ -37,7 +37,7 @@ abstract class DatabaseImpl : RoomDatabase() {
     companion object {
         @Volatile
         private var datastore: DatabaseImpl? = null
-        private var databaseName: String = "afkanerd.smswithoutborders.db"
+        private var databaseName: String = "afkanerd.smswithoutborders.libsmsmms.db"
         private var dbKeystoreAlias: String = "afkanerd.smswithoutborders.sms_mms_keystore_alias"
 
         @Synchronized

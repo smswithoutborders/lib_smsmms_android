@@ -110,6 +110,7 @@ object Cryptography {
         return cipher.doFinal(data)
     }
 
+    @JvmStatic
     fun getDatabasePassword(context: Context, keystoreAlias: String) : ByteArray {
         val password = context.settingsGetDbPassword
         if(password == null) {
