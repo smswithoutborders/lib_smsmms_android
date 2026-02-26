@@ -19,6 +19,18 @@
         android:label="@string/app_name"
         android:localeConfig="@xml/locales_config" >
 
+        <activity
+            android:name="com.afkanerd.smswithoutborders_libsmsmms.previews.MainActivity"
+            android:windowSoftInputMode="adjustResize"
+            android:launchMode="singleInstance"
+            android:exported="true" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
         <service android:name="com.android.mms.transaction.TransactionService"/>
 
         <receiver

@@ -1,4 +1,16 @@
-include ':lib_smsmms_android'
+pluginManagement {
+    plugins {
+        id 'maven-publish'
+        id 'signing'
+        id 'com.google.devtools.ksp' version '2.3.5'
+        id 'org.jetbrains.kotlin.plugin.serialization' version '2.3.10'
+        id 'org.jetbrains.kotlin.plugin.compose' version '2.3.10'
+        id 'org.jetbrains.kotlin.android' version '2.3.10'
+    }
+}
+plugins {
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
+}
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
@@ -7,3 +19,5 @@ dependencyResolutionManagement {
         maven { setUrl("https://jitpack.io") }
     }
 }
+include ':lib_smsmms_android'
+include ':app'
