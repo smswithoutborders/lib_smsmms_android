@@ -605,7 +605,9 @@ fun ThreadConversationLayout(
                                             }
 
                                             val contactName = remember(address) {
-                                                context.retrieveContactName(address)
+                                                if(isDefault)
+                                                    context.retrieveContactName(address)
+                                                else address
                                             }
 
                                             val contactPhotoUri by threadsViewModel

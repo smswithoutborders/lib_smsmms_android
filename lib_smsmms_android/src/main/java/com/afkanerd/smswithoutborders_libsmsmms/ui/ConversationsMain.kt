@@ -8,11 +8,14 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
@@ -174,6 +177,7 @@ fun ConversationsMainLayout(
     text: String = "",
     foldOpen: Boolean = false,
     threadId: Int? = null,
+    imageUri: Uri? = null,
     customComposable: (@Composable (CustomsConversationsViewModel?) -> Unit)? = null,
     customMenuItems: (@Composable ((Boolean) -> Unit) -> Unit)? = null,
     customsConversationsViewModel: CustomsConversationsViewModel? = null,
@@ -672,8 +676,9 @@ fun ConversationsMainLayout(
                 }
             }
             else {
-                Box(
-                    modifier = Modifier.fillMaxWidth()
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
                 ) {
                     ChatCompose(
                         value = typingText,
@@ -715,7 +720,8 @@ fun ConversationsMainLayout(
                                 data = null
                             ){}
                             typingText = ""
-                        }
+                        },
+                        imageUri = imageUri
                     )
 
                     if(openSimCardChooser) {
@@ -963,3 +969,15 @@ fun ConversationsMainPreview() {
         address = "+1234567",
     )
 }
+
+@Preview
+@Composable
+fun ConversationsMain_Converse_only_preview() {
+    ConversationsMainLayout(
+        navController = rememberNavController(),
+        threadsViewModel = remember { ThreadsViewModel() },
+        address = "+1234567",
+        imageUri = "".toUri()
+    )
+}
+

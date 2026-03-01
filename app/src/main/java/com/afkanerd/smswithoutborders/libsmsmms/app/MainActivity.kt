@@ -20,6 +20,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
@@ -54,6 +55,7 @@ class MainActivity : ComponentActivity() {
                             Lib_smsmms_androidTheme {
                                 Surface(Modifier
                                     .fillMaxSize()
+                                    .imePadding()
                                 ) {
                                     NavHostControllerInstance(
                                         newLayoutInfo = newLayoutInfo,

@@ -22,6 +22,7 @@ import com.afkanerd.smswithoutborders_libsmsmms.data.entities.Threads
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.blockContact
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.deleteSmsThreads
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getDatabase
+import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.isDefault
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.loadRawSmsMmsDb
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.loadRawThreads
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.retrieveContactPhoto
@@ -368,7 +369,7 @@ class ThreadsViewModel: ViewModel() {
 
     class ContactRepository() {
         fun contactPhoto(context: Context, phoneNumber: String): Flow<String?> = flow {
-            val uri = context.retrieveContactPhoto(phoneNumber)
+            val uri = if(!context.isDefault()) "" else context.retrieveContactPhoto(phoneNumber)
             emit(uri)
         }.flowOn(Dispatchers.IO)
     }
