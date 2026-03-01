@@ -77,23 +77,20 @@ fun DefaultCheckMain(permissionGrantedCallback: (()->Unit)? = null) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
-            modifier = Modifier
-                .fillMaxSize()
-                .weight(1f)
+            modifier = Modifier.weight(1f)
         ) {
             Image(
                 painter= painterResource(R.drawable.set_default_sms_app),
                 contentDescription = stringResource(R.string.welcome_image),
                 contentScale = ContentScale.Fit,
-                modifier = Modifier.size(350.dp)
             )
 
-            Spacer(Modifier.size(32.dp))
+            Spacer(Modifier.padding())
 
             Text(stringResource(R.string.to_use_deku_sms_make_it_your_default_sms_app),
                 fontSize = 13.sp
             )
-            Spacer(Modifier.size(16.dp))
+            Spacer(Modifier.padding(16.dp))
 
             Button(
                 colors = ButtonDefaults.buttonColors(

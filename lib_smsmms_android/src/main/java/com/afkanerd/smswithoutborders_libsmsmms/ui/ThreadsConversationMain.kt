@@ -464,13 +464,12 @@ fun ThreadConversationLayout(
                 }
             ) { innerPadding ->
                 Column(modifier = Modifier.padding(innerPadding)) {
-                    if(secondaryMessagesAreLoading || inPreviewMode)
-                        LinearProgressIndicator(Modifier.fillMaxWidth())
-
                     if(!isDefault || !readPhoneStatePermission.status.isGranted) {
                         DefaultCheckMain { isDefault = context.isDefault() }
                     }
-                    if(inPreviewMode || messagesAreLoading) {
+                    if(secondaryMessagesAreLoading || inPreviewMode)
+                        LinearProgressIndicator(Modifier.fillMaxWidth())
+                    if(messagesAreLoading || inPreviewMode)  {
                         Column(
                             modifier = Modifier.fillMaxSize(),
                             verticalArrangement = Arrangement.Center,
