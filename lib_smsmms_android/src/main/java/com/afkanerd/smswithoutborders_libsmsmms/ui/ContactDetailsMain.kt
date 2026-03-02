@@ -49,10 +49,14 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.toLong
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -75,18 +79,25 @@ import coil3.compose.AsyncImage
 import com.afkanerd.lib_smsmms_android.R
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.blockContact
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.copyItemToClipboard
+import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getDefaultSimSubscription
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getSimCardInformation
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.isDefault
+import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.isDualSim
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.isShortCode
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.retrieveContactName
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.retrieveContactPhoto
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.retrieveContactUri
+import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.settingsGetConversationsSubscriptionId
+import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.settingsSetConversationsSubscriptionId
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.unblockContact
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.toHslColor
 import com.afkanerd.smswithoutborders_libsmsmms.ui.components.SimChooser
 import com.afkanerd.smswithoutborders_libsmsmms.ui.navigation.SearchScreenNav
 import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.ConversationsViewModel
 import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.ThreadsViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -129,10 +140,18 @@ fun ContactDetails (
     var isMute by remember { mutableStateOf(false) }
 
     var subscriptionInformation: SubscriptionInfo? by remember { mutableStateOf(null) }
+
+    val coroutineScope = remember { CoroutineScope(Dispatchers.Default) }
+
+    val subscriptionIdPrefs by context.settingsGetConversationsSubscriptionId(address)
+        .collectAsState(null, coroutineScope.coroutineContext)
+
+    var subscriptionId by remember{ mutableIntStateOf( subscriptionId ?: -1) }
+    LaunchedEffect(subscriptionIdPrefs) {
+        subscriptionIdPrefs?.let { subscriptionId = it.toInt() }
+    }
     LaunchedEffect(subscriptionId) {
-        subscriptionId?.let {
-            subscriptionInformation = context.getSimCardInformation(subscriptionId)
-        }
+        subscriptionInformation = context.getSimCardInformation(subscriptionId)
     }
 
     Scaffold(
@@ -330,65 +349,73 @@ fun ContactDetails (
                 }
             }
 
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                shape = RoundedCornerShape(16.dp),
-                elevation = CardDefaults.cardElevation(4.dp)
-            ) {
-                ListItem(
-                    modifier = Modifier.fillMaxWidth(),
-                    leadingContent = {
-                        Icon(
-                            Icons.Outlined.SimCard,
-                            contentDescription = stringResource(R.string.end_to_end_encryption),
-                        )
-                    },
-                    overlineContent = {
-                        Text(stringResource(R.string.send_with))
-                    },
-                    headlineContent = {
-                        Text(stringResource(
-                            R.string.sim,
-                            (subscriptionInformation?.simSlotIndex
-                                ?.plus(1)).toString())).toString()
-                    },
-                    trailingContent = {
-                        Box {
-                            TextButton(
-                                onClick = {
-                                    showSimChooser = !showSimChooser
-                                },
-                            ) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
+            if(context.isDualSim() || LocalInspectionMode.current) {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    elevation = CardDefaults.cardElevation(4.dp)
+                ) {
+                    ListItem(
+                        modifier = Modifier.fillMaxWidth(),
+                        leadingContent = {
+                            Icon(
+                                Icons.Outlined.SimCard,
+                                contentDescription = stringResource(R.string.end_to_end_encryption),
+                            )
+                        },
+                        overlineContent = {
+                            Text(stringResource(R.string.send_with))
+                        },
+                        headlineContent = {
+                            Text(stringResource(
+                                R.string.sim,
+                                (subscriptionInformation?.simSlotIndex
+                                    ?.plus(1)).toString())).toString()
+                        },
+                        trailingContent = {
+                            Box {
+                                TextButton(
+                                    onClick = {
+                                        showSimChooser = !showSimChooser
+                                    },
                                 ) {
-                                    Icon(
-                                        Icons.AutoMirrored.Default.CompareArrows,
-                                        stringResource(R.string.switch_sim_cards),
-                                        modifier = Modifier
-                                            .size(24.dp)
-                                            .rotate(90f)
-                                    )
-                                    Spacer(Modifier.padding(4.dp))
-                                    Text(stringResource(R.string._switch))
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                    ) {
+                                        Icon(
+                                            Icons.AutoMirrored.Default.CompareArrows,
+                                            stringResource(R.string.switch_sim_cards),
+                                            modifier = Modifier
+                                                .size(24.dp)
+                                                .rotate(90f)
+                                        )
+                                        Spacer(Modifier.padding(4.dp))
+                                        Text(stringResource(R.string._switch))
+                                    }
                                 }
-                            }
-                            if(showSimChooser) {
-                                SimChooser(
-                                    expanded = true,
-                                    onClickCallback = { subscriptionId ->
+                                if(showSimChooser) {
+                                    SimChooser(
+                                        expanded = true,
+                                        onClickCallback = { subscriptionId ->
+                                            coroutineScope.launch {
+                                                context.settingsSetConversationsSubscriptionId(
+                                                    address,
+                                                    subscriptionId
+                                                )
+                                            }
+                                            showSimChooser = false
+                                        }
+                                    ) {
                                         showSimChooser = false
                                     }
-                                ) {
-                                    showSimChooser = false
                                 }
                             }
                         }
-                    }
-                )
+                    )
 
+                }
             }
 
             Card(

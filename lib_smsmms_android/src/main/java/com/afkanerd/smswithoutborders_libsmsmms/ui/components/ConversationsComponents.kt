@@ -237,6 +237,7 @@ fun ChatCompose(
     mmsCancelledCallback: (() -> Unit)? = null,
     simCardChooserCallback: (() -> Unit)? = null,
     imageUri: Uri? = null,
+    simChangedCallback: ((Long) -> Unit)? = null,
     smsSendCallback: () -> Unit,
 ) {
     val context = LocalContext.current
@@ -284,9 +285,7 @@ fun ChatCompose(
                 horizontalArrangement = Arrangement.Center,
             ) {
                 TextButton(
-                    onClick = {
-                        TODO("")
-                    }
+                    onClick = simCardChooserCallback ?: {}
                 ) {
                     val annotatedString = buildAnnotatedString {
                         append(stringResource(R.string.sending_with))

@@ -92,6 +92,7 @@ import com.afkanerd.smswithoutborders_libsmsmms.data.entities.Conversations
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.blockContact
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.call
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.cancelNotification
+import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.dataStore
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getDefaultSimSubscription
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getFileNameFromUri
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getMimeTypeFromUri
@@ -101,6 +102,7 @@ import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.isDualSim
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.isShortCode
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.makeE16PhoneNumber
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.retrieveContactName
+import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.settingsGetConversationsSubscriptionId
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.unblockContact
 import com.afkanerd.smswithoutborders_libsmsmms.ui.components.ChatCompose
 import com.afkanerd.smswithoutborders_libsmsmms.ui.components.ConvenientMethods.deriveMetaDate
@@ -208,8 +210,16 @@ fun ConversationsMainLayout(
     var typingText by remember{ mutableStateOf(text) }
     var typingMmsImage by remember{ mutableStateOf<Uri?>(null) }
 
-    var subscriptionId by remember{ mutableStateOf( if(inPreviewMode) -1 else
+    val subscriptionIdPrefs by context.settingsGetConversationsSubscriptionId(address)
+        .collectAsState(null, coroutineScope.coroutineContext)
+
+    var subscriptionId by remember{ mutableLongStateOf(
         context.getDefaultSimSubscription() ?: -1) }
+    LaunchedEffect(subscriptionIdPrefs) {
+        if(context.isDualSim()) {
+            subscriptionIdPrefs?.let { subscriptionId = it }
+        }
+    }
 
     var highlightedMessage by remember{ mutableStateOf<Conversations?>(null) }
 
@@ -240,7 +250,7 @@ fun ConversationsMainLayout(
                         body = typingText,
                         mmsUri = typingMmsImage,
                         address = address,
-                        subId = subscriptionId,
+                        subId = subscriptionId!!,
                         threadId = threadId,
                     ) {}
                 }
@@ -343,9 +353,6 @@ fun ConversationsMainLayout(
                 inboxMessagesItems.itemSnapshotList.first()?.sms?.let {
                     if(it.sub_id > -1) {
                         subscriptionId = it.sub_id
-                        println("Custom subscription: $subscriptionId: " +
-                                context.getSubscriptionName(subscriptionId)
-                        )
                     }
                 }
             }
@@ -686,9 +693,16 @@ fun ConversationsMainLayout(
                     ChatCompose(
                         value = typingText,
                         subscriptionId = subscriptionId,
-                        simCardChooserCallback = if(dualSim) {
-                            { openSimCardChooser = true}
-                        } else null,
+                        simCardChooserCallback = {
+                            navController.navigate(
+                                ContactDetailsScreenNav(
+                                    address,
+                                    customsConversationsViewModel
+                                        ?.isSecured == true,
+                                    subscriptionId.toInt()
+                                )
+                            )
+                        },
                         valueChanged = {
                             typingText = it
                         },

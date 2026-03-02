@@ -2,6 +2,18 @@ package com.afkanerd.smswithoutborders_libsmsmms.extensions.context
 
 import android.content.Context
 import androidx.core.content.edit
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
+import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.Settings.SETTINGS_CONVERSATION_SUBSCRIPTION_ID
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+
+// At the top level of your kotlin file:
+val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
 private object Settings {
     const val FILENAME: String = "com.afkanerd.deku.settings"
@@ -13,7 +25,14 @@ private object Settings {
     const val SETTINGS_KEEP_MESSAGES_ARCHIVED = "SETTINGS_KEEP_MESSAGES_ARCHIVED"
     const val SETTINGS_ENABLE_CONTEXT_REPLIES = "SETTINGS_ENABLE_CONTEXT_REPLIES"
     const val SETTINGS_ENABLE_24_HOUR_FORMAT = "SETTINGS_ENABLE_24_HOUR_FORMAT"
+    const val SETTINGS_CONVERSATION_SUBSCRIPTION_ID = "SETTINGS_CONVERSATION_SUBSCRIPTION_ID"
 }
+
+fun Context.settingsGetConversationsSubscriptionId(address: String): Flow<Long?>  =
+    dataStore.data.map { preferences ->
+        val key = longPreferencesKey("${address}_${SETTINGS_CONVERSATION_SUBSCRIPTION_ID}")
+        preferences[key]
+    }
 
 val Context.settingsGetEnableContextReplies get(): Boolean {
     val sharedPreferences = getSharedPreferences(
@@ -116,5 +135,14 @@ fun Context.settingsSetEnable24HourFormat(state: Boolean) {
     getSharedPreferences( Settings.FILENAME, Context.MODE_PRIVATE).edit {
         putBoolean(Settings.SETTINGS_ENABLE_24_HOUR_FORMAT, state)
         apply()
+    }
+}
+
+suspend fun Context.settingsSetConversationsSubscriptionId(address: String, subscriptionId: Long) {
+    dataStore.updateData {
+        val key = longPreferencesKey("${address}_${SETTINGS_CONVERSATION_SUBSCRIPTION_ID}")
+        it.toMutablePreferences().also { preferences ->
+            preferences[key] = subscriptionId
+        }
     }
 }
