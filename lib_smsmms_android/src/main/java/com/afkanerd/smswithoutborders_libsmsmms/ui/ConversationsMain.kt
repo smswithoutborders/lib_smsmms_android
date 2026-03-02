@@ -80,6 +80,7 @@ import androidx.core.net.toUri
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -170,6 +171,18 @@ const val requiredSendSMSPermission = Manifest.permission.SEND_SMS
 const val requiredReceiveSMSPermission = Manifest.permission.READ_SMS
 const val requiredReadPhoneStatePermissions = Manifest.permission.READ_PHONE_STATE
 
+
+@Composable
+fun ActivityActiveObserver(threadId: Int) {
+    val context = LocalContext.current
+    LifecycleResumeEffect(Unit) {
+        context.cancelNotification(threadId)
+        onPauseOrDispose {
+            // Activity is no longer active
+        }
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class,
     ExperimentalPermissionsApi::class
 )
@@ -188,7 +201,6 @@ fun ConversationsMainLayout(
     customsConversationsViewModel: CustomsConversationsViewModel? = null,
     customDataView: (@Composable (Conversations) -> Unit)? = null,
 ) {
-    var text = text
     val readPhoneStatePermission = rememberPermissionState(requiredReadPhoneStatePermissions)
     if(!readPhoneStatePermission.status.isGranted) {
         navController.navigate(HomeScreenNav())
@@ -216,13 +228,6 @@ fun ConversationsMainLayout(
 
     var subscriptionId by remember{ mutableLongStateOf(
         context.getDefaultSimSubscription() ?: -1) }
-    LaunchedEffect(subscriptionIdPrefs) {
-        if(context.isDualSim()) {
-
-            subscriptionIdPrefs?.let { subscriptionId = it }
-        }
-    }
-
     var highlightedMessage by remember{ mutableStateOf<Conversations?>(null) }
 
     var isBlocked by remember { mutableStateOf( false ) }
@@ -230,12 +235,6 @@ fun ConversationsMainLayout(
     var contactName by remember{ mutableStateOf( context
         .retrieveContactName(address) ?: address )}
 
-    LaunchedEffect(address) {
-        if(!inPreviewMode)
-            ConversationsViewModel().contactIsBlocked(context, address) {
-                isBlocked = it
-            }
-    }
     var isMute by remember { mutableStateOf(false) }
     var isArchived by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf(searchQuery) }
@@ -244,6 +243,29 @@ fun ConversationsMainLayout(
     var threadId by remember { mutableIntStateOf(
         if(inPreviewMode) 0 else { threadId ?: context.getThreadId(address) })
     }
+
+    val messages = viewModel.getConversations(context, threadId)
+
+    var showFailedRetryModal by rememberSaveable { mutableStateOf(false) }
+    var rememberMenuExpanded by remember{ mutableStateOf(false) }
+    var openSimCardChooser by remember { mutableStateOf(inPreviewMode) }
+    var searchIndexes by remember { mutableStateOf(emptyList<Int>())}
+
+    val inboxMessagesItems = messages.collectAsLazyPagingItems()
+
+    val selectedItems by viewModel.selectedItems.collectAsState()
+
+    val scrollBehaviour = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
+
+    var openAlertDialog by remember { mutableStateOf(false)}
+
+    val isShortCode = if(inPreviewMode) false else isShortCode(address)
+
+    var rememberDeleteAlert by remember { mutableStateOf(false) }
+
+    var openInfoAlert by remember { mutableStateOf(false) }
+
+    val smsManager = SmsManager(customsConversationsViewModel ?: viewModel)
 
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
@@ -290,28 +312,19 @@ fun ConversationsMainLayout(
         }
     }
 
-    val messages = viewModel.getConversations(context, threadId)
+    LaunchedEffect(subscriptionIdPrefs) {
+        if(context.isDualSim()) {
 
-    var showFailedRetryModal by rememberSaveable { mutableStateOf(false) }
-    var rememberMenuExpanded by remember{ mutableStateOf(false) }
-    var openSimCardChooser by remember { mutableStateOf(inPreviewMode) }
-    var searchIndexes by remember { mutableStateOf(emptyList<Int>())}
+            subscriptionIdPrefs?.let { subscriptionId = it }
+        }
+    }
 
-    val inboxMessagesItems = messages.collectAsLazyPagingItems()
-
-    val selectedItems by viewModel.selectedItems.collectAsState()
-
-    val scrollBehaviour = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
-
-    var openAlertDialog by remember { mutableStateOf(false)}
-
-    val isShortCode = if(inPreviewMode) false else isShortCode(address)
-
-    var rememberDeleteAlert by remember { mutableStateOf(false) }
-
-    var openInfoAlert by remember { mutableStateOf(false) }
-
-    val smsManager = SmsManager(customsConversationsViewModel ?: viewModel)
+    LaunchedEffect(address) {
+        if(!inPreviewMode)
+            ConversationsViewModel().contactIsBlocked(context, address) {
+                isBlocked = it
+            }
+    }
 
     LaunchedEffect(Unit){
         if(!searchQuery.isNullOrEmpty()) {
@@ -339,7 +352,6 @@ fun ConversationsMainLayout(
     }
 
     LaunchedEffect(inboxMessagesItems.loadState, searchIndexes) {
-        context.cancelNotification(threadId)
         if(inboxMessagesItems.loadState.isIdle) {
             if(searchIndexes.isNotEmpty() && searchIndex == 0) {
                 if(inboxMessagesItems.itemCount > searchIndexes.first()) {
@@ -436,6 +448,8 @@ fun ConversationsMainLayout(
     ) {
         rememberMenuExpanded = false
     }
+
+    ActivityActiveObserver(threadId)
 
     @Composable
     fun TextConversationCard(
