@@ -654,16 +654,11 @@ fun SimChooser(
     dismissCallback: (() -> Unit)? = null
 ) {
     val context = LocalContext.current
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentSize(Alignment.BottomCenter)
+    DropdownMenu(
+        expanded = expanded,
+        onDismissRequest = { dismissCallback?.invoke() },
     ) {
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { dismissCallback?.invoke() },
-        ) {
-            if(!LocalInspectionMode.current)
+        if(!LocalInspectionMode.current)
             context.getSimCardInformation()?.forEach {
                 DropdownMenuItem(
                     leadingIcon = {
@@ -695,7 +690,6 @@ fun SimChooser(
                     }
                 )
             }
-        }
     }
 }
 

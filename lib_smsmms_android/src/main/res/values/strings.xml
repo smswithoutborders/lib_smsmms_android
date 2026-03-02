@@ -493,5 +493,9 @@
     <string name="this_would_delete_messages_from_system_s_database_accessible_by_other_apps">This would delete messages from system\'s database accessible by other apps</string>
     <string name="sending_with">Sending with</string>
     <string name="sim">SIM %1$s</string>
+    <string name="sim_card_switching">SIM card switching</string>
+    <string name="_switch">Switch</string>
+    <string name="switch_sim_cards">Switch SIM cards</string>
+    <string name="send_with">Send with</string>
 
 </resources>

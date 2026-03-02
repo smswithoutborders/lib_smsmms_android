@@ -2,11 +2,13 @@ package com.afkanerd.smswithoutborders_libsmsmms.ui
 
 import android.content.Intent
 import android.provider.ContactsContract
+import android.telephony.SubscriptionInfo
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,9 +21,11 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.CompareArrows
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.outlined.Block
 import androidx.compose.material.icons.outlined.Call
+import androidx.compose.material.icons.outlined.CompareArrows
 import androidx.compose.material.icons.outlined.ContentCopy
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Lock
@@ -29,10 +33,15 @@ import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.NotificationsOff
 import androidx.compose.material.icons.outlined.PersonAdd
 import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material.icons.outlined.SimCard
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CardElevation
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -47,6 +56,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
@@ -65,6 +75,7 @@ import coil3.compose.AsyncImage
 import com.afkanerd.lib_smsmms_android.R
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.blockContact
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.copyItemToClipboard
+import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getSimCardInformation
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.isDefault
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.isShortCode
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.retrieveContactName
@@ -72,6 +83,7 @@ import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.retrieveConta
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.retrieveContactUri
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.unblockContact
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.toHslColor
+import com.afkanerd.smswithoutborders_libsmsmms.ui.components.SimChooser
 import com.afkanerd.smswithoutborders_libsmsmms.ui.navigation.SearchScreenNav
 import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.ConversationsViewModel
 import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.ThreadsViewModel
@@ -83,6 +95,7 @@ fun ContactDetails (
     address: String,
     navController: NavController,
     isEncryptionEnabled: Boolean = false,
+    subscriptionId: Int? = null,
 ) {
     val context = LocalContext.current
     val inPreviewMode = LocalInspectionMode.current
@@ -95,6 +108,7 @@ fun ContactDetails (
     }
 
     var isDefault by remember{ mutableStateOf( inPreviewMode || context.isDefault()) }
+    var showSimChooser by remember{ mutableStateOf(false) }
 
     val contactName by remember{ mutableStateOf(
         if(isDefault) {
@@ -113,6 +127,13 @@ fun ContactDetails (
     }
 
     var isMute by remember { mutableStateOf(false) }
+
+    var subscriptionInformation: SubscriptionInfo? by remember { mutableStateOf(null) }
+    LaunchedEffect(subscriptionId) {
+        subscriptionId?.let {
+            subscriptionInformation = context.getSimCardInformation(subscriptionId)
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -313,33 +334,94 @@ fun ContactDetails (
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
+                shape = RoundedCornerShape(16.dp),
+                elevation = CardDefaults.cardElevation(4.dp)
+            ) {
+                ListItem(
+                    modifier = Modifier.fillMaxWidth(),
+                    leadingContent = {
+                        Icon(
+                            Icons.Outlined.SimCard,
+                            contentDescription = stringResource(R.string.end_to_end_encryption),
+                        )
+                    },
+                    overlineContent = {
+                        Text(stringResource(R.string.send_with))
+                    },
+                    headlineContent = {
+                        Text(stringResource(
+                            R.string.sim,
+                            (subscriptionInformation?.simSlotIndex
+                                ?.plus(1)).toString())).toString()
+                    },
+                    trailingContent = {
+                        Box {
+                            TextButton(
+                                onClick = {
+                                    showSimChooser = !showSimChooser
+                                },
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    Icon(
+                                        Icons.AutoMirrored.Default.CompareArrows,
+                                        stringResource(R.string.switch_sim_cards),
+                                        modifier = Modifier
+                                            .size(24.dp)
+                                            .rotate(90f)
+                                    )
+                                    Spacer(Modifier.padding(4.dp))
+                                    Text(stringResource(R.string._switch))
+                                }
+                            }
+                            if(showSimChooser) {
+                                SimChooser(
+                                    expanded = true,
+                                    onClickCallback = { subscriptionId ->
+                                        showSimChooser = false
+                                    }
+                                ) {
+                                    showSimChooser = false
+                                }
+                            }
+                        }
+                    }
+                )
+
+            }
+
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
                 shape = RoundedCornerShape(16.dp)
             ) {
                 Column(
                     modifier = Modifier
                         .padding(8.dp)
                 ) {
-                    TextButton(onClick = {
-                        TODO("Implement mute")
-                    }) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(
-                                if (isMute)
-                                    Icons.Outlined.NotificationsOff
-                                else Icons.Outlined.Notifications, // Change icon based on isMute
-                                contentDescription = "Notification"
-                            )
-
-                            Spacer(modifier = Modifier.width(8.dp))
-
-                            Text(
-                                text = stringResource(R.string.notifications),
-                                style = MaterialTheme.typography.bodyMedium
-                            )
-                        }
-                    }
+//                    TextButton(onClick = {
+//                        TODO("Implement mute")
+//                    }) {
+//                        Row(
+//                            verticalAlignment = Alignment.CenterVertically
+//                        ) {
+//                            Icon(
+//                                if (isMute)
+//                                    Icons.Outlined.NotificationsOff
+//                                else Icons.Outlined.Notifications, // Change icon based on isMute
+//                                contentDescription = "Notification"
+//                            )
+//
+//                            Spacer(modifier = Modifier.width(8.dp))
+//
+//                            Text(
+//                                text = stringResource(R.string.notifications),
+//                                style = MaterialTheme.typography.bodyMedium
+//                            )
+//                        }
+//                    }
 
                     TextButton(onClick = {
                         if(isBlocked) {

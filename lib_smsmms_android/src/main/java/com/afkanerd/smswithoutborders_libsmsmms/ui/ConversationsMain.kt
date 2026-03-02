@@ -521,7 +521,8 @@ fun ConversationsMainLayout(
                                 ContactDetailsScreenNav(
                                     address,
                                     customsConversationsViewModel
-                                        ?.isSecured == true
+                                        ?.isSecured == true,
+                                    subscriptionId.toInt()
                                 )
                             )
                         }) {

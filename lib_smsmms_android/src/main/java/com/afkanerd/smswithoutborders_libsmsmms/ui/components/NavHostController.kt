@@ -116,7 +116,8 @@ fun NavHostControllerInstance(
             ContactDetails(
                 address = contactsDetailsScreen.address,
                 navController = navController,
-                isEncryptionEnabled = contactsDetailsScreen.encryptionAvailable
+                isEncryptionEnabled = contactsDetailsScreen.encryptionAvailable,
+                subscriptionId = contactsDetailsScreen.subscriptionId
             )
         }
 

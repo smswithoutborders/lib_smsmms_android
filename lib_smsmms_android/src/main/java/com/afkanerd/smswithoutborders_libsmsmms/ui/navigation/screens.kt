@@ -23,6 +23,7 @@ data class SearchScreenNav(val address: String? = null)
 data class ContactDetailsScreenNav(
     val address: String,
     var encryptionAvailable: Boolean,
+    var subscriptionId: Int,
 )
 
 @Serializable
