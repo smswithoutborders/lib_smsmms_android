@@ -7,6 +7,7 @@ import android.net.Uri
 import android.os.Build
 import android.provider.Telephony
 import android.telephony.SmsManager
+import android.telephony.SubscriptionInfo
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -85,9 +86,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -102,6 +108,7 @@ import com.afkanerd.smswithoutborders_libsmsmms.data.entities.Conversations
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.copyItemToClipboard
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getSimCardInformation
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getSubscriptionBitmap
+import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getSubscriptionName
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getUriForDrawable
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.isDualSim
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.shareItem
@@ -236,13 +243,9 @@ fun ChatCompose(
     val inPreviewMode = LocalInspectionMode.current
     val interactionsSource = remember { MutableInteractionSource() }
 
-    var subscriptionBitmap by remember{
-        mutableStateOf(if(inPreviewMode) null
-        else context.getSubscriptionBitmap(subscriptionId.toInt()))
-    }
-
+    var subscriptionInformation: SubscriptionInfo? by remember { mutableStateOf(null) }
     LaunchedEffect(subscriptionId) {
-        subscriptionBitmap = context.getSubscriptionBitmap(subscriptionId.toInt())
+        subscriptionInformation = context.getSimCardInformation(subscriptionId.toInt())
     }
 
     var imageUri: Uri? by remember { mutableStateOf(imageUri) }
@@ -273,6 +276,43 @@ fun ChatCompose(
             .fillMaxWidth()
             .padding(4.dp),
     ) {
+
+        if(inPreviewMode || context.isDualSim()) {
+            Row(Modifier
+                .padding(4.dp)
+                .fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+            ) {
+                TextButton(
+                    onClick = {
+                        TODO("")
+                    }
+                ) {
+                    val annotatedString = buildAnnotatedString {
+                        append(stringResource(R.string.sending_with))
+                        append(" ")
+                        withStyle(style = SpanStyle(
+                            color = MaterialTheme.colorScheme.tertiary,
+                            textDecoration = TextDecoration.Underline,
+                            fontStyle = FontStyle.Italic,
+                        )) {
+                            append(if(inPreviewMode) "SIM 1" else
+                                stringResource(
+                                    R.string.sim,
+                                    (subscriptionInformation?.simSlotIndex
+                                        ?.plus(1)).toString()
+                                )
+                            )
+                        }
+                    }
+                    Text(
+                        text = annotatedString,
+                        style = MaterialTheme.typography.labelLarge
+                    )
+                }
+            }
+        }
+
         Row(Modifier
             .fillMaxWidth(),
         ) {
@@ -303,11 +343,13 @@ fun ChatCompose(
                 ) {
                     Column(
                         Modifier
-                            .clip(RoundedCornerShape(
-                                24.dp,
-                                24.dp,
-                                24.dp,
-                                24.dp)
+                            .clip(
+                                RoundedCornerShape(
+                                    24.dp,
+                                    24.dp,
+                                    24.dp,
+                                    24.dp
+                                )
                             )
                             .background(MaterialTheme.colorScheme.outlineVariant),
                     ) {
@@ -362,11 +404,8 @@ fun ChatCompose(
                                         ),
                                     )
                                 }
-
                             }
-
                         }
-
                     }
 
                     Column(modifier = Modifier
@@ -397,7 +436,7 @@ fun ChatCompose(
                                 imageUri = null
                             },
                             modifier = Modifier
-                                .padding(start=8.dp)
+                                .padding(start = 8.dp)
                                 .clip(CircleShape)
                                 .background(MaterialTheme.colorScheme.outlineVariant),
                         ) {
@@ -637,7 +676,10 @@ fun SimChooser(
                         } else {
                             context.getSubscriptionBitmap(it.subscriptionId)
                                 ?.asImageBitmap()?.let { image ->
-                                    Image(image, stringResource(R.string.choose_sim_card))
+                                    Image(
+                                        image,
+                                        stringResource(R.string.choose_sim_card)
+                                    )
                                 }
                         }
                     },
@@ -915,7 +957,7 @@ fun MmsContentView(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top=8.dp, start=8.dp, end=8.dp),
+            .padding(top = 8.dp, start = 8.dp, end = 8.dp),
         horizontalArrangement = if(isSending) Arrangement.End else Arrangement.Start
     ) {
         Box(
@@ -934,7 +976,7 @@ fun MmsContentView(
                             .aspectRatio(1f)  // This ensures a square aspect ratio
                             .clip(RoundedCornerShape(10.dp))
                             .then(
-                                if(!LocalInspectionMode.current) {
+                                if (!LocalInspectionMode.current) {
                                     Modifier.combinedClickable(
                                         onClick = { onClickCallback?.invoke() },
                                         onLongClick = { onLongClickCallback?.invoke() }
@@ -961,7 +1003,7 @@ fun MmsContentView(
                             .size(200.dp)
                             .aspectRatio(1f)
                             .then(
-                                if(!LocalInspectionMode.current) {
+                                if (!LocalInspectionMode.current) {
                                     Modifier.combinedClickable(
                                         onClick = { onClickCallback?.invoke() },
                                         onLongClick = { onLongClickCallback?.invoke() }

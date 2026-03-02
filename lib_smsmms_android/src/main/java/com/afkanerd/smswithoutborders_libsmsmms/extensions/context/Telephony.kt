@@ -137,6 +137,19 @@ fun Context.call(address: String) {
     startActivity(callIntent);
 }
 
+fun Context.getSimCardInformation(subscriptionId: Int): SubscriptionInfo? {
+    val subscriptionManager =
+        getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE) as SubscriptionManager
+    if (ActivityCompat.checkSelfPermission(
+            this,
+            Manifest.permission.READ_PHONE_STATE
+        ) == PackageManager.PERMISSION_GRANTED
+    ) {
+        return subscriptionManager.getActiveSubscriptionInfo(subscriptionId)
+    }
+    return null
+}
+
 fun Context.getSimCardInformation(): MutableList<SubscriptionInfo>? {
     val subscriptionManager =
         getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE) as SubscriptionManager

@@ -55,7 +55,7 @@ class MainActivity : ComponentActivity() {
                             Lib_smsmms_androidTheme {
                                 Surface(Modifier
                                     .fillMaxSize()
-                                    .imePadding()
+//                                    .imePadding()
                                 ) {
                                     NavHostControllerInstance(
                                         newLayoutInfo = newLayoutInfo,
