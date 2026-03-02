@@ -6,6 +6,7 @@ import android.net.Uri
 import android.provider.Telephony
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -217,6 +218,7 @@ fun ConversationsMainLayout(
         context.getDefaultSimSubscription() ?: -1) }
     LaunchedEffect(subscriptionIdPrefs) {
         if(context.isDualSim()) {
+
             subscriptionIdPrefs?.let { subscriptionId = it }
         }
     }
@@ -224,8 +226,10 @@ fun ConversationsMainLayout(
     var highlightedMessage by remember{ mutableStateOf<Conversations?>(null) }
 
     var isBlocked by remember { mutableStateOf( false ) }
-    var contactName by remember{ mutableStateOf( context.retrieveContactName(address)
-        ?: address )}
+
+    var contactName by remember{ mutableStateOf( context
+        .retrieveContactName(address) ?: address )}
+
     LaunchedEffect(address) {
         if(!inPreviewMode)
             ConversationsViewModel().contactIsBlocked(context, address) {

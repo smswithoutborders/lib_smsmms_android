@@ -237,7 +237,6 @@ fun ChatCompose(
     mmsCancelledCallback: (() -> Unit)? = null,
     simCardChooserCallback: (() -> Unit)? = null,
     imageUri: Uri? = null,
-    simChangedCallback: ((Long) -> Unit)? = null,
     smsSendCallback: () -> Unit,
 ) {
     val context = LocalContext.current
