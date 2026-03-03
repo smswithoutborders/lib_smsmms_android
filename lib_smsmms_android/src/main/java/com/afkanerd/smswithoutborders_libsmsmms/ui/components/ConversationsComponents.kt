@@ -90,6 +90,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
@@ -644,6 +645,51 @@ fun formatDate(timestamp: Long): String {
     return format.format(date)
 }
 
+@Composable
+private fun SimChooserDisplay(
+    subscriptionInformation: SubscriptionInfo? = null,
+    onClickCallback: ((Long) -> Unit)? = null,
+    dismissCallback: (() -> Unit)? = null
+) {
+    val context = LocalContext.current
+    DropdownMenuItem(
+        leadingIcon = {
+            if(LocalInspectionMode.current) {
+                Icon(
+                    Icons.Outlined.SimCard,
+                    stringResource(R.string.send_message),
+                )
+            } else {
+                context.getSubscriptionBitmap(subscriptionInformation!!.subscriptionId)
+                    ?.asImageBitmap()?.let { image ->
+                        Image(
+                            image,
+                            stringResource(R.string.choose_sim_card)
+                        )
+                    }
+            }
+        },
+        text = {
+            Column {
+                Text(
+                    text = if(LocalInspectionMode.current) "Sampler custom name" else
+                        subscriptionInformation?.displayName.toString(),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+                Text(
+                    text = if(LocalInspectionMode.current) "Sampler carrier name" else
+                        subscriptionInformation?.carrierName.toString(),
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+            }
+        },
+        onClick = {
+            onClickCallback?.invoke(subscriptionInformation?.subscriptionId?.toLong() ?: -1)
+            dismissCallback?.invoke()
+        }
+    )
+}
 
 @Composable
 fun SimChooser(
@@ -658,34 +704,10 @@ fun SimChooser(
     ) {
         if(!LocalInspectionMode.current)
             context.getSimCardInformation()?.forEach {
-                DropdownMenuItem(
-                    leadingIcon = {
-                        if(LocalInspectionMode.current) {
-                            Icon(
-                                Icons.Outlined.SimCard,
-                                stringResource(R.string.send_message),
-                                tint = MaterialTheme.colorScheme.onBackground
-                            )
-                        } else {
-                            context.getSubscriptionBitmap(it.subscriptionId)
-                                ?.asImageBitmap()?.let { image ->
-                                    Image(
-                                        image,
-                                        stringResource(R.string.choose_sim_card)
-                                    )
-                                }
-                        }
-                    },
-                    text = {
-                        Text(
-                            text = it.carrierName.toString(),
-                            color = MaterialTheme.colorScheme.onBackground
-                        )
-                    },
-                    onClick = {
-                        onClickCallback?.invoke(it.subscriptionId.toLong())
-                        dismissCallback?.invoke()
-                    }
+                SimChooserDisplay(
+                    it,
+                    onClickCallback,
+                    dismissCallback
                 )
             }
     }
@@ -841,12 +863,11 @@ fun ShortCodeAlertPreview() {
     ShortCodeAlert(dismissCallback = {})
 }
 
-@Preview(showBackground = true, name = "SIM Chooser Light")
-@Preview(showBackground = true, name = "SIM Chooser Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Preview(showBackground = true)
 @Composable
 fun SimChooserPreview() {
-    SimChooser(
-        expanded = true, // Make it visible in preview
+    SimChooserDisplay(
+        null,
         onClickCallback = {},
         dismissCallback = {}
     )
