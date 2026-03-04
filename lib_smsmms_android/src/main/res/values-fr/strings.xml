@@ -394,5 +394,14 @@
     <string name="developers">Développeuses</string>
     <string name="developer_mode">Mode développeur</string>
     <string name="subject">Sujet : %1$s</string>
+    <string name="mark_all_read">Marquer tout comme lu</string>
+    <string name="delete_messages_from_system_s_database">Supprimer les messages de la base de données du système</string>
+    <string name="this_would_delete_messages_from_system_s_database_accessible_by_other_apps">Cela supprimerait les messages de la base de données du système accessibles par d\'autres applications.</string>
+    <string name="sending_with">Envoi avec</string>
+    <string name="sim">SIM %1$s</string>
+    <string name="sim_card_switching">changement de carte SIM</string>
+    <string name="_switch">Changer</string>
+    <string name="switch_sim_cards">Changer de carte SIM</string>
+    <string name="send_with">Envoyer avec</string>
 
 </resources>
