@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name" translatable="false">Deku SMS</string>
     <string name="privacy_policy_url" translatable="false">https://smswithoutborders.com/privacy-policy</string>
-    <string name="incoming_messages_channel_name">Incoming Messages</string>
+    <string name="incoming_messages_channel_name">Incoming messages</string>
     <string name="running_gateway_clients_channel_name" translatable="false">Running Gateway Listeners</string>
     <string name="foreground_service_failed_channel_name" translatable="false">Gateway clients auto-reconnect</string>
     <string name="message_failed_channel_name" translatable="false">Message Failed</string>
@@ -124,7 +124,7 @@
     <string name="settings_SMS_routing_type_all_option">All (default)</string>
 
     <string name="settings_add_gateway_client_protocol_description">Choose the Listening protocol</string>
-    <string name="settings_add_gateway_server_protocol_meta_description">All POST are routed as JSON formats.\nAll formats use the following key/value format:\n\n<b>MSISDN</b>:-The address of the incoming message in E.164 Format\n\n<b>text</b>:-The text body of the incoming message </string>
+    <string name="settings_add_gateway_server_protocol_meta_description">"All POST are routed as JSON formats. All formats use the following key/value format:  <b>MSISDN</b>:-The address of the incoming message in E.164 Format  <b>text</b>:-The text body of the incoming message "</string>
 
     <string name="settings_gateway_server_protocol_description">Protocol</string>
     <string name="settings_gateway_client_username_description">Username</string>
@@ -213,12 +213,12 @@
     <string name="conversation_menu_view_details">View details</string>
     <string name="conversation_menu_view_replay">Replay</string>
     <string name="conversation_menu_view_details_title">Message details</string>
-    <string name="conversation_menu_view_details_type">Type:\u00A0</string>
+    <string name="conversation_menu_view_details_type" translatable="false">Type:\u00A0</string>
     <string name="conversation_menu_view_details_type_text">Text message</string>
     <string name="conversation_menu_view_details_type_data">Data message</string>
     <string name="conversation_menu_view_details_from">From:\u00A0</string>
-    <string name="conversation_menu_view_details_to">To:\u00A0</string>
-    <string name="conversation_menu_view_details_sent">Sent:\u00A0</string>
+    <string name="conversation_menu_view_details_to" translatable="false">To:\u00A0</string>
+    <string name="conversation_menu_view_details_sent" translatable="false">Sent:\u00A0</string>
     <string name="conversation_menu_view_details_received">Received:\u00A0</string>
 
     <string name="conversation_secure_popup_text">Click to request secure conversation</string>
@@ -229,7 +229,7 @@
     <string name="conversation_secure_popup_request_menu_yes">Send</string>
     <string name="conversation_secure_popup_request_menu_cancel">Cancel</string>
     <string name="conversation_secure_popup_request_menu_title">Secure Conversation Request</string>
-    <string name="conversation_secure_popup_request_menu_description">A secure communications request will send an SMS to this contact. \n\nThey will need have Deku SMS installed to receive this request.</string>
+    <string name="conversation_secure_popup_request_menu_description">A secure communications request will send an SMS to this contact.   They will need have Deku SMS installed to receive this request.</string>
     <string name="conversation_secure_popup_request_menu_description_subtext">* SMS cost still applies</string>
 
     <string name="conversation_shortcode_description">Can\'t reply to this short code</string>
@@ -310,7 +310,7 @@
     <string name="type_names_or_phone_numbers">Type names or phone numbers</string>
     <string name="selected">selected</string>
     <string name="cancel_selection">Cancel selection</string>
-    <string name="sms">SMS</string>
+    <string name="sms" translatable="false">SMS</string>
     <string name="folders">Folders</string>
     <string name="inbox_folder">Inbox Folder</string>
     <string name="archive_folder">Archive folder</string>
@@ -386,7 +386,7 @@
     <string name="new_remote_listener">New remote listener</string>
     <string name="return_back">Return back</string>
     <string name="host_url">Host Url</string>
-    <string name="example_com">example.com</string>
+    <string name="example_com" translatable="false">example.com</string>
     <string name="username">Username</string>
     <string name="password">Password</string>
     <string name="hide_password">Hide password</string>
@@ -471,7 +471,7 @@
     <string name="edit_image">Edit image</string>
     <string name="width">Width</string>
     <string name="height">Height</string>
-    <string name="kb">%1$d KB</string>
+    <string name="kb" translatable="false">%1$d KB</string>
     <string name="sms_est">SMS Est.</string>
     <string name="sending_images">Sending images…</string>
     <string name="of_sent">%1$d of %2$d sent…</string>

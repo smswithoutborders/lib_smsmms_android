@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="language_arabic">Arabic</string>
+    <string name="language_spanish">Spanish</string>
+    <string name="language_spanish_value" >эс</string>
+    <string name="language_arabic_value" >ар</string>
+</resources>
