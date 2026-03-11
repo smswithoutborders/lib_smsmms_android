@@ -112,7 +112,7 @@ object Cryptography {
 
     @JvmStatic
     fun getDatabasePassword(context: Context, keystoreAlias: String) : ByteArray {
-        val password = context.settingsGetDbPassword
+        val password = context.settingsGetDbPassword(keystoreAlias)
         return if(password == null) {
             context.generateSecureRandom().run {
                 val encryptedPassword = encryptWithKeyStore(
@@ -120,7 +120,7 @@ object Cryptography {
                     this,
                     keystoreAlias
                 )
-                context.settingsSetDbPassword(encryptedPassword)
+                context.settingsSetDbPassword(encryptedPassword, keystoreAlias)
                 this
             }
         } else {

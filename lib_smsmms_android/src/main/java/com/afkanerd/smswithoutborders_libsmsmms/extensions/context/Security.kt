@@ -21,7 +21,7 @@ fun Context.isAvailableInKeystore(keystoreAlias: String) : Boolean {
     return ks.containsAlias(keystoreAlias)
 }
 
-val Context.settingsGetDbPassword get(): ByteArray? {
+fun Context.settingsGetDbPassword(keystoreAlias: String): ByteArray? {
     val masterKey: MasterKey = MasterKey.Builder(this)
         .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
         .build()
@@ -32,12 +32,13 @@ val Context.settingsGetDbPassword get(): ByteArray? {
         masterKey,
         EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
         EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-    ).getString(Security.DB_PASSWORD, "").run {
+    ).getString(
+        "Security.DB_PASSWORD_${keystoreAlias}", "").run {
         if(!this.isNullOrBlank()) Base64.decode(this, Base64.DEFAULT) else null
     }
 }
 
-fun Context.settingsSetDbPassword(password: ByteArray) {
+fun Context.settingsSetDbPassword(password: ByteArray, keystoreAlias: String) {
     val masterKey: MasterKey = MasterKey.Builder(this)
         .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
         .build()
@@ -49,7 +50,7 @@ fun Context.settingsSetDbPassword(password: ByteArray) {
         EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
         EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
     ).edit {
-        putString(Security.DB_PASSWORD,
+        putString("Security.DB_PASSWORD_${keystoreAlias}",
             Base64.encodeToString(password, Base64.DEFAULT))
         apply()
     }
