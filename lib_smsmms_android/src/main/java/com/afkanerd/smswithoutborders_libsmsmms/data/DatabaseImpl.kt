@@ -11,6 +11,7 @@ import com.afkanerd.smswithoutborders_libsmsmms.data.dao.ConversationsDao
 import com.afkanerd.smswithoutborders_libsmsmms.data.dao.ThreadsDao
 import com.afkanerd.smswithoutborders_libsmsmms.data.entities.Conversations
 import com.afkanerd.smswithoutborders_libsmsmms.data.entities.Threads
+import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getNativesLoaded
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.setNativesLoaded
 import net.zetetic.database.sqlcipher.SupportOpenHelperFactory
 import kotlin.concurrent.Volatile
@@ -22,9 +23,7 @@ import kotlin.concurrent.Volatile
         Threads::class],
     version = 2,
     exportSchema = true,
-    autoMigrations = [
-        AutoMigration(from = 1, to = 2),
-    ]
+    autoMigrations = []
 )
 abstract class DatabaseImpl : RoomDatabase() {
     abstract fun conversationsDao(): ConversationsDao?
@@ -72,7 +71,8 @@ abstract class DatabaseImpl : RoomDatabase() {
     class Migrate1To2(private val context: Context) : Migration(1, 2) {
         override fun migrate(db: SupportSQLiteDatabase) {
             super.migrate(db)
-            context.setNativesLoaded(false)
+//            context.setNativesLoaded(false)
+            context.getNativesLoaded()
         }
     }
 }
