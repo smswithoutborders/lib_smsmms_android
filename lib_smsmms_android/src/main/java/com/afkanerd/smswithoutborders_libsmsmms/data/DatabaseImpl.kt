@@ -59,31 +59,16 @@ abstract class DatabaseImpl : RoomDatabase() {
         }
 
         private fun create(context: Context): DatabaseImpl {
-            val password = Cryptography.getDatabasePassword(context, dbKeystoreAlias)
-
             val databaseFile = context.getDatabasePath(this.databaseName)
-            val factory = SupportOpenHelperFactory(password)
+            val factory = SupportOpenHelperFactory(Cryptography
+                .getDatabasePassword(context, dbKeystoreAlias))
             return Room.databaseBuilder(
                 context, DatabaseImpl::class.java,
                 databaseFile.absolutePath,
             )
-                .addMigrations(Migrate1To2(context))
                 .enableMultiInstanceInvalidation()
                 .openHelperFactory(factory)
                 .build()
-        }
-    }
-
-    class Migrate1To2(private val context: Context) : Migration(1, 2) {
-        override fun migrate(db: SupportSQLiteDatabase) {
-            super.migrate(db)
-            ThreadsViewModel().loadNativesAsync(context) {
-                CoroutineScope(Dispatchers.Main).launch {
-                    Toast.makeText(context,
-                        context.getString(R.string.secure_database_migrated),
-                        Toast.LENGTH_SHORT).show()
-                }
-            }
         }
     }
 }
