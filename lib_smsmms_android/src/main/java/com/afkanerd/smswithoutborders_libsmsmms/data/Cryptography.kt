@@ -113,18 +113,18 @@ object Cryptography {
     @JvmStatic
     fun getDatabasePassword(context: Context, keystoreAlias: String) : ByteArray {
         val password = context.settingsGetDbPassword
-        if(password == null) {
-            val password = context.generateSecureRandom()
-            val encryptedPassword = encryptWithKeyStore(
-                context,
-                password,
-                keystoreAlias
-            )
-            context.settingsSetDbPassword(encryptedPassword)
-            return password
+        return if(password == null) {
+            context.generateSecureRandom().run {
+                val encryptedPassword = encryptWithKeyStore(
+                    context,
+                    this,
+                    keystoreAlias
+                )
+                context.settingsSetDbPassword(encryptedPassword)
+                this
+            }
         } else {
-            return decryptWithKeyStore(password, keystoreAlias) ?:
-            throw Exception("Failed to decrypt database keystore")
+            decryptWithKeyStore(password, keystoreAlias) ?: throw Exception("Failed to decrypt database keystore")
         }
     }
 }
