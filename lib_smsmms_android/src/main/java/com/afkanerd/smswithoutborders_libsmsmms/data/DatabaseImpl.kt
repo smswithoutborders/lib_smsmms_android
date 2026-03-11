@@ -1,18 +1,24 @@
 package com.afkanerd.smswithoutborders_libsmsmms.data
 
 import android.content.Context
+import android.widget.Toast
 import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.afkanerd.lib_smsmms_android.R
 import com.afkanerd.smswithoutborders_libsmsmms.data.dao.ConversationsDao
 import com.afkanerd.smswithoutborders_libsmsmms.data.dao.ThreadsDao
 import com.afkanerd.smswithoutborders_libsmsmms.data.entities.Conversations
 import com.afkanerd.smswithoutborders_libsmsmms.data.entities.Threads
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getNativesLoaded
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.setNativesLoaded
+import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.ThreadsViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import net.zetetic.database.sqlcipher.SupportOpenHelperFactory
 import kotlin.concurrent.Volatile
 
@@ -71,8 +77,13 @@ abstract class DatabaseImpl : RoomDatabase() {
     class Migrate1To2(private val context: Context) : Migration(1, 2) {
         override fun migrate(db: SupportSQLiteDatabase) {
             super.migrate(db)
-//            context.setNativesLoaded(false)
-            context.getNativesLoaded()
+            ThreadsViewModel().loadNativesAsync(context) {
+                CoroutineScope(Dispatchers.Main).launch {
+                    Toast.makeText(context,
+                        context.getString(R.string.secure_database_migrated),
+                        Toast.LENGTH_SHORT).show()
+                }
+            }
         }
     }
 }

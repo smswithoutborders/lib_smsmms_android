@@ -497,5 +497,6 @@
     <string name="_switch">Switch</string>
     <string name="switch_sim_cards">Switch SIM cards</string>
     <string name="send_with">Send with</string>
+    <string name="secure_database_migrated">Secure database migrated!</string>
 
 </resources>
