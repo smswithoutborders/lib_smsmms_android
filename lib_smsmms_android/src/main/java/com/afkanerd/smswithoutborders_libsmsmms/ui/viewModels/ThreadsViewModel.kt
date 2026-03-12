@@ -4,12 +4,14 @@ import android.content.Context
 import android.os.Bundle
 import android.provider.BlockedNumberContract.AUTHORITY_URI
 import android.provider.Telephony
+import android.widget.Toast
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.AndroidUiDispatcher
+import androidx.core.content.edit
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -18,7 +20,9 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import com.afkanerd.lib_smsmms_android.R
 import com.afkanerd.smswithoutborders_libsmsmms.data.entities.Threads
+import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.ActivitiesConstant
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.blockContact
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.deleteSmsThreads
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getDatabase
@@ -28,6 +32,7 @@ import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.loadRawThread
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.retrieveContactPhoto
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.settingsGetDeleteSystem
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.unblockContact
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -40,7 +45,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class ThreadsViewModel: ViewModel() {
+open class ThreadsViewModel: ViewModel() {
 
     var messagesLoading by mutableStateOf(false)
     var secondaryMessagesLoading by mutableStateOf(false)
@@ -374,5 +379,47 @@ class ThreadsViewModel: ViewModel() {
         }.flowOn(Dispatchers.IO)
     }
 
+    fun execMigrations(context: Context) {
+        viewModelScope.launch(Dispatchers.Default) {
+            Migrations(this@ThreadsViewModel)
+                .migrateV1ToV2(context)
+        }
+    }
+
+    class Migrations(private val threadsViewModel: ThreadsViewModel){
+        private val dbV2Migration = "dbV2Migration"
+
+        private fun Context.getMigratedV2(): Boolean {
+            val sharedPreferences = getSharedPreferences(
+                ActivitiesConstant.ACTIVITIES_FILENAMES, Context.MODE_PRIVATE)
+            return sharedPreferences.getBoolean(dbV2Migration, false)
+        }
+
+        private fun Context.setMigratedV2(load: Boolean) {
+            val sharedPreferences = getSharedPreferences(
+                ActivitiesConstant.ACTIVITIES_FILENAMES, Context.MODE_PRIVATE)
+            return sharedPreferences.edit {
+                putBoolean(dbV2Migration, load)
+            }
+        }
+        fun migrateV1ToV2(context: Context) {
+            if(context.isDefault()) {
+                val roomVersion = context.getDatabase().openHelper.readableDatabase.version
+                if(roomVersion == 2 && !context.getMigratedV2()) {
+                    threadsViewModel.loadNativesAsync(context) {
+                        CoroutineScope(Dispatchers.Main).launch {
+                            context.setMigratedV2(true)
+                            Toast.makeText(context,
+                                context.getString(R.string.secure_database_migrated),
+                                Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+            } else {
+                context.setMigratedV2(true)
+            }
+        }
+
+    }
 
 }
