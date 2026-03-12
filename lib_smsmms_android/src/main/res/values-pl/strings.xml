@@ -481,6 +481,16 @@
     <string name="developers">Deweloperzy</string>
     <string name="developer_mode">Tryb programisty</string>
     <string name="subject">Temat: %1$s</string>
+    <string name="mark_all_read">Oznacz wszystkie jako przeczytane</string>
+    <string name="delete_messages_from_system_s_database">Usuń wiadomości z bazy danych systemu</string>
+    <string name="this_would_delete_messages_from_system_s_database_accessible_by_other_apps">Spowoduje to usunięcie wiadomości z bazy danych systemu, do której dostęp mają inne aplikacje</string>
+    <string name="sending_with">Wysyłanie z</string>
+    <string name="sim">Karta SIM %1$s</string>
+    <string name="sim_card_switching">changement de carte SIM</string>
+    <string name="_switch">Zmieniacz</string>
+    <string name="switch_sim_cards">Zmień karty SIM</string>
+    <string name="send_with">Wyślij z</string>
+    <string name="secure_database_migrated">Migracja bezpiecznej bazy danych!</string>
 
 
 </resources>

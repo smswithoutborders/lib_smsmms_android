@@ -419,6 +419,16 @@
     <string name="developers">Entwickler</string>
     <string name="developer_mode">Entwicklermodus</string>
     <string name="subject">Betreff: %1$s</string>
+    <string name="mark_all_read">Als gelesen markieren</string>
+    <string name="delete_messages_from_system_s_database">Nachrichten aus der Datenbank des Systems löschen</string>
+    <string name="this_would_delete_messages_from_system_s_database_accessible_by_other_apps">Dadurch würden Nachrichten aus der Systemdatenbank gelöscht, auf die andere Apps zugreifen können.</string>
+    <string name="sending_with">Senden mit</string>
+    <string name="sim">SIM %1$s</string>
+    <string name="sim_card_switching">Wechsel der SIM-Karte</string>
+    <string name="_switch">Wechsler</string>
+    <string name="switch_sim_cards">SIM-Karten tauschen</string>
+    <string name="send_with">Senden mit</string>
+    <string name="secure_database_migrated">Sichere Datenbank migriert!</string>
 
 
 </resources>

@@ -438,5 +438,15 @@
     <string name="developers">Разработчики</string>
     <string name="developer_mode">Режим разработчика</string>
     <string name="subject">Тема: %1$s</string>
+    <string name="mark_all_read">Отметьте все прочитанные</string>
+    <string name="delete_messages_from_system_s_database">Удалить сообщения из базы данных системы.</string>
+    <string name="this_would_delete_messages_from_system_s_database_accessible_by_other_apps">Это приведет к удалению сообщений из базы данных системы, доступной для других приложений.</string>
+    <string name="sending_with">Отправка с помощью</string>
+    <string name="sim">SIM %1$s</string>
+    <string name="sim_card_switching">changement de carte SIM</string>
+    <string name="_switch">Смена</string>
+    <string name="switch_sim_cards">Сменить SIM-карту</string>
+    <string name="send_with">Отправить с</string>
+    <string name="secure_database_migrated">База данных перенесена в защищенном режиме!</string>
 
 </resources>
