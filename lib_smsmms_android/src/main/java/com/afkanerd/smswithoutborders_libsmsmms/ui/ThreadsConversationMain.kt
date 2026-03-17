@@ -1,5 +1,6 @@
 package com.afkanerd.smswithoutborders_libsmsmms.ui
 
+import android.os.Debug
 import android.provider.BlockedNumberContract.isBlocked
 import android.provider.Telephony
 import androidx.activity.compose.BackHandler
@@ -65,6 +66,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -144,6 +146,13 @@ fun ThreadConversationLayout(
     val secondaryMessagesAreLoading = threadsViewModel.secondaryMessagesLoading
 
     var inboxType by remember { mutableStateOf(ThreadsViewModel.InboxType.INBOX )}
+    val isAndroidJUnitTest = try {
+        Class.forName("androidx.test.runner.AndroidJUnitRunner")
+        true
+    } catch (e: ClassNotFoundException) {
+        Debug.isDebuggerConnected() ||
+                System.getProperty("debug.instrumentation.run")?.contains("true") == true
+    }
 
     DisposableEffect(lifeCycleOwner) {
         val observer = Observer<ThreadsViewModel.InboxType> { newInboxType ->
@@ -467,8 +476,11 @@ fun ThreadConversationLayout(
                     if(!isDefault || !readPhoneStatePermission.status.isGranted) {
                         DefaultCheckMain { isDefault = context.isDefault() }
                     }
-                    if(secondaryMessagesAreLoading || inPreviewMode)
-                        LinearProgressIndicator(Modifier.fillMaxWidth())
+                    if(secondaryMessagesAreLoading || isAndroidJUnitTest || inPreviewMode)
+                        LinearProgressIndicator(
+                            Modifier.fillMaxWidth()
+                                .testTag("secondaryMessagesAreLoading")
+                        )
                     if(messagesAreLoading || inPreviewMode)  {
                         Column(
                             modifier = Modifier.fillMaxSize(),
