@@ -57,6 +57,8 @@ agpVersion = "8.13.2"
 kotlinGradlePluginVersion = "2.0.21"
 agp = "8.13.2"
 kotlinVersion = "2.0.21"
+uiautomatorVersion = "2.3.0"
+uiTestJunit4Version = "1.10.5"
 
 [libraries]
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissionsVersion" }
@@ -139,5 +141,7 @@ androidx-activity = { group = "androidx.activity", name = "activity", version.re
 kotlin-gradle-plugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlinGradlePluginVersion" }
 androidx-compose-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
 androidx-compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
+androidx-uiautomator = { group = "androidx.test.uiautomator", name = "uiautomator", version.ref = "uiautomatorVersion" }
+androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4", version.ref = "uiTestJunit4Version" }
 
 [plugins]
