@@ -110,21 +110,42 @@ object Cryptography {
         return cipher.doFinal(data)
     }
 
+    class SecretBytes(private val data: ByteArray) : AutoCloseable {
+        fun useRaw(block: (ByteArray) -> Unit) {
+            block(data)
+        }
+
+        override fun close() {
+            data.fill(0)
+        }
+
+        // Optional: Return a copy if you absolutely must,
+        // but the caller then "owns" that copy's destruction.
+        fun copy(): ByteArray = data.copyOf()
+    }
+
     @JvmStatic
-    fun getDatabasePassword(context: Context, keystoreAlias: String) : ByteArray {
+    fun getDatabasePassword(context: Context, keystoreAlias: String) : SecretBytes {
         val password = context.settingsGetDbPassword(keystoreAlias)
-        return if(password == null) {
-            context.generateSecureRandom().run {
+        val raw = if(password == null) {
+            val rawPassword = context.generateSecureRandom()
+            try {
                 val encryptedPassword = encryptWithKeyStore(
                     context,
-                    this,
+                    rawPassword,
                     keystoreAlias
                 )
                 context.settingsSetDbPassword(encryptedPassword, keystoreAlias)
-                this
+                rawPassword
+            } catch (e: Exception) {
+                e.printStackTrace()
+                throw e
+            } finally {
+                rawPassword.fill(0)
             }
         } else {
             decryptWithKeyStore(password, keystoreAlias) ?: throw Exception("Failed to decrypt database keystore")
         }
+        return SecretBytes(raw)
     }
 }

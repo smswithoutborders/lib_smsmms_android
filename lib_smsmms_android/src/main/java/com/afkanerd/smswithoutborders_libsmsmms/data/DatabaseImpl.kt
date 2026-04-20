@@ -9,6 +9,7 @@ import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.afkanerd.lib_smsmms_android.R
+import com.afkanerd.smswithoutborders_libsmsmms.data.Cryptography.getDatabasePassword
 import com.afkanerd.smswithoutborders_libsmsmms.data.dao.ConversationsDao
 import com.afkanerd.smswithoutborders_libsmsmms.data.dao.ThreadsDao
 import com.afkanerd.smswithoutborders_libsmsmms.data.entities.Conversations
@@ -21,6 +22,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.zetetic.database.sqlcipher.SupportOpenHelperFactory
 import kotlin.concurrent.Volatile
+import kotlin.jvm.java
 
 
 @Database(
@@ -53,22 +55,26 @@ abstract class DatabaseImpl : RoomDatabase() {
         @Synchronized
         fun getDatabaseImpl(context: Context): DatabaseImpl {
             if (datastore == null) {
-                datastore = create(context)
+                create(context)
             }
             return datastore!!
         }
 
-        private fun create(context: Context): DatabaseImpl {
-            val databaseFile = context.getDatabasePath(this.databaseName)
-            val factory = SupportOpenHelperFactory(Cryptography
-                .getDatabasePassword(context, dbKeystoreAlias))
-            return Room.databaseBuilder(
-                context, DatabaseImpl::class.java,
-                databaseFile.absolutePath,
-            )
-                .enableMultiInstanceInvalidation()
-                .openHelperFactory(factory)
-                .build()
+        private fun create(context: Context) {
+            getDatabasePassword(context, dbKeystoreAlias).use { password ->
+                val databaseFile = context.getDatabasePath(databaseName)
+
+                password.useRaw { rawBytes ->
+                    datastore = Room.databaseBuilder(
+                        context = context.applicationContext,
+                        klass = DatabaseImpl::class.java,
+                        databaseFile.absolutePath,
+                    )
+                        .openHelperFactory(SupportOpenHelperFactory(rawBytes))
+                        .fallbackToDestructiveMigration(false)
+                        .build()
+                }
+            }
         }
     }
 }
