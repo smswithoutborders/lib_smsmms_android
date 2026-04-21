@@ -23,6 +23,7 @@ import javax.crypto.NoSuchPaddingException
 import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
 import javax.security.cert.CertificateException
+import kotlin.io.use
 
 object Cryptography {
     @Throws(
@@ -112,16 +113,16 @@ object Cryptography {
 
     class SecretBytes(private val data: ByteArray) : AutoCloseable {
         fun useRaw(block: (ByteArray) -> Unit) {
+            if (isClosed) throw IllegalStateException("Cannot use SecretBytes closed")
             block(data)
         }
 
+        private var isClosed = false
         override fun close() {
+            if(isClosed) return
             data.fill(0)
+            isClosed = true
         }
-
-        // Optional: Return a copy if you absolutely must,
-        // but the caller then "owns" that copy's destruction.
-        fun copy(): ByteArray = data.copyOf()
     }
 
     @JvmStatic
