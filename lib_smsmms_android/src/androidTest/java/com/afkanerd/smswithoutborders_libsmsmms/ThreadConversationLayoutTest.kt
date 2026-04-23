@@ -2,7 +2,9 @@ package com.afkanerd.smswithoutborders_libsmsmms
 
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.navigation.compose.rememberNavController
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -31,5 +33,21 @@ class ThreadConversationLayoutTest {
         composeTestRule
             .onNodeWithText("DekuSMS")
             .assertIsDisplayed()
+    }
+
+
+    @Test
+    fun searchButtonNotShownWhenNotDefault() {
+        composeTestRule.setContent {
+            val threadsViewModel: ThreadsViewModel = viewModel()
+            ThreadConversationLayout(
+                threadsViewModel = threadsViewModel,
+                navController = rememberNavController()
+            )
+        }
+
+        composeTestRule
+            .onNodeWithContentDescription("Search messages")
+            .assertDoesNotExist()
     }
 }
