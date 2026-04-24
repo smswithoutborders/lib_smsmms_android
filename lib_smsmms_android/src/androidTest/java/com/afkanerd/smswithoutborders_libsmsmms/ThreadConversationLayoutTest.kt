@@ -50,4 +50,19 @@ class ThreadConversationLayoutTest {
             .onNodeWithContentDescription("Search messages")
             .assertDoesNotExist()
     }
+
+    @Test
+    fun composeButtonNotShownWhenNotDefault() {
+        composeTestRule.setContent {
+            val threadsViewModel: ThreadsViewModel = viewModel()
+            ThreadConversationLayout(
+                threadsViewModel = threadsViewModel,
+                navController = rememberNavController()
+            )
+        }
+
+        composeTestRule
+            .onNodeWithText("Compose")
+            .assertDoesNotExist()
+    }
 }
