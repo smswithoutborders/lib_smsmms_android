@@ -65,4 +65,23 @@ class ThreadConversationLayoutTest {
             .onNodeWithText("Compose")
             .assertDoesNotExist()
     }
+
+    @Test
+    fun clickHamburgerMenuOpensDrawer() {
+        composeTestRule.setContent {
+            val threadsViewModel: ThreadsViewModel = viewModel()
+            ThreadConversationLayout(
+                threadsViewModel = threadsViewModel,
+                navController = rememberNavController()
+            )
+        }
+
+        composeTestRule
+            .onNodeWithContentDescription("Open side menu")
+            .assertIsDisplayed()
+
+        composeTestRule
+            .onNodeWithContentDescription("Open side menu")
+            .performClick()
+    }
 }
