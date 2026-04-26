@@ -29,20 +29,12 @@ object NotificationsInitializer {
         notificationsChannelIds.add(context.getString(R.string.running_gateway_clients_channel_id))
         notificationsChannelNames.add(context.getString(R.string.running_gateway_clients_channel_name))
 
-        notificationsChannelIds.add(context.getString(R.string.foreground_service_failed_channel_id))
-        notificationsChannelNames.add(context.getString(R.string.foreground_service_failed_channel_name))
-
         notificationsChannelIds.add(context.getString(R.string.message_failed_channel_id))
         notificationsChannelNames.add(context.getString(R.string.message_failed_channel_name))
-
-        notificationsChannelIds.add(context.getString(R.string.foreground_service_image_transmission_channel_id))
-        notificationsChannelNames.add(context.getString(R.string.image_transmission_service))
 
         createNotificationChannelIncomingMessage(context, notificationManager)
         createNotificationChannelRunningGatewayListeners(context, notificationManager)
         createNotificationChannelReconnectGatewayListeners(context, notificationManager)
-        createNotificationChannelFailedMessages(context, notificationManager)
-        createImageTransmissionChannel(context, notificationManager)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -96,37 +88,4 @@ object NotificationsInitializer {
     }
 
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    private fun createNotificationChannelFailedMessages(
-        context: Context,
-        notificationManager: NotificationManager
-    ) {
-        val importance = NotificationManager.IMPORTANCE_DEFAULT
-        val channel = NotificationChannel(
-            notificationsChannelIds[3],
-            notificationsChannelNames[3],
-            importance
-        )
-        channel.description = context.getString(R.string.message_failed_notifications_descriptions)
-        channel.lockscreenVisibility = Notification.DEFAULT_ALL
-        notificationManager.createNotificationChannel(channel)
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    private fun createImageTransmissionChannel(
-        context: Context,
-        notificationManager: NotificationManager
-    ) {
-        val importance = NotificationManager.IMPORTANCE_LOW
-
-        val channel = NotificationChannel(
-            notificationsChannelIds[4],
-            notificationsChannelNames[4],
-            importance
-        )
-        channel.description = context.getString(R.string.foreground_service_image_transmission_descriptions)
-        channel.lockscreenVisibility = Notification.DEFAULT_ALL
-
-        notificationManager.createNotificationChannel(channel)
-    }
 }

@@ -100,24 +100,6 @@
             android:name="com.afkanerd.smswithoutborders_libsmsmms.receivers.MmsReceivedReceiverImplTest"
             android:exported="true"/>
 
-        <receiver
-            android:name="com.afkanerd.smswithoutborders_libsmsmms.receivers.NotificationActionImpl"
-            android:enabled="true"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.afkanerd.lib_image_android.NOTIFICATION_STOP_ACTION_INTENT_ACTION" />
-                <action android:name="com.afkanerd.lib_image_android.NOTIFICATION_PAUSE_ACTION_INTENT_ACTION" />
-            </intent-filter>
-        </receiver>
-
-        <service
-            android:name="com.afkanerd.smswithoutborders_libsmsmms.services.ImageTransmissionService"
-            android:exported="false"
-            android:foregroundServiceType="dataSync">
-            <intent-filter>
-                <action android:name="androidx.work.impl.foreground.SystemForegroundService" />
-            </intent-filter>
-        </service>
 
     </application>
 
