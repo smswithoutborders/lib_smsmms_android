@@ -2,16 +2,12 @@ package com.afkanerd.smswithoutborders_libsmsmms
 
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.performClick
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.rule.GrantPermissionRule
 import com.afkanerd.smswithoutborders_libsmsmms.data.data.models.Contacts
 import com.afkanerd.smswithoutborders_libsmsmms.ui.ComposeNewMessage
-import com.afkanerd.smswithoutborders_libsmsmms.ui.ThreadConversationLayout
-import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.ThreadsViewModel
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -26,6 +22,11 @@ class ComposeNewMessageTest {
 
     @get:Rule
     val composeTestRule = createComposeRule()
+
+    @get:Rule
+    val permissionRule: GrantPermissionRule = GrantPermissionRule.grant(
+        android.Manifest.permission.READ_CONTACTS
+    )
 
     @Test
     fun composeScreenTitleIsDisplayed() {
@@ -54,5 +55,4 @@ class ComposeNewMessageTest {
             .onNodeWithText("Test User One")
             .assertIsDisplayed()
     }
-
 }
