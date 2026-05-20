@@ -84,4 +84,19 @@ class ThreadConversationLayoutTest {
             .onNodeWithContentDescription("Open side menu")
             .performClick()
     }
+
+    @Test
+    fun settingsButtonIsDisplayedOnScreen() {
+        composeTestRule.setContent {
+            val threadsViewModel: ThreadsViewModel = viewModel()
+            ThreadConversationLayout(
+                threadsViewModel = threadsViewModel,
+                navController = rememberNavController()
+            )
+        }
+
+        composeTestRule
+            .onNodeWithContentDescription("Open side menu")
+            .assertIsDisplayed()
+    }
 }
