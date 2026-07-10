@@ -1,7 +1,7 @@
 package com.afkanerd.smswithoutborders_libsmsmms.ui
 
+import android.content.Context
 import android.os.Debug
-import android.provider.BlockedNumberContract.isBlocked
 import android.provider.Telephony
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.Animatable
@@ -33,12 +33,10 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.NotificationsOff
-import androidx.compose.material.icons.filled.PianoOff
 import androidx.compose.material.icons.filled.PushPin
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Unarchive
 import androidx.compose.material.icons.outlined.Block
-import androidx.compose.material.icons.outlined.PushPin
 import androidx.compose.material.icons.outlined.Remove
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -57,6 +55,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -85,12 +84,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import androidx.paging.LoadState.Loading
-import androidx.paging.PagingData
-import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
-import coil3.Uri
-import coil3.toUri
 import com.afkanerd.lib_smsmms_android.R
 import com.afkanerd.smswithoutborders_libsmsmms.data.data.models.DateTimeUtils
 import com.afkanerd.smswithoutborders_libsmsmms.data.entities.Threads
@@ -114,8 +109,8 @@ import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.ThreadsViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
+import kotlin.collections.map
 import kotlin.math.roundToInt
 
 data class ThreadsConversationParameters(
@@ -151,7 +146,7 @@ fun ThreadConversationLayout(
     val messagesAreLoading = threadsViewModel.messagesLoading
     val secondaryMessagesAreLoading = threadsViewModel.secondaryMessagesLoading
 
-    var inboxType by remember { mutableStateOf(ThreadsViewModel.InboxType.INBOX )}
+    var inboxType by remember { mutableStateOf(ThreadsViewModel.InboxType.INBOX) }
     val isAndroidJUnitTest = try {
         Class.forName("androidx.test.runner.AndroidJUnitRunner")
         true
@@ -173,11 +168,15 @@ fun ThreadConversationLayout(
 
     val selectedItems by threadsViewModel.selectedItems.collectAsState()
 
-    val inboxMessagesPagers = threadsViewModel.getThreads(context)
-    val archivedMessagesPagers = threadsViewModel.getArchives(context)
+
+    val inboxMessagesPagers =
+        threadsViewModel.getThreads(context)
+    val archivedMessagesPagers =
+        threadsViewModel.getArchives(context)
     val draftMessagesPagers = threadsViewModel.getDrafts(context)
     val mutedMessagesPagers = threadsViewModel.getIsMute(context)
-    val blockedMessagesPager = threadsViewModel.getIsBlocked(context)
+    val blockedMessagesPager =
+        threadsViewModel.getIsBlocked(context)
 
     val inboxMessagesItems = inboxMessagesPagers.collectAsLazyPagingItems()
     val archivedMessagesItems = archivedMessagesPagers.collectAsLazyPagingItems()
@@ -203,6 +202,8 @@ fun ThreadConversationLayout(
     var rememberDeleteMenu by remember { mutableStateOf(false) }
 
     val scope = rememberCoroutineScope()
+
+
 
     BackHandler(
         inboxType != ThreadsViewModel.InboxType.INBOX ||
@@ -563,12 +564,13 @@ fun ThreadConversationLayout(
                     if (!isDefault || !readPhoneStatePermission.status.isGranted) {
                         DefaultCheckMain { isDefault = context.isDefault() }
                     }
-                    if(secondaryMessagesAreLoading || isAndroidJUnitTest || inPreviewMode)
+                    if (secondaryMessagesAreLoading || isAndroidJUnitTest || inPreviewMode)
                         LinearProgressIndicator(
-                            Modifier.fillMaxWidth()
+                            Modifier
+                                .fillMaxWidth()
                                 .testTag("secondaryMessagesAreLoading")
                         )
-                    if(messagesAreLoading || inPreviewMode)  {
+                    if (messagesAreLoading || inPreviewMode) {
                         Column(
                             modifier = Modifier.fillMaxSize(),
                             verticalArrangement = Arrangement.Center,
@@ -625,9 +627,10 @@ fun ThreadConversationLayout(
                             ) {
                                 items(
                                     count = displayedInbox.itemCount,
-                                    key = displayedInbox.itemKey { it.threadId }
+                                    key = displayedInbox.itemKey { it.raw.threadId }
                                 ) { index ->
-                                    val thread = displayedInbox[index] ?: return@items
+                                    val enriched = displayedInbox[index] ?: return@items
+                                    val thread = enriched.raw;
 
                                     val offsetX = remember { Animatable(0f) }
                                     val threshold = 300f
@@ -700,24 +703,6 @@ fun ThreadConversationLayout(
                                         ) {
                                             val address = thread.address
 
-                                            val isBlocked = remember(thread.threadId) {
-                                                if (isDefault)
-                                                    threadsViewModel.isBlocked(
-                                                        context, thread,
-                                                        blockedMessagesItems.itemSnapshotList.items
-                                                    )
-                                                else false
-                                            }
-
-                                            val contactName = remember(address) {
-                                                if (isDefault)
-                                                    context.retrieveContactName(address)
-                                                else address
-                                            }
-
-                                            val contactPhotoUri by threadsViewModel
-                                                .contactPhoto(context, address)
-                                                .collectAsState()
 
                                             val isSelected = remember(selectedItems) {
                                                 selectedItems.contains(thread)
@@ -732,12 +717,12 @@ fun ThreadConversationLayout(
 
                                             ThreadConversationCard(
                                                 id = thread.threadId,
-                                                name = contactName ?: address,
+                                                name = enriched.contactName ?: thread.address,
                                                 content = thread.snippet,
                                                 date = date,
                                                 isRead = !thread.unread,
-                                                isContact = isDefault && !contactName.isNullOrBlank(),
-                                                isBlocked = isBlocked,
+                                                isContact = enriched.isContact,
+                                                isBlocked = inboxType == ThreadsViewModel.InboxType.BLOCKED,
                                                 isPinned = thread.isPinned,
                                                 modifier = Modifier.combinedClickable(
                                                     onClick = {
@@ -784,7 +769,7 @@ fun ThreadConversationLayout(
                                                 type = thread.type,
                                                 unreadCount = thread.unreadCount,
                                                 mms = thread.isMms,
-                                                contactPhotoUri = contactPhotoUri,
+                                                contactPhotoUri = enriched.contactPhotoUri,
                                             )
                                         }
                                     }
@@ -815,6 +800,7 @@ fun ThreadConversationLayout(
     }
 
 }
+
 
 @Preview
 @Composable
