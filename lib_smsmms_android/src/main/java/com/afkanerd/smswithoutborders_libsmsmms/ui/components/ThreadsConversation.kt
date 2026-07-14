@@ -2,14 +2,22 @@ package com.afkanerd.smswithoutborders_libsmsmms.ui.components
 
 import android.Manifest
 import android.R.attr.text
+import androidx.compose.runtime.setValue
 import android.content.res.Configuration
 import android.provider.Telephony
+import android.text.PrecomputedText
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,6 +25,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
@@ -53,8 +62,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -69,12 +81,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import coil3.compose.AsyncImage
 import com.afkanerd.lib_smsmms_android.BuildConfig
 import com.afkanerd.lib_smsmms_android.R
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.exportRawWithColumnGuesses
+import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.settingsGetEnableSwipeBehaviour
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.toHslColor
 import com.afkanerd.smswithoutborders_libsmsmms.ui.navigation.SettingsScreenNav
 import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.ThreadsViewModel
@@ -85,6 +99,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.FileOutputStream
+import kotlin.concurrent.thread
 
 @Composable
 fun DeleteConfirmationAlert(
@@ -918,4 +933,111 @@ fun getSwipeBehaviour(
 
 }
 
+@Composable
+fun ThreadItem(
+    threadUi: ThreadsViewModel.ThreadsUi,
+    inboxType: ThreadsViewModel.InboxType,
+    isSelected: Boolean,
+) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val thread = threadUi.threads
+    var postComputed by remember(threadUi.id) {
+        mutableStateOf<ThreadsViewModel.ThreadsComputations?>(null)
+    }
 
+    LaunchedEffect(threadUi.id) {
+        postComputed = threadUi.loadPreComputed(context)
+    }
+
+    val unreadCount by threadUi.unreadCount.collectAsStateWithLifecycle(0)
+
+    Box {
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .background(
+                    MaterialTheme.colorScheme.background
+                ),
+            contentAlignment = Alignment.CenterEnd
+        ) {
+//            SwipeToDeleteBackground(
+//                inboxType ==
+//                        ThreadsViewModel.InboxType.ARCHIVED,
+//                onArchiveCallback = {
+//                    threadsViewModel.update(
+//                        context,
+//                        listOf(thread.apply {
+//                            this.isArchive = true
+//                        })
+//                    )
+//                    threadsViewModel.removeAllSelectedItems()
+//                },
+//                onDeleteCallback = {
+//                    threadsViewModel
+//                        .setSelectedItems(listOf(thread))
+//                    rememberDeleteMenu = true
+//                },
+//            )
+        }
+
+        Box(
+            modifier = Modifier
+//                .offset { offset }
+                .fillMaxSize()
+                .background(Color.White)
+                .apply {
+//                    if (context.settingsGetEnableSwipeBehaviour) {
+//                        this.draggable(
+//                            orientation = Orientation.Horizontal,
+//                            state = rememberDraggableState { delta ->
+//                                scope.launch {
+//                                    offsetX.snapTo(offsetX.value + delta)
+//                                }
+//                            },
+//                            onDragStopped = {
+//                                scope.launch {
+//                                    val target = when {
+//                                        offsetX.value < -threshold -> -threshold
+//                                        offsetX.value > threshold -> threshold
+//                                        else -> 0f
+//                                    }
+//                                    offsetX.animateTo(
+//                                        target,
+//                                        animationSpec =
+//                                            spring(
+//                                                dampingRatio =
+//                                                    Spring.DampingRatioMediumBouncy
+//                                            )
+//                                    )
+//                                }
+//                            }
+//                        )
+//                    }
+                }
+        ) {
+            ThreadConversationCard(
+                id = thread.threadId,
+                name = postComputed?.name ?: threadUi.threads.address,
+                content = thread.snippet,
+                date = threadUi.date,
+                isRead = !thread.unread,
+                isContact = postComputed?.name != null,
+                isBlocked = postComputed?.blocked == true,
+                isPinned = thread.isPinned,
+                modifier = Modifier.combinedClickable(
+                    onClick = threadUi.onClick,
+                    onLongClick = threadUi.onLongClick,
+                ),
+                isSelected = isSelected,
+                isMuted = thread.isMute,
+                type = thread.type,
+                unreadCount = unreadCount,
+                mms = thread.isMms,
+                contactPhotoUri = postComputed?.photo,
+            )
+        }
+    }
+
+
+}

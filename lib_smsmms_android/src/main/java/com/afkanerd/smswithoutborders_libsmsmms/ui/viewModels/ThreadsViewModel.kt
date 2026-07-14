@@ -1,9 +1,11 @@
 package com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels
 
+import android.R.attr.onClick
 import android.content.Context
 import android.net.Uri
 import android.os.Bundle
 import android.provider.BlockedNumberContract.AUTHORITY_URI
+import android.provider.BlockedNumberContract.isBlocked
 import android.provider.Telephony
 import android.widget.Toast
 import androidx.compose.material3.DrawerState
@@ -11,7 +13,9 @@ import androidx.compose.material3.DrawerValue
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.toString
 import androidx.compose.ui.platform.AndroidUiDispatcher
+import androidx.compose.ui.test.isSelected
 import androidx.core.content.edit
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -20,6 +24,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
+import androidx.paging.PagingSource
 import androidx.paging.cachedIn
 import androidx.paging.map
 import com.afkanerd.lib_smsmms_android.R
@@ -40,14 +45,17 @@ import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.settingsGetDe
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.unblockContact
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEmpty
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -86,8 +94,8 @@ open class ThreadsViewModel: ViewModel() {
         }
     }
 
-    private val _selectedItems = MutableStateFlow<MutableList<Threads>>(mutableListOf()) // default
-    val selectedItems: StateFlow<MutableList<Threads>> = _selectedItems.asStateFlow()
+    private val _selectedItems = MutableStateFlow<List<Threads>>(mutableListOf()) // default
+    val selectedItems: StateFlow<List<Threads>> = _selectedItems
 
     fun setSelectedItems(threads: List<Threads>) {
         _selectedItems.value = threads.toMutableList()
@@ -100,7 +108,7 @@ open class ThreadsViewModel: ViewModel() {
     var pageSize: Int = 200
     var prefetchDistance: Int = 3 * pageSize
     var enablePlaceholder: Boolean = false
-    var initialLoadSize: Int = 2 * pageSize
+    var initialLoadSize: Int = 3 * pageSize
     var maxSize: Int = PagingConfig.MAX_SIZE_UNBOUNDED
 
     fun setInboxType(inboxType: InboxType) {
@@ -108,16 +116,20 @@ open class ThreadsViewModel: ViewModel() {
     }
 
     data class ThreadsUi(
+        val id: Int,
         val threads: Threads,
-        val isBlocked: Boolean,
         val date: String,
-        val contactName: String,
-        val contactPhotoUri: String?,
         val isSelected: Boolean,
-        val isContact: Boolean,
         val unreadCount: Flow<Int>,
         val onClick: () -> Unit,
         val onLongClick: () -> Unit,
+        val loadPreComputed: suspend (Context) -> ThreadsComputations,
+    )
+
+    data class ThreadsComputations(
+        val name: String?,
+        val blocked: Boolean,
+        val photo: String?,
     )
 
     fun getThreads(
@@ -127,7 +139,7 @@ open class ThreadsViewModel: ViewModel() {
         val db = context.getDatabase()
         val threadsDao = db.threadsDao() ?: throw Exception("Failed to open threads db")
 
-        val pager = Pager(
+        return Pager(
             config=PagingConfig(
                 pageSize,
                 prefetchDistance,
@@ -148,36 +160,50 @@ open class ThreadsViewModel: ViewModel() {
             .flow
             .map{ pd -> pd.map{ thread ->
                 val isSelected = _selectedItems.value.contains(thread)
-                val contactName = context.retrieveContactName(thread.address)
+                val date = DateTimeUtils.formatDate(context, thread.date) ?: ""
+                val unreadCount = threadsDao.getUnreadCount(thread.threadId)
+
                 ThreadsUi(
+                    id = thread.threadId,
                     threads = thread,
-                    isBlocked = context.isNumberBlocked(thread.address),
-                    contactName = contactName ?: thread.address,
-                    contactPhotoUri = getContactPhoto(context, thread.address),
-                    date = DateTimeUtils.formatDate(context, thread.date) ?: "",
+                    date = date,
                     isSelected = isSelected,
-                    isContact = contactName != null,
+                    unreadCount = unreadCount,
                     onClick = {
-                        if(isSelected) {
-                            _selectedItems.value.remove(thread)
-                        } else if(_selectedItems.value.isNotEmpty()){
-                            _selectedItems.value.add(thread)
+                        val currentSelected = _selectedItems.value
+                        if (currentSelected.contains(thread)) {
+                            _selectedItems.value = currentSelected - thread
+                        } else if (currentSelected.isNotEmpty()) {
+                            _selectedItems.value = currentSelected + thread
                         } else {
                             navigationCallback(thread)
                         }
                     },
                     onLongClick = {
-                        if(isSelected) {
-                            _selectedItems.value.remove(thread)
+                        val currentSelected = _selectedItems.value
+                        if (currentSelected.contains(thread)) {
+                            _selectedItems.value = currentSelected - thread
                         } else {
-                            _selectedItems.value.add(thread)
+                            _selectedItems.value = currentSelected + thread
                         }
                     },
-                    unreadCount = threadsDao.getUnreadCount(thread.threadId)
+                    loadPreComputed = { ctx ->
+                        withContext(Dispatchers.IO) {
+                            val nameDeferred = async { ctx.retrieveContactName(thread.address) }
+                            val blockedDeferred = async { ctx.isNumberBlocked(thread.address) }
+                            val photoDeferred = async { getContactPhoto(ctx, thread.address) }
+
+                            return@withContext ThreadsComputations(
+                                name = nameDeferred.await(),
+                                blocked = blockedDeferred.await(),
+                                photo = photoDeferred.await(),
+                            )
+                        }
+                    }
                 )
             }}
             .cachedIn(viewModelScope)
-        return pager
+//        return threadsPager!!
     }
 
     fun deleteThreads(context: Context, threads: List<Threads>) {
@@ -250,7 +276,7 @@ open class ThreadsViewModel: ViewModel() {
                 } catch(e: Exception) {
                     e.printStackTrace()
                 } finally {
-                    _secondaryLoadingUiState.value = true
+                    _secondaryLoadingUiState.value = false
                     withContext(Dispatchers.Main) {
                         completeCallback()
                     }
@@ -342,13 +368,8 @@ open class ThreadsViewModel: ViewModel() {
         }
     }
 
-    private val contactRepository = ContactRepository()
-
     private fun getContactPhoto(context: Context, phoneNumber: String): String? {
         return if(!context.isDefault()) null else context.retrieveContactPhoto(phoneNumber)
-    }
-
-    class ContactRepository() {
     }
 
     fun execMigrations(context: Context) {

@@ -56,6 +56,7 @@ import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -96,6 +97,7 @@ import com.afkanerd.smswithoutborders_libsmsmms.ui.components.DeleteConfirmation
 import com.afkanerd.smswithoutborders_libsmsmms.ui.components.ModalDrawerSheetLayout
 import com.afkanerd.smswithoutborders_libsmsmms.ui.components.SwipeToDeleteBackground
 import com.afkanerd.smswithoutborders_libsmsmms.ui.components.ThreadConversationCard
+import com.afkanerd.smswithoutborders_libsmsmms.ui.components.ThreadItem
 import com.afkanerd.smswithoutborders_libsmsmms.ui.components.ThreadsNavMenuItems
 import com.afkanerd.smswithoutborders_libsmsmms.ui.navigation.ComposeNewMessageScreenNav
 import com.afkanerd.smswithoutborders_libsmsmms.ui.navigation.ConversationsScreenNav
@@ -107,6 +109,7 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import kotlinx.coroutines.launch
+import kotlin.concurrent.thread
 import kotlin.math.roundToInt
 
 data class ThreadsConversationParameters(
@@ -145,7 +148,12 @@ fun ThreadConversationLayout(
     val selectedItems by threadsViewModel.selectedItems.collectAsStateWithLifecycle()
 
     val messagesPagers = threadsViewModel.getThreads(context) { thread ->
-        navController.navigate( HomeScreenNav(thread.address))
+        navController.navigate(
+            ConversationsScreenNav(
+                address = thread.address,
+                threadId = thread.threadId
+            )
+        )
     }
 
     val threads = messagesPagers.collectAsLazyPagingItems()
@@ -548,99 +556,14 @@ fun ThreadConversationLayout(
                             ) {
                                 items(
                                     count = threads.itemCount,
-                                    key = threads.itemKey { it.threads.threadId }
+                                    key = threads.itemKey { it.id }
                                 ) { index ->
-                                    val threadUi = threads[index] ?: return@items
-                                    val thread = threadUi.threads
-
-                                    Box {
-                                        Box(
-                                            modifier = Modifier
-                                                .matchParentSize()
-                                                .background(
-                                                    MaterialTheme.colorScheme.background
-                                                ),
-                                            contentAlignment = Alignment.CenterEnd
-                                        ) {
-                                            SwipeToDeleteBackground(
-                                                inboxType ==
-                                                        ThreadsViewModel.InboxType.ARCHIVED,
-                                                onArchiveCallback = {
-                                                    threadsViewModel.update(
-                                                        context,
-                                                        listOf(thread.apply {
-                                                            this.isArchive = true
-                                                        })
-                                                    )
-                                                    threadsViewModel.removeAllSelectedItems()
-                                                },
-                                                onDeleteCallback = {
-                                                    threadsViewModel
-                                                        .setSelectedItems(listOf(thread))
-                                                    rememberDeleteMenu = true
-                                                },
-                                            )
+                                    val threadUi = threads[index]
+                                    threadUi?.let {
+                                        val isSelected = remember(selectedItems) {
+                                            selectedItems.contains(threadUi.threads)
                                         }
-
-                                        Box(
-                                            modifier = Modifier
-                                                .offset { offset }
-                                                .fillMaxSize()
-                                                .background(Color.White)
-                                                .apply {
-                                                    if (context.settingsGetEnableSwipeBehaviour) {
-                                                        this.draggable(
-                                                            orientation = Orientation.Horizontal,
-                                                            state = rememberDraggableState { delta ->
-                                                                scope.launch {
-                                                                    offsetX.snapTo(offsetX.value + delta)
-                                                                }
-                                                            },
-                                                            onDragStopped = {
-                                                                scope.launch {
-                                                                    val target = when {
-                                                                        offsetX.value < -threshold -> -threshold
-                                                                        offsetX.value > threshold -> threshold
-                                                                        else -> 0f
-                                                                    }
-                                                                    offsetX.animateTo(
-                                                                        target,
-                                                                        animationSpec =
-                                                                            spring(
-                                                                                dampingRatio =
-                                                                                    Spring.DampingRatioMediumBouncy
-                                                                            )
-                                                                    )
-                                                                }
-                                                            }
-                                                        )
-                                                    }
-                                                }
-                                        ) {
-                                            val unreadCount by threadUi
-                                                .unreadCount
-                                                .collectAsStateWithLifecycle(0)
-                                            ThreadConversationCard(
-                                                id = thread.threadId,
-                                                name = threadUi.contactName,
-                                                content = thread.snippet,
-                                                date = threadUi.date,
-                                                isRead = !thread.unread,
-                                                isContact = threadUi.isContact,
-                                                isBlocked = threadUi.isBlocked,
-                                                isPinned = thread.isPinned,
-                                                modifier = Modifier.combinedClickable(
-                                                    onClick = threadUi.onClick,
-                                                    onLongClick = threadUi.onLongClick,
-                                                ),
-                                                isSelected = threadUi.isSelected,
-                                                isMuted = thread.isMute,
-                                                type = thread.type,
-                                                unreadCount = unreadCount,
-                                                mms = thread.isMms,
-                                                contactPhotoUri = threadUi.contactPhotoUri,
-                                            )
-                                        }
+                                        ThreadItem(threadUi, inboxType, isSelected)
                                     }
                                 }
                             }
