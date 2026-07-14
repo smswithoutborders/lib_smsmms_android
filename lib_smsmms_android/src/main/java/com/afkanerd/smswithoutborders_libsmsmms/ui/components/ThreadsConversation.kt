@@ -25,11 +25,13 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.VolumeOff
@@ -89,6 +91,7 @@ import com.afkanerd.lib_smsmms_android.BuildConfig
 import com.afkanerd.lib_smsmms_android.R
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.exportRawWithColumnGuesses
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.settingsGetEnableSwipeBehaviour
+import com.afkanerd.smswithoutborders_libsmsmms.extensions.pulseLoading
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.toHslColor
 import com.afkanerd.smswithoutborders_libsmsmms.ui.navigation.SettingsScreenNav
 import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.ThreadsViewModel
@@ -1038,6 +1041,34 @@ fun ThreadItem(
             )
         }
     }
-
-
 }
+
+
+@Composable
+fun PulsingMessagePlaceholder() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        val color = MaterialTheme.colorScheme.secondary
+        // Long message line
+        Box(
+            modifier = Modifier
+                .fillMaxWidth(0.9f)
+                .height(20.dp)
+                .clip(RoundedCornerShape(4.dp))
+                .pulseLoading(isLoading = true, color)
+        )
+        // Short message line
+        Box(
+            modifier = Modifier
+                .fillMaxWidth(0.5f)
+                .height(20.dp)
+                .clip(RoundedCornerShape(4.dp))
+                .pulseLoading(isLoading = true, color)
+        )
+    }
+}
+

@@ -83,6 +83,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
 import com.afkanerd.lib_smsmms_android.R
 import com.afkanerd.smswithoutborders_libsmsmms.data.data.models.DateTimeUtils
@@ -93,8 +94,10 @@ import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.retrieveConta
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.setNativesLoaded
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.settingsGetEnableSwipeBehaviour
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.isScrollingUp
+import com.afkanerd.smswithoutborders_libsmsmms.extensions.pulseLoading
 import com.afkanerd.smswithoutborders_libsmsmms.ui.components.DeleteConfirmationAlert
 import com.afkanerd.smswithoutborders_libsmsmms.ui.components.ModalDrawerSheetLayout
+import com.afkanerd.smswithoutborders_libsmsmms.ui.components.PulsingMessagePlaceholder
 import com.afkanerd.smswithoutborders_libsmsmms.ui.components.SwipeToDeleteBackground
 import com.afkanerd.smswithoutborders_libsmsmms.ui.components.ThreadConversationCard
 import com.afkanerd.smswithoutborders_libsmsmms.ui.components.ThreadItem
@@ -548,9 +551,7 @@ fun ThreadConversationLayout(
                         }
                     }
                     else {
-                        Box(
-                            modifier = Modifier.fillMaxSize()
-                        ) {
+                        Box(modifier = Modifier.fillMaxSize()) {
                             if(threads.loadState.isIdle && threads.itemCount == 0) {
                                 val message = when(inboxType) {
                                     ThreadsViewModel.InboxType.ARCHIVED ->
@@ -566,21 +567,35 @@ fun ThreadConversationLayout(
                                         fontSize = 24.sp
                                     )
                                 }
-                            } else {
+                            }
+                            else {
                                 LazyColumn(
-                                    modifier = Modifier.fillMaxSize(),
+                                    modifier = Modifier
+                                         .fillMaxSize(),
                                     state = listState
                                 ) {
                                     items(
-                                        count = threads.itemCount,
-                                        key = threads.itemKey { it.id }
-                                    ) { index ->
-                                        val threadUi = threads[index]
-                                        threadUi?.let {
-                                            val isSelected = remember(selectedItems) {
-                                                selectedItems.contains(threadUi.threads)
+                                        count = if(!threads.loadState.isIdle) 4
+                                        else threads.itemCount,
+                                        key = if (!threads.loadState.isIdle) null
+                                        else threads.itemKey { it.id },
+                                        contentType = {
+                                            if(!threads.loadState.isIdle) null
+                                            else threads.itemContentType {
+                                                if(it.threads.unread) "unread" else "read"
                                             }
-                                            ThreadItem(threadUi, inboxType, isSelected)
+                                        }
+                                    ) { index ->
+                                        if(!threads.loadState.isIdle) {
+                                            PulsingMessagePlaceholder()
+                                        } else {
+                                            val threadUi = threads[index]
+                                            threadUi?.let {
+                                                val isSelected = remember(selectedItems) {
+                                                    selectedItems.contains(threadUi.threads)
+                                                }
+                                                ThreadItem(threadUi, inboxType, isSelected)
+                                            }
                                         }
                                     }
                                 }
