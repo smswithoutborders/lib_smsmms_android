@@ -10,6 +10,7 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Canvas
@@ -81,6 +82,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -103,6 +105,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.FileOutputStream
 import kotlin.concurrent.thread
+import kotlin.math.roundToInt
 
 @Composable
 fun DeleteConfirmationAlert(
@@ -941,6 +944,8 @@ fun ThreadItem(
     threadUi: ThreadsViewModel.ThreadsUi,
     inboxType: ThreadsViewModel.InboxType,
     isSelected: Boolean,
+    onArchiveCallback: () -> Unit,
+    onDeleteCallback: () -> Unit
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -954,6 +959,11 @@ fun ThreadItem(
     }
 
     val unreadCount by threadUi.unreadCount.collectAsStateWithLifecycle(0)
+    val offsetX = remember { Animatable(0f) }
+    val threshold = 300f
+    val offset = remember(offsetX) {
+        IntOffset(offsetX.value.roundToInt(), 0)
+    }
 
     Box {
         Box(
@@ -964,59 +974,46 @@ fun ThreadItem(
                 ),
             contentAlignment = Alignment.CenterEnd
         ) {
-//            SwipeToDeleteBackground(
-//                inboxType ==
-//                        ThreadsViewModel.InboxType.ARCHIVED,
-//                onArchiveCallback = {
-//                    threadsViewModel.update(
-//                        context,
-//                        listOf(thread.apply {
-//                            this.isArchive = true
-//                        })
-//                    )
-//                    threadsViewModel.removeAllSelectedItems()
-//                },
-//                onDeleteCallback = {
-//                    threadsViewModel
-//                        .setSelectedItems(listOf(thread))
-//                    rememberDeleteMenu = true
-//                },
-//            )
+            SwipeToDeleteBackground(
+                inboxType == ThreadsViewModel.InboxType.ARCHIVED,
+                onArchiveCallback = onArchiveCallback,
+                onDeleteCallback = onDeleteCallback,
+            )
         }
 
         Box(
             modifier = Modifier
-//                .offset { offset }
+                .offset { offset }
                 .fillMaxSize()
                 .background(Color.White)
                 .apply {
-//                    if (context.settingsGetEnableSwipeBehaviour) {
-//                        this.draggable(
-//                            orientation = Orientation.Horizontal,
-//                            state = rememberDraggableState { delta ->
-//                                scope.launch {
-//                                    offsetX.snapTo(offsetX.value + delta)
-//                                }
-//                            },
-//                            onDragStopped = {
-//                                scope.launch {
-//                                    val target = when {
-//                                        offsetX.value < -threshold -> -threshold
-//                                        offsetX.value > threshold -> threshold
-//                                        else -> 0f
-//                                    }
-//                                    offsetX.animateTo(
-//                                        target,
-//                                        animationSpec =
-//                                            spring(
-//                                                dampingRatio =
-//                                                    Spring.DampingRatioMediumBouncy
-//                                            )
-//                                    )
-//                                }
-//                            }
-//                        )
-//                    }
+                    if (context.settingsGetEnableSwipeBehaviour) {
+                        this.draggable(
+                            orientation = Orientation.Horizontal,
+                            state = rememberDraggableState { delta ->
+                                scope.launch {
+                                    offsetX.snapTo(offsetX.value + delta)
+                                }
+                            },
+                            onDragStopped = {
+                                scope.launch {
+                                    val target = when {
+                                        offsetX.value < -threshold -> -threshold
+                                        offsetX.value > threshold -> threshold
+                                        else -> 0f
+                                    }
+                                    offsetX.animateTo(
+                                        target,
+                                        animationSpec =
+                                            spring(
+                                                dampingRatio =
+                                                    Spring.DampingRatioMediumBouncy
+                                            )
+                                    )
+                                }
+                            }
+                        )
+                    }
                 }
         ) {
             ThreadConversationCard(

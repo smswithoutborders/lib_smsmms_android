@@ -202,12 +202,6 @@ fun ThreadConversationLayout(
         rememberMenuExpanded = it
     }
 
-    val offsetX = remember { Animatable(0f) }
-    val threshold = 300f
-    val offset = remember(offsetX) {
-        IntOffset(offsetX.value.roundToInt(), 0)
-    }
-
     ModalNavigationDrawer(
         drawerState = drawerState.value,
         drawerContent = {
@@ -568,35 +562,46 @@ fun ThreadConversationLayout(
                                     )
                                 }
                             }
-                            else {
-                                LazyColumn(
-                                    modifier = Modifier
-                                         .fillMaxSize(),
-                                    state = listState
-                                ) {
-                                    items(
-                                        count = if(!threads.loadState.isIdle) 4
-                                        else threads.itemCount,
-                                        key = if (!threads.loadState.isIdle) null
-                                        else threads.itemKey { it.id },
-                                        contentType = {
-                                            if(!threads.loadState.isIdle) null
-                                            else threads.itemContentType {
-                                                if(it.threads.unread) "unread" else "read"
-                                            }
+                            if(!threads.loadState.isIdle && threads.itemCount == 0) {
+                                PulsingMessagePlaceholder()
+                            }
+
+                            LazyColumn(
+                                modifier = Modifier
+                                    .fillMaxSize(),
+                                state = listState
+                            ) {
+                                items(
+                                    count = threads.itemCount,
+                                    key = threads.itemKey { it.id },
+                                    contentType = threads.itemContentType {
+                                        if(it.threads.unread) "unread" else "read"
+                                    }
+                                ) { index ->
+                                    val threadUi = threads[index]
+                                    threadUi?.let {
+                                        val isSelected = remember(selectedItems) {
+                                            selectedItems.contains(threadUi.threads)
                                         }
-                                    ) { index ->
-                                        if(!threads.loadState.isIdle) {
-                                            PulsingMessagePlaceholder()
-                                        } else {
-                                            val threadUi = threads[index]
-                                            threadUi?.let {
-                                                val isSelected = remember(selectedItems) {
-                                                    selectedItems.contains(threadUi.threads)
-                                                }
-                                                ThreadItem(threadUi, inboxType, isSelected)
+                                        ThreadItem(
+                                            threadUi,
+                                            inboxType,
+                                            isSelected,
+                                            onArchiveCallback = {
+                                                threadsViewModel.update(
+                                                    context,
+                                                    listOf(threadUi.threads.apply {
+                                                        this.isArchive = true
+                                                    })
+                                                )
+                                                threadsViewModel.removeAllSelectedItems()
+                                            },
+                                            onDeleteCallback = {
+                                                threadsViewModel
+                                                    .setSelectedItems(listOf(threadUi.threads))
+                                                rememberDeleteMenu = true
                                             }
-                                        }
+                                        )
                                     }
                                 }
                             }
