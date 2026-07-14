@@ -47,7 +47,6 @@ interface ConversationsDao {
                     type = sms.type,
                     conversationId = conversationId,
                     isArchive = false,
-                    unreadCount = count,
                     isMms = isMms,
                 )
             )
@@ -63,7 +62,6 @@ interface ConversationsDao {
                     conversationId = conversationId,
                     isMute = thread.isMute,
                     isArchive = if(thread.isArchive) keepArchived else false,
-                    unreadCount = count,
                     isMms = isMms
                 )
             )

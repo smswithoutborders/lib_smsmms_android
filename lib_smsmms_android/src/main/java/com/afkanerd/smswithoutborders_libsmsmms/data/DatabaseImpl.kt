@@ -4,8 +4,10 @@ import android.content.Context
 import android.widget.Toast
 import androidx.room.AutoMigration
 import androidx.room.Database
+import androidx.room.DeleteColumn
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.migration.AutoMigrationSpec
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.afkanerd.lib_smsmms_android.R
@@ -29,10 +31,11 @@ import kotlin.jvm.java
     entities = [
         Conversations::class,
         Threads::class],
-    version = 3,
+    version = 4,
     exportSchema = true,
     autoMigrations = [
-        AutoMigration(from=2, to=3)
+        AutoMigration(from=2, to=3),
+        AutoMigration(from=3, to=4, spec= MigrateFrom3To4::class),
     ]
 )
 abstract class DatabaseImpl : RoomDatabase() {
@@ -80,3 +83,10 @@ abstract class DatabaseImpl : RoomDatabase() {
         }
     }
 }
+
+
+@DeleteColumn(
+    tableName = "Threads",
+    columnName = "unreadCount"
+)
+class MigrateFrom3To4 : AutoMigrationSpec

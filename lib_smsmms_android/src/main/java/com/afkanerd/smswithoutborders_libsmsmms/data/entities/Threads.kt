@@ -19,7 +19,6 @@ data class Threads(
     var isArchive: Boolean = false,
     var isBlocked: Boolean = false,
     var unread: Boolean = true,
-    var unreadCount: Int = 0,
     @ColumnInfo(defaultValue = "0")
     var isPinned: Boolean = false,
 )
