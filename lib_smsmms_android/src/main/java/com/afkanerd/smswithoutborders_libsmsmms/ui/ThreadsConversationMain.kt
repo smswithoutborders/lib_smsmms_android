@@ -546,24 +546,42 @@ fun ThreadConversationLayout(
                                 fontSize = 12.sp
                             )
                         }
-                    } else {
+                    }
+                    else {
                         Box(
                             modifier = Modifier.fillMaxSize()
                         ) {
-                            LazyColumn(
-                                modifier = Modifier.fillMaxSize(),
-                                state = listState
-                            ) {
-                                items(
-                                    count = threads.itemCount,
-                                    key = threads.itemKey { it.id }
-                                ) { index ->
-                                    val threadUi = threads[index]
-                                    threadUi?.let {
-                                        val isSelected = remember(selectedItems) {
-                                            selectedItems.contains(threadUi.threads)
+                            if(threads.loadState.isIdle && threads.itemCount == 0) {
+                                val message = when(inboxType) {
+                                    ThreadsViewModel.InboxType.ARCHIVED ->
+                                        stringResource(R.string.homepage_archive_no_message)
+                                    else -> stringResource(R.string.homepage_no_message)
+                                }
+                                Column(
+                                    modifier = Modifier.fillMaxSize(),
+                                    verticalArrangement = Arrangement.Center,
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Text( message,
+                                        fontSize = 24.sp
+                                    )
+                                }
+                            } else {
+                                LazyColumn(
+                                    modifier = Modifier.fillMaxSize(),
+                                    state = listState
+                                ) {
+                                    items(
+                                        count = threads.itemCount,
+                                        key = threads.itemKey { it.id }
+                                    ) { index ->
+                                        val threadUi = threads[index]
+                                        threadUi?.let {
+                                            val isSelected = remember(selectedItems) {
+                                                selectedItems.contains(threadUi.threads)
+                                            }
+                                            ThreadItem(threadUi, inboxType, isSelected)
                                         }
-                                        ThreadItem(threadUi, inboxType, isSelected)
                                     }
                                 }
                             }
