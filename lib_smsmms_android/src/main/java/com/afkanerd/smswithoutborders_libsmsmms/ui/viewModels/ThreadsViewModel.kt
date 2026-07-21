@@ -123,7 +123,7 @@ open class ThreadsViewModel: ViewModel() {
         val unreadCount: Flow<Int>,
         val onClick: () -> Unit,
         val onLongClick: () -> Unit,
-        val loadPreComputed: suspend (Context) -> ThreadsComputations,
+        val loadPreComputed: suspend (Context) -> ThreadsComputations?,
     )
 
     data class ThreadsComputations(
@@ -188,6 +188,7 @@ open class ThreadsViewModel: ViewModel() {
                         }
                     },
                     loadPreComputed = { ctx ->
+                        if(!ctx.isDefault()) return@ThreadsUi null
                         withContext(Dispatchers.IO) {
                             val nameDeferred = async { ctx.retrieveContactName(thread.address) }
                             val blockedDeferred = async { ctx.isNumberBlocked(thread.address) }

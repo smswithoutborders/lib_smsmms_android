@@ -7,9 +7,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -42,18 +39,17 @@ import com.afkanerd.smswithoutborders_libsmsmms.ui.navigation.HomeScreenNav
 import com.afkanerd.smswithoutborders_libsmsmms.ui.navigation.ImageViewScreenNav
 import com.afkanerd.smswithoutborders_libsmsmms.ui.navigation.SearchScreenNav
 import com.afkanerd.smswithoutborders_libsmsmms.ui.navigation.SettingsScreenNav
+import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.ConversationsViewModel
 import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.CustomsConversationsViewModel
 import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.SearchViewModel
 import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.ThreadsViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 @Composable
 fun NavHostControllerInstance(
     newLayoutInfo: WindowLayoutInfo,
     navController: NavHostController,
     threadsViewModel: ThreadsViewModel,
+    conversationsViewModel: ConversationsViewModel,
     searchViewModel: SearchViewModel?,
     threadsMainMenuItems: (@Composable ((Boolean) -> Unit) -> Unit)? = null,
     customMenuItems: (@Composable ((Boolean) -> Unit) -> Unit)? = null,
@@ -105,6 +101,7 @@ fun NavHostControllerInstance(
                 navController = navController,
                 threadId = convScreen.threadId,
                 threadsViewModel = threadsViewModel,
+                conversationsViewModel = conversationsViewModel,
                 customComposable = conversationsCustomComposable,
                 customMenuItems = customMenuItems,
                 customsConversationsViewModel = conversationsCustomViewModel,
@@ -177,13 +174,13 @@ private fun FoldOpen(
 
         if(!homeScreenNav.address.isNullOrEmpty()) {
             Column {
-                ConversationsMainLayout(
-                    address = homeScreenNav.address,
-                    threadsViewModel = threadsViewModel,
-                    searchQuery = homeScreenNav.query,
-                    navController = navController,
-                    foldOpen = true
-                )
+//                ConversationsMainLayout(
+//                    address = homeScreenNav.address,
+//                    threadsViewModel = threadsViewModel,
+//                    searchQuery = homeScreenNav.query,
+//                    navController = navController,
+//                    foldOpen = true,
+//                )
             }
         }
         else {

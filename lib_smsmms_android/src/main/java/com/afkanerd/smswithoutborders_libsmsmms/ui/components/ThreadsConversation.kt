@@ -950,6 +950,7 @@ fun ThreadItem(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val thread = threadUi.threads
+
     var postComputed by remember(threadUi.id) {
         mutableStateOf<ThreadsViewModel.ThreadsComputations?>(null)
     }

@@ -115,10 +115,6 @@ import kotlinx.coroutines.launch
 import kotlin.concurrent.thread
 import kotlin.math.roundToInt
 
-data class ThreadsConversationParameters(
-    var searchQuery: String? = null,
-)
-
 @OptIn(
     ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class,
     ExperimentalFoundationApi::class, ExperimentalPermissionsApi::class
