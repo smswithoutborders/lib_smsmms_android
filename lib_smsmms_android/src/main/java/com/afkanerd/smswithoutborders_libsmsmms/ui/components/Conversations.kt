@@ -245,11 +245,8 @@ fun ConversationItem(
         modifier = Modifier.fillMaxWidth()
     ) {
         when(contentType) {
-//            ConversationType.NORMAL -> TODO()
-//            ConversationType.START -> TODO()
-//            ConversationType.MIDDLE -> TODO()
-//            ConversationType.END -> TODO()
-            else -> {
+            ConversationType.START_TIMESTAMP,
+            ConversationType.NORMAL_TIMESTAMP -> {
                 Text(
                     text=timestamp,
                     style= MaterialTheme.typography.labelSmall,
@@ -259,6 +256,7 @@ fun ConversationItem(
                     textAlign = TextAlign.Center,
                 )
             }
+            else -> {}
         }
 
         Box(modifier = Modifier

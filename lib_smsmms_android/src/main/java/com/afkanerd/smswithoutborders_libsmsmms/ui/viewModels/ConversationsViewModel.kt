@@ -93,9 +93,9 @@ class ConversationsViewModel : ViewModel(),  CustomConversationServices {
     data class ConversationsUi(
         val id: Long,
         val conversation: Conversations,
-        val onClick: (ConversationsUi) -> Unit,
+        val onClick: (ConversationsUi) -> Boolean,
         val onLongClick: (ConversationsUi) -> Unit,
-        val loadPreComputed: suspend (Context, List<ConversationsUi>) -> ConversationsComputed?,
+        val loadPreComputed: suspend (Context, List<ConversationsUi>, Int) -> ConversationsComputed?,
     )
 
     data class ConversationsComputed(
@@ -124,7 +124,7 @@ class ConversationsViewModel : ViewModel(),  CustomConversationServices {
                 db.getConversations(threadId)
             }
         ).flow.map { pg ->
-            val counter = AtomicInteger(0) // Tracks the index per generation
+            var currentList: List<ConversationsUi>? = null
             pg.map { conversation ->
                 ConversationsUi(
                     id = conversation.id,
@@ -137,14 +137,18 @@ class ConversationsViewModel : ViewModel(),  CustomConversationServices {
                             } else {
                                 _selectedItems.value = currentSelected + cui
                             }
+                            return@ConversationsUi true
                         }
                         else if(conversation.sms?.type == Telephony.Sms.MESSAGE_TYPE_FAILED) {
                             _highlightedMessage.value = cui
                             _showFailureRetryModal.value = true
+                            return@ConversationsUi true
                         }
                         else if(conversation.mms_content_uri != null) {
                             mmsOnClickCallback(cui)
+                            return@ConversationsUi true
                         }
+                        return@ConversationsUi false
                     },
                     onLongClick = { cui ->
                         val currentSelected = _selectedItems.value
@@ -154,8 +158,11 @@ class ConversationsViewModel : ViewModel(),  CustomConversationServices {
                             _selectedItems.value = currentSelected + cui
                         }
                     },
-                    loadPreComputed = { ctx, listCui ->
+                    loadPreComputed = { ctx, listCui, index ->
                         if(!ctx.isDefault()) return@ConversationsUi null
+                        if(currentList != listCui) {
+                            currentList = listCui
+                        }
                         withContext(Dispatchers.IO) {
                             val timestamp = async { DateTimeUtils
                                 .formatDateExtended( context, conversation.sms?.date!!) }
@@ -164,16 +171,15 @@ class ConversationsViewModel : ViewModel(),  CustomConversationServices {
                                     " • " + context.getSubscriptionName(conversation.sms?.sub_id ?: -1)
                                 } else ""
                             }
-//                            val contentType = async {
-//                                getConversationType(
-//                                    index = counter.getAndIncrement(),
-//                                    conversations = listCui.map{ it.conversation }
-//                                )
-//                            }
+                            val contentType = async {
+                                getConversationType(
+                                    index = index,
+                                    conversations = currentList.map{ it.conversation }
+                                )
+                            }
 
                             return@withContext ConversationsComputed(
-//                                contentType = contentType.await(),
-                                contentType = ConversationType.NORMAL,
+                                contentType = contentType.await(),
                                 timestamp = timestamp.await(),
                                 date = date.await()
                             )

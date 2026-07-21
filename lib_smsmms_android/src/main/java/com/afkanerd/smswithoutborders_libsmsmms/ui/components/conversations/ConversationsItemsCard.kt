@@ -1,5 +1,6 @@
 package com.afkanerd.smswithoutborders_libsmsmms.ui.components.conversations
 
+import android.app.ProgressDialog.show
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -27,12 +28,12 @@ import sh.calvin.autolinktext.rememberAutoLinkText
 @Composable
 fun ConversationUi(
     conversationsUi: ConversationsViewModel.ConversationsUi,
-    showDate: Boolean,
     isSelected: Boolean,
     searchQuery: String?,
+    index: Int,
     cuiList: List<ConversationsViewModel.ConversationsUi>,
     onLongClickCallback: () -> Unit,
-    onClickCallback: () -> Unit,
+    onClickCallback: () -> Boolean,
 ) {
     val context = LocalContext.current
     val inPreview = LocalInspectionMode.current
@@ -69,9 +70,9 @@ fun ConversationUi(
     var postComputed by remember(conversationsUi.id) {
         mutableStateOf<ConversationsViewModel.ConversationsComputed?>(null)
     }
-    var contentType: ConversationType by remember{ mutableStateOf(ConversationType.NORMAL)}
+    var showDate by remember{ mutableStateOf(false)}
     LaunchedEffect(conversationsUi.id) {
-        postComputed = conversationsUi.loadPreComputed(context, cuiList)
+        postComputed = conversationsUi.loadPreComputed(context, cuiList, index)
     }
 
     ConversationItem(
@@ -84,10 +85,14 @@ fun ConversationUi(
         mmsContentUri = conversation.mms_content_uri?.toUri(),
         mmsMimeType = conversation.mms_mimetype,
         mmsFilename = conversation.mms_filename,
-        onClickCallback = onClickCallback,
+        onClickCallback = {
+            if(!onClickCallback()) {
+                showDate = !showDate
+            }
+        },
         onLongClickCallback = onLongClickCallback,
         isSelected = isSelected,
-        contentType = contentType
+        contentType = postComputed?.contentType ?: ConversationType.NORMAL
     )
 
 }

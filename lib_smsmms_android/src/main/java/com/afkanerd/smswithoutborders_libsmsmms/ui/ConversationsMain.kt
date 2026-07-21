@@ -658,19 +658,9 @@ fun ConversationsMainLayout(
                             val isSelected = remember(selectedItems) {
                                 selectedItems.contains(conversationsUi)
                             }
-                            val prev = inboxMessagesItems.itemSnapshotList.getOrNull(index -1 )
-                            val next = inboxMessagesItems.itemSnapshotList.getOrNull(index +1 )
-                            val conversationList =
-                                mutableListOf<ConversationsViewModel.ConversationsUi>().apply {
-                                    if(prev != null) add(prev)
-                                    add(conversationsUi)
-                                    if(next != null) add(next)
-                                }
-
 
                             ConversationUi(
                                 conversationsUi = conversationsUi,
-                                showDate = true,
                                 isSelected = isSelected,
                                 searchQuery = searchQuery,
                                 onLongClickCallback = {
@@ -679,7 +669,8 @@ fun ConversationsMainLayout(
                                 onClickCallback = {
                                     conversationsUi.onClick(conversationsUi)
                                 },
-                                cuiList = conversationList
+                                cuiList = inboxMessagesItems.itemSnapshotList.items,
+                                index = index
                             )
                         }
                     }
