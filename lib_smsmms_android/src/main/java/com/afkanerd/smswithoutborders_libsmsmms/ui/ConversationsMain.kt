@@ -258,55 +258,55 @@ fun ConversationsMainLayout(
     val smsManager = SmsManager(customsConversationsViewModel ?: conversationsViewModel)
     val scrollBehaviour = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
 
-//    DisposableEffect(lifecycleOwner) {
-//        val observer = lifecycleObservations(
-//            onDestroyChangeCallback = {
-//                if(typingText.isNotBlank()) {
-//                    conversationsViewModel.addDraft(
-//                        context,
-//                        body = typingText,
-//                        mmsUri = typingMmsImage,
-//                        address = address,
-//                        subId = subscriptionId,
-//                        threadId = threadId,
-//                    ) {}
-//                }
-//            },
-//            onResumeChangeCallback = {
-//                context.cancelNotification(threadId)
-//                if(text.isBlank()) {
-//                    conversationsViewModel.fetchDraft(context, threadId) {
-//                        typingText = it?.sms?.body!!
-//                        conversationsViewModel.clearDraft(context, it)
-//                        if(searchQuery.isNullOrEmpty()) {
-//                            scope.launch{
-//                                listState.animateScrollToItem(0)
-//                            }
-//                        }
-//                    }
-//                }
-//
-//                threadsViewModel.get(context, threadId) {
-//                    it?.let { thread ->
-//                        threadsViewModel.update(context, listOf(thread.apply {
-//                            this.unread = false
-//                        }))
-//                    }
-//                }
-//            }
-//        )
-//
-//        lifecycleOwner.lifecycle.addObserver(observer)
-//        onDispose {
-//            lifecycleOwner.lifecycle.removeObserver(observer)
-//        }
-//    }
+    DisposableEffect(lifecycleOwner) {
+        val observer = lifecycleObservations(
+            onDestroyChangeCallback = {
+                if(typingText.isNotBlank()) {
+                    conversationsViewModel.addDraft(
+                        context,
+                        body = typingText,
+                        mmsUri = typingMmsImage,
+                        address = address,
+                        subId = subscriptionId,
+                        threadId = threadId,
+                    ) {}
+                }
+            },
+            onResumeChangeCallback = {
+                context.cancelNotification(threadId)
+                if(text.isBlank()) {
+                    conversationsViewModel.fetchDraft(context, threadId) {
+                        typingText = it?.sms?.body!!
+                        conversationsViewModel.clearDraft(context, it)
+                        if(searchQuery.isNullOrEmpty()) {
+                            scope.launch{
+                                listState.animateScrollToItem(0)
+                            }
+                        }
+                    }
+                }
 
-//    LaunchedEffect(subscriptionIdPrefs) {
-//        if(context.isDualSim()) {
-//            subscriptionIdPrefs?.let { subscriptionId = it }
-//        }
-//    }
+                threadsViewModel.get(context, threadId) {
+                    it?.let { thread ->
+                        threadsViewModel.update(context, listOf(thread.apply {
+                            this.unread = false
+                        }))
+                    }
+                }
+            }
+        )
+
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+
+    LaunchedEffect(subscriptionIdPrefs) {
+        if(context.isDualSim()) {
+            subscriptionIdPrefs?.let { subscriptionId = it }
+        }
+    }
 
     LaunchedEffect(Unit){
         if(!searchQuery.isNullOrEmpty()) {
@@ -774,7 +774,6 @@ fun ConversationsMainLayout(
                 showFailedRetryModal = false
             }
         }
-
 
         customComposable?.invoke(customsConversationsViewModel?.apply {
             setConversationAddress(address)
