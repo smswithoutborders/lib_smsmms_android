@@ -19,6 +19,7 @@ import androidx.core.content.pm.ShortcutInfoCompat
 import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.net.toUri
 import com.afkanerd.lib_smsmms_android.R
+import com.afkanerd.smswithoutborders_libsmsmms.activities.NotificationsInitializer
 import com.afkanerd.smswithoutborders_libsmsmms.data.entities.Conversations
 import com.afkanerd.smswithoutborders_libsmsmms.receivers.SmsMmsActionsImpl
 import com.afkanerd.smswithoutborders_libsmsmms.receivers.SmsTextReceivedReceiver.Companion.SMS_SENT_BROADCAST_INTENT_LIB
@@ -115,6 +116,17 @@ fun Context.notify(
 
             return@with
         }
+
+
+        val context = this@notify
+
+        // Before issuing the notification, let's create the notification channel.
+        NotificationsInitializer.create(context) // Create channel if not exist
+        // Android 8 (Oreo) and above requires that notifications have known notification channels.
+        // This is offers the user lots of control, for example, with setting different tones for different contacts.
+        // For now, we only group all notifications into the exact same category (a.k.a channel).
+        builder.setChannelId(context.getString(R.string.incoming_messages_channel_id))
+
         // notificationId is a unique int for each notification that you must define.
         notify(conversation.sms?.thread_id ?: 0, builder.build())
     }
