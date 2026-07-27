@@ -320,44 +320,6 @@ fun ConversationsMainLayout(
         }
     }
 
-//    LaunchedEffect(inboxMessagesItems.itemCount) { // TODO: fix recomposition bug
-//        if (inboxMessagesItems.itemCount > 0) {
-//            listState.animateScrollToItem(0)
-//
-//            threadsViewModel.get(context, threadId) {
-//                it?.let { thread ->
-//                    threadsViewModel.update(context, listOf(thread.apply {
-//                        this.unread = false
-//                    }))
-//                }
-//            }
-//        }
-//    }
-
-//    LaunchedEffect(inboxMessagesItems.loadState, searchIndexes) {
-//        if(inboxMessagesItems.loadState.isIdle) {
-//            if(searchIndexes.isNotEmpty() && searchIndex == 0) {
-//                if(inboxMessagesItems.itemCount > searchIndexes.first()) {
-//                    inboxMessagesItems[searchIndexes.first()]
-//                    scope.launch {
-//                        listState.animateScrollToItem(searchIndexes.first(), )
-//                    }
-//                }
-//                else {
-//                    inboxMessagesItems.refresh()
-//                }
-//            }
-
-//            if(inboxMessagesItems.itemSnapshotList.isNotEmpty()) {
-//                inboxMessagesItems.itemSnapshotList.first()?.conversation?.sms?.let {
-//                    if(it.sub_id > -1) {
-//                        subscriptionId = it.sub_id
-//                    }
-//                }
-//            }
-//        }
-//    }
-
     var rememberMenuExpanded by remember{ mutableStateOf(false) }
 
     ConversationDropDown(
