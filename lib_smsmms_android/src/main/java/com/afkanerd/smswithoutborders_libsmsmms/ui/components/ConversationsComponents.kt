@@ -687,22 +687,30 @@ fun MessageInfoAlert(
                     ),
                     color = MaterialTheme.colorScheme.onPrimary
                 )
-                Text(
-                    stringResource(
-                        R.string.sent, if (conversation.sms?.type == Telephony.Sms.MESSAGE_TYPE_OUTBOX)
-                            formatDate(conversation.sms?.date?.toLong() ?: 0L)
-                        else formatDate(conversation.sms?.date_sent?.toLong() ?: 0L)
-                    ),
-                    color = MaterialTheme.colorScheme.onPrimary
-                )
-                if(conversation.sms?.type == Telephony.Sms.MESSAGE_TYPE_INBOX)
-                    Text(
-                        stringResource(
-                            R.string.received,
-                            formatDate(conversation.sms?.date?.toLong() ?: 0L)
-                        ),
-                        color = MaterialTheme.colorScheme.onPrimary
-                    )
+                when (conversation.sms?.type) {
+                    Telephony.Sms.MESSAGE_TYPE_SENT,
+                    Telephony.Sms.MESSAGE_TYPE_OUTBOX -> {
+                        Text(
+                            stringResource(
+                                R.string.sent,
+                                formatDate(
+                                    conversation.sms?.date
+                                        ?: conversation.sms?.date_sent ?: 0L
+                                )
+                            ),
+                            color = MaterialTheme.colorScheme.onPrimary
+                        )
+                    }
+                    Telephony.Sms.MESSAGE_TYPE_INBOX -> {
+                        Text(
+                            stringResource(
+                                R.string.received,
+                                formatDate(conversation.sms?.date ?: 0L)
+                            ),
+                            color = MaterialTheme.colorScheme.onPrimary
+                        )
+                    }
+                }
             }
         },
         onDismissRequest = { dismissCallback?.invoke() },
