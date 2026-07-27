@@ -19,10 +19,14 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
@@ -44,10 +48,7 @@ import androidx.compose.material.icons.filled.FilePresent
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.PlayCircle
 import androidx.compose.material.icons.filled.Share
-import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.AddCircleOutline
-import androidx.compose.material.icons.outlined.Description
-import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material.icons.outlined.SimCard
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Card
@@ -89,6 +90,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
@@ -107,6 +109,7 @@ import com.afkanerd.smswithoutborders_libsmsmms.data.entities.Conversations
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.copyItemToClipboard
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getSimCardInformation
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getSubscriptionBitmap
+import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getSubscriptionName
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getUriForDrawable
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.isDualSim
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.shareItem
@@ -224,95 +227,6 @@ fun SearchTopAppBarText(
 }
 
 
-@Composable
-fun FilePickerLauncher(
-    mmsValueChanged: ((Uri) -> Unit)?,
-    onFileSelected: (Uri) -> Unit
-): ManagedActivityResultLauncher<String, Uri?> {
-    val context = LocalContext.current
-
-    return rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { fileUri: Uri? ->
-        fileUri?.let { uri ->
-            val flag = Intent.FLAG_GRANT_READ_URI_PERMISSION
-            context.contentResolver.takePersistableUriPermission(uri, flag)
-            mmsValueChanged?.invoke(uri)
-            onFileSelected(uri)
-        }
-    }
-}
-
-@Composable
-fun ContactPickerLauncher(
-    value: String,
-    valueChanged: ((String) -> Unit)?
-): ManagedActivityResultLauncher<Void?, Uri?> {
-    val context = LocalContext.current
-    val coroutineScope = rememberCoroutineScope()
-
-    return rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.PickContact()
-    ) { contactUri: Uri? ->
-        contactUri?.let { uri ->
-            coroutineScope.launch(Dispatchers.IO) {
-                var displayName = ""
-                var phoneNumber = ""
-
-                context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
-                    if (cursor.moveToFirst()) {
-                        val nameIndex = cursor.getColumnIndex(
-                            android.provider.ContactsContract.Contacts.DISPLAY_NAME)
-                        val idIndex = cursor.getColumnIndex(
-                            android.provider.ContactsContract.Contacts._ID)
-
-                        if (nameIndex >= 0) displayName = cursor.getString(nameIndex)
-
-                        val hasPhoneIndex = cursor.getColumnIndex(
-                            android.provider.ContactsContract.Contacts.HAS_PHONE_NUMBER)
-                        val hasPhone = if (hasPhoneIndex >= 0)
-                            cursor.getString(hasPhoneIndex) else "0"
-
-                        if (hasPhone == "1" && idIndex >= 0) {
-                            val contactId = cursor.getString(idIndex)
-                            context.contentResolver.query(
-                                android.provider.ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-                                null,
-                                "${android.provider.ContactsContract.CommonDataKinds.Phone.CONTACT_ID} = ?",
-                                arrayOf(contactId),
-                                null
-                            )?.use { phoneCursor ->
-                                if (phoneCursor.moveToFirst()) {
-                                    val numberIndex = phoneCursor.getColumnIndex(
-                                        android.provider.ContactsContract.CommonDataKinds.Phone.NUMBER)
-                                    if (numberIndex >= 0) {
-                                        phoneNumber = phoneCursor.getString(numberIndex)
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
-                if (displayName.isNotEmpty() || phoneNumber.isNotEmpty()) {
-                    val contactTextString = buildString {
-                        if (displayName.isNotEmpty()) append("Name: $displayName")
-                        if (phoneNumber.isNotEmpty()) {
-                            if (displayName.isNotEmpty()) append("\n")
-                            append("Phone: $phoneNumber")
-                        }
-                    }
-                    launch(Dispatchers.Main) {
-                        val updatedText = if (value.isEmpty()) contactTextString
-                        else "$value\n$contactTextString"
-                        valueChanged?.invoke(updatedText)
-                    }
-                }
-            }
-        }
-    }
-}
-
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun ChatCompose(
@@ -336,11 +250,13 @@ fun ChatCompose(
     }
 
     var imageUri: Uri? by remember { mutableStateOf(imageUri) }
+    val imagePicker = mmsImagePicker { uri ->
+        val flag = Intent.FLAG_GRANT_READ_URI_PERMISSION
+        context.contentResolver.takePersistableUriPermission(uri, flag)
+        mmsValueChanged?.invoke(uri)
+        imageUri = uri
+    }
 
-    val contactPickerLauncher = ContactPickerLauncher(
-        value = value,
-        valueChanged = valueChanged
-    )
     var messagingType by remember { mutableStateOf("SMS") }
 
     LaunchedEffect(imageUri) {
@@ -348,9 +264,9 @@ fun ChatCompose(
     }
 
     var length: String by remember{
-        mutableStateOf(
-            if(inPreviewMode) "10/140" else
-                getSMSCount(context, value, subscriptionId)
+       mutableStateOf(
+           if(inPreviewMode) "10/140" else
+               getSMSCount(context, value, subscriptionId)
         )
     }
     LaunchedEffect(value) {
@@ -403,15 +319,16 @@ fun ChatCompose(
                 .fillMaxWidth(),
                 verticalAlignment = Alignment.Bottom,
             ) {
-
                 Column(
-                    Modifier.padding(bottom = 20.dp),
+                    Modifier.padding(bottom=20.dp),
                     verticalArrangement = Arrangement.Bottom,
                 ) {
-                    IconButton(onClick = { contactPickerLauncher.launch(null) }) {
+                    IconButton(onClick = {
+                        imagePicker.launch(arrayOf("image/png", "image/jpg", "image/jpeg"))
+                    }) {
                         Icon(
                             Icons.Outlined.AddCircleOutline,
-                            contentDescription = "Attach Contact",
+                            stringResource(R.string.send_mms_photo),
                             tint = MaterialTheme.colorScheme.onBackground,
                             modifier = Modifier.size(30.dp)
                         )
@@ -532,8 +449,10 @@ fun ChatCompose(
                     }
                 }
             }
+
         }
     }
+
 }
 
 fun getSMSCount(
