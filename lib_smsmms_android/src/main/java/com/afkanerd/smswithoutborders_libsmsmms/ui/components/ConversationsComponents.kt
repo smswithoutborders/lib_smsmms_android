@@ -606,22 +606,30 @@ fun MessageInfoAlert(
                     ),
                     color = MaterialTheme.colorScheme.onPrimary
                 )
-                Text(
-                    stringResource(
-                        R.string.sent, if (conversation.sms?.type == Telephony.Sms.MESSAGE_TYPE_OUTBOX)
-                            formatDate(conversation.sms?.date?.toLong() ?: 0L)
-                        else formatDate(conversation.sms?.date_sent?.toLong() ?: 0L)
-                    ),
-                    color = MaterialTheme.colorScheme.onPrimary
-                )
-                if(conversation.sms?.type == Telephony.Sms.MESSAGE_TYPE_INBOX)
-                    Text(
-                        stringResource(
-                            R.string.received,
-                            formatDate(conversation.sms?.date?.toLong() ?: 0L)
-                        ),
-                        color = MaterialTheme.colorScheme.onPrimary
-                    )
+                when (conversation.sms?.type) {
+                    Telephony.Sms.MESSAGE_TYPE_SENT,
+                    Telephony.Sms.MESSAGE_TYPE_OUTBOX -> {
+                        Text(
+                            stringResource(
+                                R.string.sent,
+                                formatDate(
+                                    conversation.sms?.date
+                                        ?: conversation.sms?.date_sent ?: 0L
+                                )
+                            ),
+                            color = MaterialTheme.colorScheme.onPrimary
+                        )
+                    }
+                    Telephony.Sms.MESSAGE_TYPE_INBOX -> {
+                        Text(
+                            stringResource(
+                                R.string.received,
+                                formatDate(conversation.sms?.date ?: 0L)
+                            ),
+                            color = MaterialTheme.colorScheme.onPrimary
+                        )
+                    }
+                }
             }
         },
         onDismissRequest = { dismissCallback?.invoke() },
@@ -747,16 +755,16 @@ fun ConversationCrudBottomBar(
 
                 if(selectedItems.size < 2) {
                     IconButton(onClick = {
-                        val conversations = viewModel.selectedItems.value.first()
-                        onInfoRequested(conversations)
+                        val cui = viewModel.selectedItems.value.first()
+                        onInfoRequested(cui.conversation)
                     }) {
                         Icon(Icons.Filled.Info,
                             stringResource(R.string.message_information))
                     }
 
                     IconButton(onClick = {
-                        val conversation = viewModel.selectedItems.value.first()
-                        context.copyItemToClipboard(conversation.sms?.body!!)
+                        val cui = viewModel.selectedItems.value.first()
+                        context.copyItemToClipboard(cui.conversation.sms?.body!!)
                         onCompleted?.invoke()
                     }) {
                         Icon(Icons.Filled.ContentCopy,
@@ -764,10 +772,10 @@ fun ConversationCrudBottomBar(
                     }
 
                     IconButton(onClick = {
-                        selectedItems.firstOrNull()?.let { conversation ->
+                        selectedItems.firstOrNull()?.let { cui ->
                             navController?.navigate(ComposeNewMessageScreenNav(
-                                text = conversation.sms?.body,
-                                subscriptionId = conversation.sms?.sub_id
+                                text = cui.conversation.sms?.body,
+                                subscriptionId = cui.conversation.sms?.sub_id
                             ))
                         }
                     }) {
@@ -777,8 +785,8 @@ fun ConversationCrudBottomBar(
                     }
 
                     IconButton(onClick = {
-                        val conversation = viewModel.selectedItems.value.first()
-                        context.shareItem(conversation.sms?.body!!)
+                        val cui = viewModel.selectedItems.value.first()
+                        context.shareItem(cui.conversation.sms?.body!!)
                         onCompleted?.invoke()
                     }) {
                         Icon(Icons.Filled.Share,
@@ -787,8 +795,8 @@ fun ConversationCrudBottomBar(
                 }
 
                 IconButton(onClick = {
-                    val conversation = viewModel.selectedItems.value.first()
-                    viewModel.delete(context, listOf(conversation)) {
+                    val cui = viewModel.selectedItems.value.first()
+                    viewModel.delete(context, listOf(cui.conversation)) {
                         onCompleted?.invoke()
                     }
                 }) {

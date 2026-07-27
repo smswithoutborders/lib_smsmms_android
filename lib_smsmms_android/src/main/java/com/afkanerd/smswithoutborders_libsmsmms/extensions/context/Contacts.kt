@@ -20,14 +20,12 @@ fun Context.retrieveContactName(phoneNumber: String): String? {
 
     if (cursor == null) return null
 
-    try {
+    cursor.use { cursor ->
         if (cursor.moveToFirst()) {
             val displayNameIndex =
                 cursor.getColumnIndexOrThrow(ContactsContract.PhoneLookup.DISPLAY_NAME)
             return cursor.getString(displayNameIndex)
         }
-    } finally {
-        cursor.close()
     }
 
     return null
@@ -40,7 +38,7 @@ fun Context.retrieveContactPhoto(phoneNumber: String?): String? {
     )
     val cursor = contentResolver.query(
         uri,
-        arrayOf<String>(ContactsContract.PhoneLookup.PHOTO_THUMBNAIL_URI),
+        arrayOf(ContactsContract.PhoneLookup.PHOTO_THUMBNAIL_URI),
         null,
         null, null
     )
@@ -48,14 +46,12 @@ fun Context.retrieveContactPhoto(phoneNumber: String?): String? {
     var contactPhotoThumbUri: String? = ""
     if (cursor == null) return null
 
-    try {
+    cursor.use { cursor ->
         if (cursor.moveToFirst()) {
             val displayContactPhoto =
                 cursor.getColumnIndexOrThrow(ContactsContract.PhoneLookup.PHOTO_THUMBNAIL_URI)
             contactPhotoThumbUri = cursor.getStringOrNull(displayContactPhoto)
         }
-    } finally {
-        cursor.close()
     }
     return contactPhotoThumbUri
 }

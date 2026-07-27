@@ -7,6 +7,7 @@ import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
 import com.afkanerd.smswithoutborders_libsmsmms.data.entities.Threads
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ThreadsDao {
@@ -20,19 +21,6 @@ interface ThreadsDao {
     fun getThreads(): PagingSource<Int, Threads>{
         return this.getThreads0();
     }
-
-//    @Query("""
-//        SELECT T1.* FROM Threads T1
-//        INNER JOIN (
-//            -- Subquery 1: Find the MAX date for each TRIMMED address
-//            SELECT TRIM(address) AS address_trimmed, MAX(date) AS max_date
-//            FROM Threads
-//            GROUP BY address_trimmed
-//        ) AS T2
-//        ON TRIM(T1.address) = T2.address_trimmed AND T1.date = T2.max_date
-//        ORDER BY T1.date DESC
-//    """)
-//    fun getThreads(): PagingSource<Int, Threads>
 
     @Query("SELECT * FROM Threads WHERE isArchive = 1 ORDER BY date DESC")
     fun getArchived(): PagingSource<Int, Threads>
@@ -122,4 +110,7 @@ interface ThreadsDao {
             "(c.type IS NOT 3 AND c.body like '%' || :query || '%') " +
             "GROUP BY thread_id ORDER BY date DESC")
     fun search(query: String, threadId: Int): PagingSource<Int, Threads>
+
+    @Query("SELECT COUNT(*) FROM Conversations WHERE thread_id = :threadId AND read = 0")
+    fun getUnreadCount(threadId: Int): Flow<Int>
 }

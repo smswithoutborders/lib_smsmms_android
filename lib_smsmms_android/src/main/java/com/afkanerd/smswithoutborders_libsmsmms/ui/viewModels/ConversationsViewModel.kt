@@ -12,28 +12,67 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import androidx.paging.insertFooterItem
+import androidx.paging.map
 import com.afkanerd.lib_smsmms_android.R
 import com.afkanerd.smswithoutborders_libsmsmms.data.data.models.DateTimeUtils
 import com.afkanerd.smswithoutborders_libsmsmms.data.data.models.SmsMmsNatives
 import com.afkanerd.smswithoutborders_libsmsmms.data.entities.Conversations
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getDatabase
+import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getSubscriptionName
+import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.isDefault
+import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.isDualSim
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.sendMms
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.sendSms
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.settingsGetKeepMessagesArchived
-import com.afkanerd.smswithoutborders_libsmsmms.ui.components.ConversationPositionTypes
+import com.afkanerd.smswithoutborders_libsmsmms.ui.components.ConvenientMethods.deriveMetaDate
+import com.afkanerd.smswithoutborders_libsmsmms.ui.components.ConversationType
+import com.afkanerd.smswithoutborders_libsmsmms.ui.components.getConversationType
+import com.afkanerd.smswithoutborders_libsmsmms.ui.navigation.ImageViewScreenNav
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.concurrent.atomic.AtomicInteger
+import kotlin.collections.toMutableList
+import kotlin.concurrent.thread
 
 class ConversationsViewModel : ViewModel(),  CustomConversationServices {
-    private val _selectedItems = MutableStateFlow<List<Conversations>>(emptyList()) // default
-    val selectedItems: StateFlow<List<Conversations>> = _selectedItems.asStateFlow()
+    private val _isMuted = MutableStateFlow(false) // default
+    val isMuted: StateFlow<Boolean> = _isMuted
 
-    fun setSelectedItems(conversations: List<Conversations>) {
+    private val _isArchived = MutableStateFlow(false) // default
+    val isArchived: StateFlow<Boolean> = _isArchived
+
+    private val _isBlocked = MutableStateFlow(false) // TODO: actually checked if blocked
+    val isBlocked: StateFlow<Boolean> = _isBlocked
+
+    private val _showFailureRetryModal = MutableStateFlow(false) // TODO: actually checked if blocked
+    val showFailureRetryModal: StateFlow<Boolean> = _showFailureRetryModal
+
+    private val _selectedItems = MutableStateFlow<List<ConversationsUi>>(emptyList()) // default
+    val selectedItems: StateFlow<List<ConversationsUi>> = _selectedItems
+
+    private val _subscriptionId = MutableStateFlow(-1) // default
+    val subscriptionId: StateFlow<Int> = _subscriptionId
+
+    private val _highlightedMessage = MutableStateFlow<ConversationsUi?>(null) // default
+    val highlightedMessage: StateFlow<ConversationsUi?> = _highlightedMessage
+
+    fun toggleIsMute() {
+        _isMuted.value = !_isMuted.value
+    }
+
+    fun toggleIsBlocked() {
+        _isBlocked.value = !_isBlocked.value
+    }
+
+    fun setSelectedItems(conversations: List<ConversationsUi>) {
         _selectedItems.value = conversations
     }
 
@@ -51,26 +90,104 @@ class ConversationsViewModel : ViewModel(),  CustomConversationServices {
     var initialLoadSize: Int = 2 * pageSize
     var maxSize: Int = PagingConfig.MAX_SIZE_UNBOUNDED
 
+    data class ConversationsUi(
+        val id: Long,
+        val conversation: Conversations,
+        val onClick: (ConversationsUi) -> Boolean,
+        val onLongClick: (ConversationsUi) -> Unit,
+        val loadPreComputed: suspend (Context, List<ConversationsUi>, Int) -> ConversationsComputed?,
+    )
 
-    private var conversationsPager: Flow<PagingData<Conversations>>? = null
+    data class ConversationsComputed(
+        val timestamp: String,
+        val date: String,
+        val contentType: ConversationType,
+    )
 
-    fun getConversations(context: Context, threadId: Int): Flow<PagingData<Conversations>> {
-        if(conversationsPager == null) {
-            conversationsPager = Pager(
-                config=PagingConfig(
-                    pageSize,
-                    prefetchDistance,
-                    enablePlaceholder,
-                    initialLoadSize,
-                    maxSize
-                ),
-                pagingSourceFactory = {
-                    context.getDatabase().conversationsDao()!!
-                        .getConversations(threadId)
-                }
-            ).flow.cachedIn(viewModelScope)
-        }
-        return conversationsPager!!
+    fun getConversations(
+        context: Context,
+        threadId: Int,
+        mmsOnClickCallback: (ConversationsUi) -> Unit,
+    ): Flow<PagingData<ConversationsUi>> {
+        // TODO: put isBlocked, isArchived etc to be computed in here
+
+        val db = context.getDatabase().conversationsDao()!!
+        return Pager(
+            config=PagingConfig(
+                pageSize,
+                prefetchDistance,
+                enablePlaceholder,
+                initialLoadSize,
+                maxSize
+            ),
+            pagingSourceFactory = {
+                db.getConversations(threadId)
+            }
+        ).flow.map { pg ->
+            var currentList: List<ConversationsUi>? = null
+            pg.map { conversation ->
+                ConversationsUi(
+                    id = conversation.id,
+                    conversation = conversation,
+                    onClick = { cui ->
+                        val currentSelected = _selectedItems.value
+                        if(currentSelected.isNotEmpty()) {
+                            if (currentSelected.contains(cui)) {
+                                _selectedItems.value = currentSelected - cui
+                            } else {
+                                _selectedItems.value = currentSelected + cui
+                            }
+                            return@ConversationsUi true
+                        }
+                        else if(conversation.sms?.type == Telephony.Sms.MESSAGE_TYPE_FAILED) {
+                            _highlightedMessage.value = cui
+                            _showFailureRetryModal.value = true
+                            return@ConversationsUi true
+                        }
+                        else if(conversation.mms_content_uri != null) {
+                            mmsOnClickCallback(cui)
+                            return@ConversationsUi true
+                        }
+                        return@ConversationsUi false
+                    },
+                    onLongClick = { cui ->
+                        val currentSelected = _selectedItems.value
+                        if (currentSelected.contains(cui)) {
+                            _selectedItems.value = currentSelected - cui
+                        } else {
+                            _selectedItems.value = currentSelected + cui
+                        }
+                    },
+                    loadPreComputed = { ctx, listCui, index ->
+                        if(!ctx.isDefault()) return@ConversationsUi null
+                        if(currentList != listCui) {
+                            currentList = listCui
+                        }
+                        withContext(Dispatchers.IO) {
+                            val timestamp = async { DateTimeUtils
+                                .formatDateExtended( context, conversation.sms?.date!!) }
+                            val date = async {
+                                deriveMetaDate(conversation) + if(ctx.isDualSim()) {
+                                    " • " + context.getSubscriptionName(conversation.sms?.sub_id ?: -1)
+                                } else ""
+                            }
+                            val contentType = async {
+                                getConversationType(
+                                    index = index,
+                                    conversations = currentList.map{ it.conversation }
+                                )
+                            }
+
+                            return@withContext ConversationsComputed(
+                                contentType = contentType.await(),
+                                timestamp = timestamp.await(),
+                                date = date.await()
+                            )
+                        }
+                    }
+                )
+            }
+        }.cachedIn(viewModelScope)
     }
 
     fun contactIsBlocked(
@@ -334,20 +451,20 @@ class ConversationsViewModel : ViewModel(),  CustomConversationServices {
         conversation: Conversations,
         previousConversation: Conversations?,
         nextConversation: Conversations?
-    ) : ConversationPositionTypes? {
+    ) : ConversationType? {
         if(index == 0) {
             // check next
             if(nextConversation?.sms?.type == conversation.sms?.type) {
                 if(DateTimeUtils.isSameMinute(conversation.sms!!.date,
                         nextConversation?.sms!!.date)) {
-                    return ConversationPositionTypes.END
+                    return ConversationType.END
                 }
             }
         }
         else if(nextConversation == null) {
             if(DateTimeUtils.isSameMinute(conversation.sms!!.date,
                     previousConversation?.sms!!.date)) {
-                return ConversationPositionTypes.START_TIMESTAMP
+                return ConversationType.START_TIMESTAMP
             }
         }
         else {
@@ -357,7 +474,7 @@ class ConversationsViewModel : ViewModel(),  CustomConversationServices {
                             previousConversation?.sms!!.date) &&
                     DateTimeUtils.isSameMinute(conversation.sms!!.date,
                         nextConversation.sms!!.date)) {
-                    return ConversationPositionTypes.MIDDLE
+                    return ConversationType.MIDDLE
                 }
 
                 if(DateTimeUtils.isSameMinute(conversation.sms!!.date,
@@ -366,16 +483,16 @@ class ConversationsViewModel : ViewModel(),  CustomConversationServices {
                         nextConversation.sms!!.date)) {
                     if(!DateTimeUtils.isSameHour(conversation.sms!!.date,
                             nextConversation.sms!!.date)) {
-                        return ConversationPositionTypes.START_TIMESTAMP
+                        return ConversationType.START_TIMESTAMP
                     }
-                    return ConversationPositionTypes.START
+                    return ConversationType.START
                 }
 
                 if(!DateTimeUtils.isSameMinute(conversation.sms!!.date,
                         previousConversation.sms!!.date) &&
                     DateTimeUtils.isSameMinute(conversation.sms!!.date,
                         nextConversation.sms!!.date)) {
-                    return ConversationPositionTypes.END
+                    return ConversationType.END
                 }
             }
         }
@@ -387,9 +504,9 @@ class ConversationsViewModel : ViewModel(),  CustomConversationServices {
         conversation: Conversations,
         previousConversation: Conversations?,
         nextConversation: Conversations?
-    ) : ConversationPositionTypes {
+    ) : ConversationType {
         if(index == 0 && nextConversation == null) {
-            return ConversationPositionTypes.NORMAL_TIMESTAMP
+            return ConversationType.NORMAL_TIMESTAMP
         }
 
         val groupType = isGroup(
@@ -403,10 +520,10 @@ class ConversationsViewModel : ViewModel(),  CustomConversationServices {
 
         if(nextConversation == null || !DateTimeUtils.isSameHour(conversation.sms!!.date,
                 nextConversation.sms?.date)) {
-            return ConversationPositionTypes.NORMAL_TIMESTAMP
+            return ConversationType.NORMAL_TIMESTAMP
         }
 
-        return ConversationPositionTypes.NORMAL
+        return ConversationType.NORMAL
     }
 
 }

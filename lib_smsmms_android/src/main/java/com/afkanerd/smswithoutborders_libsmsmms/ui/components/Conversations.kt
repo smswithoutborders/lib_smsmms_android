@@ -3,7 +3,6 @@ package com.afkanerd.smswithoutborders_libsmsmms.ui.components
 import android.net.Uri
 import android.provider.Telephony
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,16 +11,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -44,7 +39,7 @@ import com.afkanerd.smswithoutborders_libsmsmms.data.data.models.DateTimeUtils
 import com.afkanerd.smswithoutborders_libsmsmms.data.data.models.SmsMmsNatives
 import com.afkanerd.smswithoutborders_libsmsmms.data.entities.Conversations
 
-enum class ConversationPositionTypes(val value: Int) {
+enum class ConversationType(val value: Int) {
     NORMAL(0),
     START(1),
     MIDDLE(2),
@@ -86,7 +81,7 @@ private fun ConversationIsKey(isReceived: Boolean = false) {
 private fun ConversationReceived(
     text: AnnotatedString,
     date: String,
-    position: ConversationPositionTypes = ConversationPositionTypes.START_TIMESTAMP,
+    position: ConversationType = ConversationType.START_TIMESTAMP,
     isSelected: Boolean = false,
     onClickCallback: (() -> Unit)? = null,
     onLongClickCallback: (() -> Unit)? = null,
@@ -98,21 +93,21 @@ private fun ConversationReceived(
     val receivedEndShape = RoundedCornerShape(1.dp, 28.dp, 28.dp, 28.dp)
 
     val shape = when(position) {
-        ConversationPositionTypes.NORMAL, ConversationPositionTypes.NORMAL_TIMESTAMP ->
+        ConversationType.NORMAL, ConversationType.NORMAL_TIMESTAMP ->
             receivedShape
-        ConversationPositionTypes.START, ConversationPositionTypes.START_TIMESTAMP ->
+        ConversationType.START, ConversationType.START_TIMESTAMP ->
             receivedStartShape
-        ConversationPositionTypes.MIDDLE -> receivedMiddleShape
-        ConversationPositionTypes.END -> receivedEndShape
+        ConversationType.MIDDLE -> receivedMiddleShape
+        ConversationType.END -> receivedEndShape
     }
 
     val modifier = when(position) {
-        ConversationPositionTypes.NORMAL, ConversationPositionTypes.NORMAL_TIMESTAMP ->
+        ConversationType.NORMAL, ConversationType.NORMAL_TIMESTAMP ->
             Modifier.padding(end=32.dp, top=16.dp, bottom=8.dp)
-        ConversationPositionTypes.START, ConversationPositionTypes.START_TIMESTAMP ->
+        ConversationType.START, ConversationType.START_TIMESTAMP ->
             Modifier.padding(end=32.dp, top=16.dp)
-        ConversationPositionTypes.MIDDLE -> Modifier.padding(end=32.dp, top=1.dp)
-        ConversationPositionTypes.END -> Modifier.padding(end=32.dp, top=1.dp, bottom=8.dp)
+        ConversationType.MIDDLE -> Modifier.padding(end=32.dp, top=1.dp)
+        ConversationType.END -> Modifier.padding(end=32.dp, top=1.dp, bottom=8.dp)
     }
 
     Row(modifier = modifier
@@ -150,7 +145,7 @@ private fun ConversationReceived(
 @Composable
 private fun ConversationSent(
     text: AnnotatedString,
-    position: ConversationPositionTypes = ConversationPositionTypes.START_TIMESTAMP,
+    position: ConversationType = ConversationType.START_TIMESTAMP,
     type: Int,
     isSelected: Boolean = false,
     onClickCallback: (() -> Unit)? = null,
@@ -163,19 +158,19 @@ private fun ConversationSent(
     val sentEndShape = RoundedCornerShape(28.dp, 1.dp, 28.dp, 28.dp)
 
     val shape = when(position) {
-        ConversationPositionTypes.NORMAL, ConversationPositionTypes.NORMAL_TIMESTAMP -> sentShape
-        ConversationPositionTypes.START, ConversationPositionTypes.START_TIMESTAMP -> sentStartShape
-        ConversationPositionTypes.MIDDLE -> sentMiddleShape
-        ConversationPositionTypes.END -> sentEndShape
+        ConversationType.NORMAL, ConversationType.NORMAL_TIMESTAMP -> sentShape
+        ConversationType.START, ConversationType.START_TIMESTAMP -> sentStartShape
+        ConversationType.MIDDLE -> sentMiddleShape
+        ConversationType.END -> sentEndShape
     }
 
     val modifier = when(position) {
-        ConversationPositionTypes.NORMAL, ConversationPositionTypes.NORMAL_TIMESTAMP ->
+        ConversationType.NORMAL, ConversationType.NORMAL_TIMESTAMP ->
             Modifier.padding(start=32.dp, top=16.dp, bottom=8.dp)
-        ConversationPositionTypes.START, ConversationPositionTypes.START_TIMESTAMP ->
+        ConversationType.START, ConversationType.START_TIMESTAMP ->
             Modifier.padding(start=32.dp, top=16.dp)
-        ConversationPositionTypes.MIDDLE -> Modifier.padding(start=32.dp, top=1.dp)
-        ConversationPositionTypes.END -> Modifier.padding(start=32.dp, top=1.dp, bottom=8.dp)
+        ConversationType.MIDDLE -> Modifier.padding(start=32.dp, top=1.dp)
+        ConversationType.END -> Modifier.padding(start=32.dp, top=1.dp, bottom=8.dp)
     }
 
     Row(
@@ -230,13 +225,13 @@ private fun ConversationSent(
 }
 
 @Composable
-fun ConversationsCard(
+fun ConversationItem(
     text: AnnotatedString,
     timestamp: String,
     date: String,
     type: Int,
     showDate: Boolean = true,
-    position: ConversationPositionTypes,
+    contentType: ConversationType,
     status: Int,
     isSelected: Boolean = false,
     mmsContentUri: Uri? = null,
@@ -249,16 +244,19 @@ fun ConversationsCard(
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
-        if(position == ConversationPositionTypes.START_TIMESTAMP ||
-            position == ConversationPositionTypes.NORMAL_TIMESTAMP || inPreview) {
-            Text(
-                text=timestamp,
-                style= MaterialTheme.typography.labelSmall,
-                modifier = Modifier
-                    .padding(16.dp)
-                    .fillMaxWidth(),
-                textAlign = TextAlign.Center,
-            )
+        when(contentType) {
+            ConversationType.START_TIMESTAMP,
+            ConversationType.NORMAL_TIMESTAMP -> {
+                Text(
+                    text=timestamp,
+                    style= MaterialTheme.typography.labelSmall,
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .fillMaxWidth(),
+                    textAlign = TextAlign.Center,
+                )
+            }
+            else -> {}
         }
 
         Box(modifier = Modifier
@@ -283,7 +281,7 @@ fun ConversationsCard(
                         if(text.isNotEmpty()) {
                             ConversationReceived(
                                 text =text,
-                                position =position,
+                                position =contentType,
                                 date =date,
                                 isSelected = isSelected,
                                 onClickCallback = onClickCallback,
@@ -325,7 +323,7 @@ fun ConversationsCard(
                         if(text.isNotEmpty()) {
                             ConversationSent(
                                 text =text,
-                                position =position,
+                                position =contentType,
                                 type =type,
                                 isSelected = isSelected,
                                 onClickCallback = onClickCallback,
@@ -370,116 +368,6 @@ fun ConversationsCard(
     }
 }
 
-@Composable
-fun ConversationsMainDropDownMenu(
-    expanded: Boolean = true,
-    searchCallback: (() -> Unit)? = null,
-    blockCallback: (() -> Unit)? = null,
-    deleteCallback: (() -> Unit)? = null,
-    archiveCallback: (() -> Unit)? = null,
-    muteCallback: (() -> Unit)? = null,
-    isMute: Boolean = false,
-    isBlocked: Boolean = false,
-    isArchived: Boolean = false,
-    customMenuCallbacks: (@Composable ((Boolean) -> Unit) -> Unit)? = null,
-    dismissCallback: ((Boolean) -> Unit)? = null,
-) {
-    val expanded = expanded
-    Box(modifier = Modifier
-        .fillMaxWidth()
-        .wrapContentSize(Alignment.TopEnd)
-    ) {
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { dismissCallback?.invoke( false )},
-        ) {
-
-            customMenuCallbacks?.invoke {
-                dismissCallback?.invoke( it )
-            }
-
-            HorizontalDivider()
-
-            DropdownMenuItem(
-                text = {
-                    Text(
-                        text=stringResource(R.string.conversations_menu_search_title),
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-                },
-                onClick = {
-                    searchCallback?.let{
-                        dismissCallback?.invoke( false )
-                        it()
-                    }
-                }
-            )
-
-            DropdownMenuItem(
-                text = {
-                    Text(
-                        text=if(isBlocked) stringResource(R.string.conversations_menu_unblock)
-                        else stringResource(R.string.conversation_menu_block),
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-                },
-                onClick = {
-                    blockCallback?.let {
-                        dismissCallback?.invoke( false )
-                        it()
-                    }
-                }
-            )
-
-            DropdownMenuItem(
-                text = {
-                    Text(
-                        text=if(isArchived) stringResource(R.string.conversation_menu_unarchive)
-                        else stringResource(R.string.archive),
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-                },
-                onClick = {
-                    archiveCallback?.let {
-                        dismissCallback?.invoke( false )
-                        it()
-                    }
-                }
-            )
-
-            DropdownMenuItem(
-                text = {
-                    Text(
-                        text=stringResource(R.string.conversation_menu_delete),
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-                },
-                onClick = {
-                    deleteCallback?.let {
-                        dismissCallback?.invoke( false )
-                        it()
-                    }
-                }
-            )
-
-            DropdownMenuItem(
-                text = {
-                    Text(
-                        text= if(isMute) stringResource(R.string.conversation_menu_unmute)
-                        else stringResource(R.string.conversation_menu_mute),
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-                },
-                onClick = {
-                    muteCallback?.let {
-                        dismissCallback?.invoke( false )
-                        it()
-                    }
-                }
-            )
-        }
-    }
-}
 
 private fun getPredefinedType(type: Int) : ConversationsPredefinedTypes? {
     when(type) {
@@ -497,98 +385,92 @@ private fun getPredefinedType(type: Int) : ConversationsPredefinedTypes? {
 
 fun getConversationType(
     index: Int,
-    conversation: Conversations,
     conversations: List<Conversations>
-): ConversationPositionTypes {
-    if(conversations.size < 2) {
-        return ConversationPositionTypes.NORMAL_TIMESTAMP
-    }
-    if(index == 0) {
-        if(getPredefinedType(
-                conversation.sms?.type!!) ==
-            getPredefinedType(conversations[1].sms?.type!!)) {
-            if(DateTimeUtils.isSameMinute(
-                    conversation.sms?.date!!.toLong(),
-                    conversations[1].sms?.date!!.toLong())) {
-                return ConversationPositionTypes.END
-            }
-        }
-        if(!DateTimeUtils.isSameHour( conversation.sms?.date!!.toLong(),
-                conversations[1].sms?.date!!.toLong())) {
-            return ConversationPositionTypes.NORMAL_TIMESTAMP
-        }
+): ConversationType {
+    val conversation = conversations[index]
+    // 1. Edge Case: If the list is empty or has only 1 item, it's always a standalone timestamp
+    if (conversations.size < 2) {
+        return ConversationType.NORMAL_TIMESTAMP
     }
 
-    if(index == conversations.size - 1) {
-        if(getPredefinedType(conversation.sms?.type!!) ==
-            getPredefinedType(conversations.last().sms?.type!!) &&
-            DateTimeUtils.isSameMinute(
-                conversation.sms?.date!!.toLong(),
-                conversations[index -1].sms?.date!!.toLong())
-        ) {
-            return ConversationPositionTypes.START_TIMESTAMP
+    // 2. Safe Data Extraction: Unwraps the SMS object. If the current message has no SMS data,
+    // it safely defaults to NORMAL instead of crashing.
+    val currentSms = conversation.sms ?: return ConversationType.NORMAL
+    val currentType = getPredefinedType(currentSms.type)
+    val currentDate = currentSms.date.toLong()
+
+    // Grab the neighbor messages safely (will be null if index is out of bounds)
+    val prevSms = conversations.getOrNull(index - 1)?.sms
+    val nextSms = conversations.getOrNull(index + 1)?.sms
+
+    // 3. Logic for the FIRST message in the list
+    if (index == 0 && nextSms != null) {
+        val nextType = getPredefinedType(nextSms.type)
+        val nextDate = nextSms.date.toLong()
+
+        if (currentType == nextType && DateTimeUtils.isSameMinute(currentDate, nextDate)) {
+            return ConversationType.END
         }
-        return ConversationPositionTypes.NORMAL_TIMESTAMP
+        if (!DateTimeUtils.isSameHour(currentDate, nextDate)) {
+            return ConversationType.NORMAL_TIMESTAMP
+        }
     }
 
-    if(index + 1 < conversations.size && index - 1 > -1 ) {
-        if(getPredefinedType(conversation.sms?.type!!) ==
-            getPredefinedType(conversations[index - 1].sms?.type!!) &&
-            getPredefinedType(conversation.sms?.type!!) ==
-            getPredefinedType(conversations[index + 1].sms?.type!!)
-        ) {
-            if(DateTimeUtils.isSameHour(conversation.sms?.date!!.toLong(),
-                    conversations[index -1].sms?.date!!.toLong())) {
-                if(DateTimeUtils.isSameMinute(conversation.sms?.date!!.toLong(),
-                        conversations[index -1].sms?.date!!.toLong()) &&
-                    DateTimeUtils.isSameMinute(conversation.sms?.date!!.toLong(),
-                        conversations[index +1].sms?.date!!.toLong())) {
-                    return ConversationPositionTypes.MIDDLE
-                }
-                if(DateTimeUtils.isSameMinute(conversation.sms?.date!!.toLong(),
-                        conversations[index -1].sms?.date!!.toLong())) {
-                    return ConversationPositionTypes.START
-                }
-            }
-        }
+    // 4. Logic for the LAST message in the list
+    if (index == conversations.size - 1 && prevSms != null) {
+        val prevType = getPredefinedType(prevSms.type)
+        val prevDate = prevSms.date.toLong()
 
-        if(getPredefinedType(conversation.sms?.type!!) ==
-            getPredefinedType(conversations[index + 1].sms?.type!!)) {
-            if(DateTimeUtils.isSameHour(
-                    conversation.sms?.date!!.toLong(),
-                    conversations[index +1].sms?.date!!.toLong())
-            ) {
-                if(DateTimeUtils.isSameMinute(
-                        conversation.sms?.date!!.toLong(),
-                        conversations[index +1].sms?.date!!.toLong())
-                ) {
-                    return ConversationPositionTypes.END
-                }
-            }
-            return ConversationPositionTypes.NORMAL_TIMESTAMP
+        if (currentType == prevType && DateTimeUtils.isSameMinute(currentDate, prevDate)) {
+            return ConversationType.START_TIMESTAMP
         }
-
-        if(getPredefinedType(conversation.sms?.type!!) ==
-            getPredefinedType(conversations[index - 1].sms?.type!!)) {
-            if(DateTimeUtils.isSameMinute(
-                    conversation.sms?.date!!.toLong(),
-                    conversations[index -1].sms?.date!!.toLong())
-            ) {
-                if(DateTimeUtils.isSameHour(
-                        conversation.sms?.date!!.toLong(),
-                        conversations[index +1].sms?.date!!.toLong())
-                ) {
-                    return ConversationPositionTypes.START_TIMESTAMP
-                }
-                return ConversationPositionTypes.START
-            }
-        }
-
+        return ConversationType.NORMAL_TIMESTAMP
     }
-    return ConversationPositionTypes.NORMAL
+
+    // 5. Logic for MIDDLE messages (has both a previous and next neighbor)
+    if (prevSms != null && nextSms != null) {
+        val prevType = getPredefinedType(prevSms.type)
+        val prevDate = prevSms.date.toLong()
+
+        val nextType = getPredefinedType(nextSms.type)
+        val nextDate = nextSms.date.toLong()
+
+        // Scenario A: Surrounded by the same sender on both sides
+        if (currentType == prevType && currentType == nextType) {
+            if (DateTimeUtils.isSameHour(currentDate, prevDate)) {
+                if (DateTimeUtils.isSameMinute(currentDate, prevDate) &&
+                    DateTimeUtils.isSameMinute(currentDate, nextDate)) {
+                    return ConversationType.MIDDLE
+                }
+                if (DateTimeUtils.isSameMinute(currentDate, prevDate)) {
+                    return ConversationType.START
+                }
+            }
+        }
+
+        // Scenario B: Matches the next sender
+        if (currentType == nextType) {
+            if (DateTimeUtils.isSameHour(currentDate, nextDate) &&
+                DateTimeUtils.isSameMinute(currentDate, nextDate)) {
+                return ConversationType.END
+            }
+            return ConversationType.NORMAL_TIMESTAMP
+        }
+
+        // Scenario C: Matches the previous sender
+        if (currentType == prevType) {
+            if (DateTimeUtils.isSameMinute(currentDate, prevDate)) {
+                if (DateTimeUtils.isSameHour(currentDate, nextDate)) {
+                    return ConversationType.START_TIMESTAMP
+                }
+                return ConversationType.START
+            }
+        }
+    }
+
+    // Default fallback if no conditions are met
+    return ConversationType.NORMAL
 }
-
-
 enum class ConversationsPredefinedTypes {
     OUTGOING,
     INCOMING
@@ -624,15 +506,15 @@ fun ConversationContactName(
 
 @Preview
 @Composable
-fun PreviewConversations_Card_Delivered() {
+fun PreviewConversationItem_Delivered() {
     Surface(Modifier.safeDrawingPadding()) {
         Column {
-            ConversationsCard(
+            ConversationItem(
                 text = AnnotatedString("Hello world"),
                 timestamp = "Yesterday",
                 date = "Yesterday",
                 type = Telephony.Sms.MESSAGE_TYPE_SENT,
-                position = ConversationPositionTypes.NORMAL,
+                contentType = ConversationType.NORMAL,
                 status = Telephony.Sms.STATUS_COMPLETE,
                 isSelected = false,
             )
@@ -642,15 +524,15 @@ fun PreviewConversations_Card_Delivered() {
 
 @Preview
 @Composable
-fun PreviewConversations_Card() {
+fun PreviewConversationItem() {
     Surface(Modifier.safeDrawingPadding()) {
         Column {
-            ConversationsCard(
+            ConversationItem(
                 text = AnnotatedString("Hello world"),
                 timestamp = "Yesterday",
                 date = "Yesterday",
                 type = Telephony.Sms.MESSAGE_TYPE_OUTBOX,
-                position = ConversationPositionTypes.NORMAL,
+                contentType = ConversationType.NORMAL,
                 status = Telephony.Sms.STATUS_PENDING,
                 isSelected = false,
             )

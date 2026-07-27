@@ -33,12 +33,10 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.NotificationsOff
-import androidx.compose.material.icons.filled.PianoOff
 import androidx.compose.material.icons.filled.PushPin
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Unarchive
 import androidx.compose.material.icons.outlined.Block
-import androidx.compose.material.icons.outlined.PushPin
 import androidx.compose.material.icons.outlined.Remove
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -56,9 +54,9 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -73,24 +71,20 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.test.isSelected
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.Observer
-import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import androidx.paging.LoadState.Loading
-import androidx.paging.PagingData
-import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
-import coil3.Uri
-import coil3.toUri
 import com.afkanerd.lib_smsmms_android.R
 import com.afkanerd.smswithoutborders_libsmsmms.data.data.models.DateTimeUtils
 import com.afkanerd.smswithoutborders_libsmsmms.data.entities.Threads
@@ -100,10 +94,13 @@ import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.retrieveConta
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.setNativesLoaded
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.settingsGetEnableSwipeBehaviour
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.isScrollingUp
+import com.afkanerd.smswithoutborders_libsmsmms.extensions.pulseLoading
 import com.afkanerd.smswithoutborders_libsmsmms.ui.components.DeleteConfirmationAlert
 import com.afkanerd.smswithoutborders_libsmsmms.ui.components.ModalDrawerSheetLayout
+import com.afkanerd.smswithoutborders_libsmsmms.ui.components.PulsingMessagePlaceholder
 import com.afkanerd.smswithoutborders_libsmsmms.ui.components.SwipeToDeleteBackground
 import com.afkanerd.smswithoutborders_libsmsmms.ui.components.ThreadConversationCard
+import com.afkanerd.smswithoutborders_libsmsmms.ui.components.ThreadItem
 import com.afkanerd.smswithoutborders_libsmsmms.ui.components.ThreadsNavMenuItems
 import com.afkanerd.smswithoutborders_libsmsmms.ui.navigation.ComposeNewMessageScreenNav
 import com.afkanerd.smswithoutborders_libsmsmms.ui.navigation.ConversationsScreenNav
@@ -114,13 +111,9 @@ import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.ThreadsViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
+import kotlin.concurrent.thread
 import kotlin.math.roundToInt
-
-data class ThreadsConversationParameters(
-    var searchQuery: String? = null,
-)
 
 @OptIn(
     ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class,
@@ -141,57 +134,28 @@ fun ThreadConversationLayout(
 ) {
     val inPreviewMode = LocalInspectionMode.current
     val context = LocalContext.current
-    val lifeCycleOwner = LocalLifecycleOwner.current
 
     val readPhoneStatePermission =
         rememberPermissionState(requiredReadPhoneStatePermissions)
 
     var isDefault by remember { mutableStateOf(inPreviewMode || context.isDefault()) }
 
-    val messagesAreLoading = threadsViewModel.messagesLoading
-    val secondaryMessagesAreLoading = threadsViewModel.secondaryMessagesLoading
+    val messagesAreLoading by threadsViewModel.messageLoadingUiState.collectAsStateWithLifecycle()
+    val secondaryMessagesAreLoading by threadsViewModel.secondaryLoadingUiState
+        .collectAsStateWithLifecycle()
+    val inboxType by threadsViewModel.inboxType.collectAsStateWithLifecycle()
+    val selectedItems by threadsViewModel.selectedItems.collectAsStateWithLifecycle()
 
-    var inboxType by remember { mutableStateOf(ThreadsViewModel.InboxType.INBOX )}
-    val isAndroidJUnitTest = try {
-        Class.forName("androidx.test.runner.AndroidJUnitRunner")
-        true
-    } catch (e: ClassNotFoundException) {
-        Debug.isDebuggerConnected() ||
-                System.getProperty("debug.instrumentation.run")?.contains("true") == true
+    val messagesPagers = threadsViewModel.getThreads(context) { thread ->
+        navController.navigate(
+            ConversationsScreenNav(
+                address = thread.address,
+                threadId = thread.threadId
+            )
+        )
     }
 
-    DisposableEffect(lifeCycleOwner) {
-        val observer = Observer<ThreadsViewModel.InboxType> { newInboxType ->
-            inboxType = newInboxType
-        }
-        threadsViewModel.selectedInbox.observe(lifeCycleOwner, observer)
-
-        onDispose {
-            threadsViewModel.selectedInbox.removeObserver(observer)
-        }
-    }
-
-    val selectedItems by threadsViewModel.selectedItems.collectAsState()
-
-    val inboxMessagesPagers = threadsViewModel.getThreads(context)
-    val archivedMessagesPagers = threadsViewModel.getArchives(context)
-    val draftMessagesPagers = threadsViewModel.getDrafts(context)
-    val mutedMessagesPagers = threadsViewModel.getIsMute(context)
-    val blockedMessagesPager = threadsViewModel.getIsBlocked(context)
-
-    val inboxMessagesItems = inboxMessagesPagers.collectAsLazyPagingItems()
-    val archivedMessagesItems = archivedMessagesPagers.collectAsLazyPagingItems()
-    val draftMessagesItems = draftMessagesPagers.collectAsLazyPagingItems()
-    val mutedMessagesItems = mutedMessagesPagers.collectAsLazyPagingItems()
-    val blockedMessagesItems = blockedMessagesPager.collectAsLazyPagingItems()
-
-//    val emptyPagingDataFlow = flowOf(PagingData.empty<Threads>())
-//    val inboxMessagesItems = emptyPagingDataFlow.collectAsLazyPagingItems()
-//
-//    val archivedMessagesItems = emptyPagingDataFlow.collectAsLazyPagingItems()
-//    val draftMessagesItems = emptyPagingDataFlow.collectAsLazyPagingItems()
-//    val mutedMessagesItems = emptyPagingDataFlow.collectAsLazyPagingItems()
-//    val blockedMessagesItems = emptyPagingDataFlow.collectAsLazyPagingItems()
+    val threads = messagesPagers.collectAsLazyPagingItems()
 
     val listState = rememberLazyListState()
     val scrollBehaviour = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
@@ -215,22 +179,14 @@ fun ThreadConversationLayout(
         }
     }
 
+    var rememberMenuExpanded by remember { mutableStateOf(false) }
+
     LaunchedEffect(isDefault) {
         if (!context.getNativesLoaded() && isDefault) {
             threadsViewModel.loadNativesAsync(context) {
                 context.setNativesLoaded(true)
             }
         }
-    }
-
-    var rememberMenuExpanded by remember { mutableStateOf(false) }
-
-    val displayedInbox = when (inboxType) {
-        ThreadsViewModel.InboxType.ARCHIVED -> archivedMessagesItems
-        ThreadsViewModel.InboxType.BLOCKED -> blockedMessagesItems
-        ThreadsViewModel.InboxType.DRAFTS -> draftMessagesItems
-        ThreadsViewModel.InboxType.MUTED -> mutedMessagesItems
-        else -> inboxMessagesItems
     }
 
     ThreadsNavMenuItems(
@@ -307,7 +263,8 @@ fun ThreadConversationLayout(
                                 },
                                 scrollBehavior = scrollBehaviour
                             )
-                        } else if (selectedItems.isNotEmpty()) {
+                        }
+                        else if (selectedItems.isNotEmpty()) {
                             TopAppBar(
                                 title = {
                                     Text(
@@ -472,7 +429,8 @@ fun ThreadConversationLayout(
                                 },
                                 scrollBehavior = scrollBehaviour
                             )
-                        } else {
+                        }
+                        else {
                             TopAppBar(
                                 title = {
                                     Text(
@@ -509,7 +467,7 @@ fun ThreadConversationLayout(
                                 },
                                 navigationIcon = {
                                     IconButton(onClick = {
-                                        if (inboxMessagesItems.loadState.isIdle)
+                                        if (threads.loadState.isIdle)
                                             threadsViewModel.toggleDrawerValue()
                                     }) {
                                         Icon(
@@ -563,12 +521,12 @@ fun ThreadConversationLayout(
                     if (!isDefault || !readPhoneStatePermission.status.isGranted) {
                         DefaultCheckMain { isDefault = context.isDefault() }
                     }
-                    if(secondaryMessagesAreLoading || isAndroidJUnitTest || inPreviewMode)
+                    if(secondaryMessagesAreLoading || inPreviewMode)
                         LinearProgressIndicator(
                             Modifier.fillMaxWidth()
                                 .testTag("secondaryMessagesAreLoading")
                         )
-                    if(messagesAreLoading || inPreviewMode)  {
+                    if(messagesAreLoading || inPreviewMode) {
                         Column(
                             modifier = Modifier.fillMaxSize(),
                             verticalArrangement = Arrangement.Center,
@@ -581,212 +539,65 @@ fun ThreadConversationLayout(
                                 fontSize = 12.sp
                             )
                         }
-                    } else {
-                        Box(
-                            modifier = Modifier.fillMaxSize()
-                        ) {
-                            when (inboxType) {
-                                ThreadsViewModel.InboxType.ARCHIVED -> {
-                                    if (archivedMessagesItems.loadState.refresh != Loading &&
-                                        archivedMessagesItems.itemCount < 1
-                                    )
-                                        Column(
-                                            modifier = Modifier.fillMaxSize(),
-                                            verticalArrangement = Arrangement.Center,
-                                            horizontalAlignment = Alignment.CenterHorizontally
-                                        ) {
-                                            Text(
-                                                stringResource(R.string.homepage_archive_no_message),
-                                                fontSize = 24.sp
-                                            )
-                                        }
+                    }
+                    else {
+                        Box(modifier = Modifier.fillMaxSize()) {
+                            if(threads.loadState.isIdle && threads.itemCount == 0) {
+                                val message = when(inboxType) {
+                                    ThreadsViewModel.InboxType.ARCHIVED ->
+                                        stringResource(R.string.homepage_archive_no_message)
+                                    else -> stringResource(R.string.homepage_no_message)
                                 }
-
-                                else -> {
-                                    if (inboxMessagesItems.loadState.refresh != Loading &&
-                                        inboxMessagesItems.itemCount < 1
+                                Column(
+                                    modifier = Modifier.fillMaxSize(),
+                                    verticalArrangement = Arrangement.Center,
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Text( message,
+                                        fontSize = 24.sp
                                     )
-                                        Column(
-                                            modifier = Modifier.fillMaxSize(),
-                                            verticalArrangement = Arrangement.Center,
-                                            horizontalAlignment = Alignment.CenterHorizontally
-                                        ) {
-                                            Text(
-                                                stringResource(R.string.homepage_no_message),
-                                                fontSize = 24.sp
-                                            )
-                                        }
                                 }
+                            }
+                            if(!threads.loadState.isIdle && threads.itemCount == 0) {
+                                PulsingMessagePlaceholder()
                             }
 
                             LazyColumn(
-                                modifier = Modifier.fillMaxSize(),
+                                modifier = Modifier
+                                    .fillMaxSize(),
                                 state = listState
                             ) {
                                 items(
-                                    count = displayedInbox.itemCount,
-                                    key = displayedInbox.itemKey { it.threadId }
+                                    count = threads.itemCount,
+                                    key = threads.itemKey { it.id },
+                                    contentType = threads.itemContentType {
+                                        if(it.threads.unread) "unread" else "read"
+                                    }
                                 ) { index ->
-                                    val thread = displayedInbox[index] ?: return@items
-
-                                    val offsetX = remember { Animatable(0f) }
-                                    val threshold = 300f
-
-                                    Box {
-                                        Box(
-                                            modifier = Modifier
-                                                .matchParentSize()
-                                                .background(
-                                                    MaterialTheme.colorScheme.background
-                                                ),
-                                            contentAlignment = Alignment.CenterEnd
-                                        ) {
-                                            SwipeToDeleteBackground(
-                                                inboxType ==
-                                                        ThreadsViewModel.InboxType.ARCHIVED,
-                                                onArchiveCallback = {
-                                                    threadsViewModel.update(
-                                                        context,
-                                                        listOf(thread.apply {
-                                                            this.isArchive = true
-                                                        })
-                                                    )
-                                                    threadsViewModel.removeAllSelectedItems()
-                                                },
-                                                onDeleteCallback = {
-                                                    threadsViewModel.setSelectedItems(listOf(thread))
-                                                    rememberDeleteMenu = true
-                                                },
-                                            )
+                                    val threadUi = threads[index]
+                                    threadUi?.let {
+                                        val isSelected = remember(selectedItems) {
+                                            selectedItems.contains(threadUi.threads)
                                         }
-
-                                        val offset = remember(offsetX) {
-                                            IntOffset(offsetX.value.roundToInt(), 0)
-                                        }
-                                        Box(
-                                            modifier = Modifier
-                                                .offset { offset }
-                                                .fillMaxSize()
-                                                .background(Color.White)
-                                                .apply {
-                                                    if (context.settingsGetEnableSwipeBehaviour) {
-                                                        this.draggable(
-                                                            orientation = Orientation.Horizontal,
-                                                            state = rememberDraggableState { delta ->
-                                                                scope.launch {
-                                                                    offsetX.snapTo(offsetX.value + delta)
-                                                                }
-                                                            },
-                                                            onDragStopped = {
-                                                                scope.launch {
-                                                                    val target = when {
-                                                                        offsetX.value < -threshold -> -threshold
-                                                                        offsetX.value > threshold -> threshold
-                                                                        else -> 0f
-                                                                    }
-                                                                    offsetX.animateTo(
-                                                                        target,
-                                                                        animationSpec =
-                                                                            spring(
-                                                                                dampingRatio =
-                                                                                    Spring.DampingRatioMediumBouncy
-                                                                            )
-                                                                    )
-                                                                }
-                                                            }
-                                                        )
-                                                    }
-                                                }
-                                        ) {
-                                            val address = thread.address
-
-                                            val isBlocked = remember(thread.threadId) {
-                                                if (isDefault)
-                                                    threadsViewModel.isBlocked(
-                                                        context, thread,
-                                                        blockedMessagesItems.itemSnapshotList.items
-                                                    )
-                                                else false
-                                            }
-
-                                            val contactName = remember(address) {
-                                                if (isDefault)
-                                                    context.retrieveContactName(address)
-                                                else address
-                                            }
-
-                                            val contactPhotoUri by threadsViewModel
-                                                .contactPhoto(context, address)
-                                                .collectAsState()
-
-                                            val isSelected = remember(selectedItems) {
-                                                selectedItems.contains(thread)
-                                            }
-
-                                            val date = remember(thread.date) {
-                                                if (!inPreviewMode) DateTimeUtils.formatDate(
+                                        ThreadItem(
+                                            threadUi,
+                                            inboxType,
+                                            isSelected,
+                                            onArchiveCallback = {
+                                                threadsViewModel.update(
                                                     context,
-                                                    thread.date
-                                                ) ?: "" else "Tues"
+                                                    listOf(threadUi.threads.apply {
+                                                        this.isArchive = true
+                                                    })
+                                                )
+                                                threadsViewModel.removeAllSelectedItems()
+                                            },
+                                            onDeleteCallback = {
+                                                threadsViewModel
+                                                    .setSelectedItems(listOf(threadUi.threads))
+                                                rememberDeleteMenu = true
                                             }
-
-                                            ThreadConversationCard(
-                                                id = thread.threadId,
-                                                name = contactName ?: address,
-                                                content = thread.snippet,
-                                                date = date,
-                                                isRead = !thread.unread,
-                                                isContact = isDefault && !contactName.isNullOrBlank(),
-                                                isBlocked = isBlocked,
-                                                isPinned = thread.isPinned,
-                                                modifier = Modifier.combinedClickable(
-                                                    onClick = {
-                                                        if (selectedItems.isEmpty()) {
-                                                            if (!foldOpen) {
-                                                                navController.navigate(
-                                                                    ConversationsScreenNav(
-                                                                        address,
-                                                                        threadId = thread.threadId
-                                                                    )
-                                                                )
-                                                            } else {
-                                                                navController
-                                                                    .navigate(
-                                                                        HomeScreenNav(address)
-                                                                    )
-                                                            }
-                                                        } else {
-                                                            threadsViewModel.setSelectedItems(
-                                                                selectedItems.toMutableList()
-                                                                    .apply {
-                                                                        if (selectedItems.contains(
-                                                                                thread
-                                                                            )
-                                                                        )
-                                                                            remove(thread)
-                                                                        else add(thread)
-                                                                    }
-                                                            )
-                                                        }
-                                                    },
-                                                    onLongClick = {
-                                                        threadsViewModel.setSelectedItems(
-                                                            selectedItems.toMutableList().apply {
-                                                                if (selectedItems.contains(thread))
-                                                                    remove(thread)
-                                                                else add(thread)
-                                                            }
-                                                        )
-                                                    }
-                                                ),
-                                                isSelected = isSelected, // TODO:
-                                                isMuted = thread.isMute,
-                                                type = thread.type,
-                                                unreadCount = thread.unreadCount,
-                                                mms = thread.isMms,
-                                                contactPhotoUri = contactPhotoUri,
-                                            )
-                                        }
+                                        )
                                     }
                                 }
                             }

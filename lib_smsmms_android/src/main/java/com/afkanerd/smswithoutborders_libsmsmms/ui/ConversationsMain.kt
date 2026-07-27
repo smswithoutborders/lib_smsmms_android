@@ -6,17 +6,13 @@ import android.net.Uri
 import android.provider.Telephony
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
@@ -38,7 +34,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextFieldDefaults.contentPadding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -48,7 +43,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
@@ -60,18 +54,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.TextLinkStyles
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -80,21 +67,17 @@ import androidx.core.net.toUri
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import com.afkanerd.lib_smsmms_android.R
-import com.afkanerd.smswithoutborders_libsmsmms.data.data.models.DateTimeUtils
 import com.afkanerd.smswithoutborders_libsmsmms.data.data.models.SmsManager
 import com.afkanerd.smswithoutborders_libsmsmms.data.entities.Conversations
-import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.blockContact
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.call
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.cancelNotification
-import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.dataStore
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getDefaultSimSubscription
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getFileNameFromUri
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getMimeTypeFromUri
@@ -105,25 +88,19 @@ import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.isShortCode
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.makeE16PhoneNumber
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.retrieveContactName
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.settingsGetConversationsSubscriptionId
-import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.unblockContact
 import com.afkanerd.smswithoutborders_libsmsmms.ui.components.ChatCompose
 import com.afkanerd.smswithoutborders_libsmsmms.ui.components.ConvenientMethods.deriveMetaDate
 import com.afkanerd.smswithoutborders_libsmsmms.ui.components.ConversationCrudBottomBar
-import com.afkanerd.smswithoutborders_libsmsmms.ui.components.ConversationPositionTypes
-import com.afkanerd.smswithoutborders_libsmsmms.ui.components.ConversationsCard
-import com.afkanerd.smswithoutborders_libsmsmms.ui.components.ConversationsMainDropDownMenu
-import com.afkanerd.smswithoutborders_libsmsmms.ui.components.DeleteConfirmationAlert
 import com.afkanerd.smswithoutborders_libsmsmms.ui.components.FailedMessageOptionsModal
 import com.afkanerd.smswithoutborders_libsmsmms.ui.components.MessageInfoAlert
 import com.afkanerd.smswithoutborders_libsmsmms.ui.components.SearchCounterCompose
 import com.afkanerd.smswithoutborders_libsmsmms.ui.components.SearchTopAppBarText
 import com.afkanerd.smswithoutborders_libsmsmms.ui.components.ShortCodeAlert
-import com.afkanerd.smswithoutborders_libsmsmms.ui.components.SimChooser
-import com.afkanerd.smswithoutborders_libsmsmms.ui.components.getConversationType
+import com.afkanerd.smswithoutborders_libsmsmms.ui.components.conversations.ConversationDropDown
+import com.afkanerd.smswithoutborders_libsmsmms.ui.components.conversations.ConversationUi
 import com.afkanerd.smswithoutborders_libsmsmms.ui.navigation.ContactDetailsScreenNav
 import com.afkanerd.smswithoutborders_libsmsmms.ui.navigation.HomeScreenNav
 import com.afkanerd.smswithoutborders_libsmsmms.ui.navigation.ImageViewScreenNav
-import com.afkanerd.smswithoutborders_libsmsmms.ui.navigation.SearchScreenNav
 import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.ConversationsViewModel
 import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.CustomsConversationsViewModel
 import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.ThreadsViewModel
@@ -133,7 +110,6 @@ import com.google.accompanist.permissions.rememberPermissionState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import sh.calvin.autolinktext.rememberAutoLinkText
 
 fun backHandler(
     context: Context,
@@ -171,16 +147,19 @@ const val requiredSendSMSPermission = Manifest.permission.SEND_SMS
 const val requiredReceiveSMSPermission = Manifest.permission.READ_SMS
 const val requiredReadPhoneStatePermissions = Manifest.permission.READ_PHONE_STATE
 
-
-@Composable
-fun ActivityActiveObserver(threadId: Int) {
-    val context = LocalContext.current
-    LifecycleResumeEffect(Unit) {
-        context.cancelNotification(threadId)
-        onPauseOrDispose {
-            // Activity is no longer active
+private fun lifecycleObservations(
+    onResumeChangeCallback: () -> Unit,
+    onDestroyChangeCallback: () -> Unit,
+) : LifecycleEventObserver {
+    val observer = LifecycleEventObserver { _, event ->
+        if(event == Lifecycle.Event.ON_DESTROY) {
+            onDestroyChangeCallback()
+        }
+        if(event == Lifecycle.Event.ON_RESUME) {
+            onResumeChangeCallback()
         }
     }
+    return observer
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class,
@@ -191,6 +170,7 @@ fun ConversationsMainLayout(
     address: String,
     navController: NavController,
     threadsViewModel: ThreadsViewModel,
+    conversationsViewModel: ConversationsViewModel,
     searchQuery: String? = null,
     text: String = "",
     foldOpen: Boolean = false,
@@ -207,7 +187,6 @@ fun ConversationsMainLayout(
         return
     }
 
-    val viewModel: ConversationsViewModel = viewModel()
     val context = LocalContext.current
     val inPreviewMode = LocalInspectionMode.current
     val lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current
@@ -216,9 +195,13 @@ fun ConversationsMainLayout(
     val coroutineScope = remember { CoroutineScope(Dispatchers.Default) }
     val listState = rememberLazyListState()
 
-    val address = context.makeE16PhoneNumber(address)
+    val address by remember(address) {
+        mutableStateOf(context.makeE16PhoneNumber(address))
+    }
 
-    val dualSim = if(inPreviewMode) true else context.isDualSim()
+    val dualSim by remember {
+        mutableStateOf(if(inPreviewMode) true else context.isDualSim())
+    }
 
     var typingText by remember{ mutableStateOf(text) }
     var typingMmsImage by remember{ mutableStateOf<Uri?>(null) }
@@ -235,8 +218,9 @@ fun ConversationsMainLayout(
     var contactName by remember{ mutableStateOf( context
         .retrieveContactName(address) ?: address )}
 
-    var isMute by remember { mutableStateOf(false) }
-    var isArchived by remember { mutableStateOf(false) }
+    val isMute by conversationsViewModel.isMuted.collectAsStateWithLifecycle()
+    val isArchived by conversationsViewModel.isArchived.collectAsStateWithLifecycle()
+
     var searchQuery by remember { mutableStateOf(searchQuery) }
     var searchIndex by remember { mutableIntStateOf(0) }
 
@@ -244,48 +228,56 @@ fun ConversationsMainLayout(
         if(inPreviewMode) 0 else { threadId ?: context.getThreadId(address) })
     }
 
-    val messages = viewModel.getConversations(context, threadId)
-
-    var showFailedRetryModal by rememberSaveable { mutableStateOf(false) }
-    var rememberMenuExpanded by remember{ mutableStateOf(false) }
-    var openSimCardChooser by remember { mutableStateOf(inPreviewMode) }
-    var searchIndexes by remember { mutableStateOf(emptyList<Int>())}
-
+    val messages = conversationsViewModel.getConversations(context, threadId) { cui ->
+        navController.navigate(
+            ImageViewScreenNav(
+                contentUri = cui.conversation.mms_content_uri.toString(),
+                address = contactName,
+                date = "", // TODO
+                filename = cui.conversation.mms_filename
+                    ?: System.currentTimeMillis()
+                        .toString(),
+                mimeType = cui.conversation.mms_mimetype ?: "image/jpeg",
+            )
+        )
+    }
     val inboxMessagesItems = messages.collectAsLazyPagingItems()
 
-    val selectedItems by viewModel.selectedItems.collectAsState()
+    var showFailedRetryModal by rememberSaveable { mutableStateOf(false) }
+    var searchIndexes by remember { mutableStateOf(emptyList<Int>())}
 
-    val scrollBehaviour = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
+
+    val selectedItems by conversationsViewModel.selectedItems.collectAsState()
 
     var openAlertDialog by remember { mutableStateOf(false)}
 
     val isShortCode = if(inPreviewMode) false else isShortCode(address)
 
-    var rememberDeleteAlert by remember { mutableStateOf(false) }
-
     var openInfoAlert by remember { mutableStateOf(false) }
 
-    val smsManager = SmsManager(customsConversationsViewModel ?: viewModel)
+    val smsManager = SmsManager(customsConversationsViewModel ?: conversationsViewModel)
+    val scrollBehaviour = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
 
     DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            if(event == Lifecycle.Event.ON_DESTROY) {
+        val observer = lifecycleObservations(
+            onDestroyChangeCallback = {
                 if(typingText.isNotBlank()) {
-                    ConversationsViewModel().addDraft(
+                    conversationsViewModel.addDraft(
                         context,
                         body = typingText,
                         mmsUri = typingMmsImage,
                         address = address,
-                        subId = subscriptionId!!,
+                        subId = subscriptionId,
                         threadId = threadId,
                     ) {}
                 }
-            }
-            if(event == Lifecycle.Event.ON_RESUME) {
+            },
+            onResumeChangeCallback = {
+                context.cancelNotification(threadId)
                 if(text.isBlank()) {
-                    viewModel.fetchDraft(context, threadId) {
+                    conversationsViewModel.fetchDraft(context, threadId) {
                         typingText = it?.sms?.body!!
-                        viewModel.clearDraft(context, it)
+                        conversationsViewModel.clearDraft(context, it)
                         if(searchQuery.isNullOrEmpty()) {
                             scope.launch{
                                 listState.animateScrollToItem(0)
@@ -301,12 +293,10 @@ fun ConversationsMainLayout(
                         }))
                     }
                 }
-
             }
-        }
+        )
 
         lifecycleOwner.lifecycle.addObserver(observer)
-
         onDispose {
             lifecycleOwner.lifecycle.removeObserver(observer)
         }
@@ -314,66 +304,50 @@ fun ConversationsMainLayout(
 
     LaunchedEffect(subscriptionIdPrefs) {
         if(context.isDualSim()) {
-
             subscriptionIdPrefs?.let { subscriptionId = it }
         }
     }
 
-    LaunchedEffect(address) {
-        if(!inPreviewMode)
-            ConversationsViewModel().contactIsBlocked(context, address) {
-                isBlocked = it
-            }
-    }
-
     LaunchedEffect(Unit){
         if(!searchQuery.isNullOrEmpty()) {
-            viewModel.search(context, searchQuery!!, threadId=threadId) { indexes ->
+            conversationsViewModel.search(
+                context,
+                searchQuery!!,
+                threadId=threadId
+            ) { indexes ->
                 searchIndexes = indexes
             }
         }
-
-        threadsViewModel.isMuted(context, threadId) { isMute = it }
-        threadsViewModel.isMuted(context, threadId) { isArchived = it }
     }
 
-    LaunchedEffect(inboxMessagesItems.itemCount) {
-        if (inboxMessagesItems.itemCount > 0) {
-            listState.animateScrollToItem(0)
+    var rememberMenuExpanded by remember{ mutableStateOf(false) }
 
-            threadsViewModel.get(context, threadId) {
-                it?.let { thread ->
-                    threadsViewModel.update(context, listOf(thread.apply {
-                        this.unread = false
-                    }))
-                }
-            }
-        }
-    }
-
-    LaunchedEffect(inboxMessagesItems.loadState, searchIndexes) {
-        if(inboxMessagesItems.loadState.isIdle) {
-            if(searchIndexes.isNotEmpty() && searchIndex == 0) {
-                if(inboxMessagesItems.itemCount > searchIndexes.first()) {
-                    inboxMessagesItems[searchIndexes.first()]
-                    scope.launch {
-                        listState.animateScrollToItem(searchIndexes.first(), )
-                    }
-                }
-                else {
-                    inboxMessagesItems.refresh()
-                }
-            }
-
-            if(inboxMessagesItems.itemSnapshotList.isNotEmpty()) {
-                inboxMessagesItems.itemSnapshotList.first()?.sms?.let {
-                    if(it.sub_id > -1) {
-                        subscriptionId = it.sub_id
-                    }
-                }
-            }
-        }
-    }
+    ConversationDropDown(
+        context = context,
+        expanded = rememberMenuExpanded,
+        navController = navController,
+        address = address,
+        threadId = threadId,
+        isMute = isMute,
+        isBlocked = isBlocked,
+        isArchived = isArchived,
+        threadsViewModel = threadsViewModel,
+        conversationsViewModel = conversationsViewModel,
+        customMenuItems = customMenuItems,
+        onArchiveCallback = {
+            backHandler(
+                context,
+                typingText,
+                typingMmsImage,
+                address,
+                subscriptionId,
+                viewModel = conversationsViewModel,
+                navController = navController,
+                threadId = threadId,
+            )
+        },
+        onDropDownCloseCallback = { rememberMenuExpanded = true }
+    )
 
     BackHandler {
         if(!searchQuery.isNullOrEmpty()) searchQuery = ""
@@ -383,154 +357,15 @@ fun ConversationsMainLayout(
             mmsUri = typingMmsImage,
             address = address,
             subId = subscriptionId,
-            viewModel = viewModel,
+            viewModel = conversationsViewModel,
             navController = navController,
             threadId = threadId,
         )
     }
 
-    ConversationsMainDropDownMenu(
-        rememberMenuExpanded,
-        isMute = isMute,
-        isBlocked = isBlocked,
-        isArchived = isArchived,
-        searchCallback = {
-            navController.navigate(SearchScreenNav(address = address))
-        },
-        blockCallback = {
-            if(isBlocked) {
-                threadsViewModel.setIsBlocked(context,
-                    listOf(address), false) {
-                    context.unblockContact(listOf(address))
-                    viewModel.removeAllSelectedItems()
-                }
-                isBlocked = false
-            }
-            else {
-                threadsViewModel.setIsBlocked(context, listOf(address), true) {
-                    context.blockContact(listOf(address))
-                    viewModel.removeAllSelectedItems()
-                }
-                isBlocked = true
-            }
-        },
-        deleteCallback = {
-            rememberDeleteAlert = true
-        },
-        archiveCallback = {
-            if(isArchived) {
-                viewModel.unArchive(context, threadId) {}
-            }
-            else {
-                viewModel.archive(context, threadId) {}
-            }
-            backHandler(
-                context,
-                typingText,
-                typingMmsImage,
-                address,
-                subscriptionId,
-                viewModel = viewModel,
-                navController=navController,
-                threadId = threadId,
-            )
-        },
-        muteCallback = {
-            if(isMute) {
-                viewModel.unMute(context, threadId) {}
-                isMute = false
-            } else {
-                viewModel.mute(context, threadId) {}
-                isMute = true
-            }
-        },
-        customMenuCallbacks = customMenuItems,
-    ) {
-        rememberMenuExpanded = false
-    }
-
-    ActivityActiveObserver(threadId)
-
-    @Composable
-    fun TextConversationCard(
-        conversation: Conversations,
-        index: Int,
-        showDate: Boolean,
-        date: String,
-        onLongClickCallback: () -> Unit,
-        onClickCallback: () -> Unit,
-    ) {
-        val timestamp by remember { mutableStateOf(
-            if(inPreviewMode) "1234567"
-            else {
-                DateTimeUtils
-                    .formatDateExtended(
-                        context,
-                        conversation.sms?.date!!)
-            })
-        }
-
-        val subscriptionId by remember{
-            mutableLongStateOf(conversation.sms?.sub_id ?: subscriptionId)
-        }
-
-        val position = if(!conversation.mms_content_uri.isNullOrEmpty()) {
-            ConversationPositionTypes.END
-        } else viewModel.getMessagePositionType(
-            index,
-            conversation,
-            if(index == 0) null else inboxMessagesItems.peek(index - 1),
-            if(index + 1 >= inboxMessagesItems.itemCount) null else
-                inboxMessagesItems.peek(index + 1),
-        )
-
-
-        var text = if(LocalInspectionMode.current)
-            AnnotatedString(conversation.sms?.body ?: "")
-        else AnnotatedString.rememberAutoLinkText(
-            conversation.mms_text ?: (conversation.sms?.body ?: ""),
-            defaultLinkStyles = TextLinkStyles(
-                SpanStyle( textDecoration = TextDecoration.Underline )
-            )
-        )
-
-        if(!searchQuery.isNullOrEmpty()) {
-            text = buildAnnotatedString {
-                val startIndex = text
-                    .indexOf(searchQuery!!, ignoreCase = true)
-                val endIndex = startIndex + searchQuery!!.length
-
-                append(text)
-                if (startIndex >= 0) {
-                    addStyle(
-                        style = SpanStyle(
-                            background = Color.Yellow,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.Black
-                        ),
-                        start = startIndex,
-                        end = endIndex
-                    )
-                }
-            }
-        }
-
-        ConversationsCard(
-            text= text,
-            timestamp = timestamp,
-            type= conversation.sms?.type!!,
-            status = conversation.sms?.status!!,
-            position = position,
-            date = date,
-            showDate = showDate,
-            mmsContentUri = conversation.mms_content_uri?.toUri(),
-            mmsMimeType = conversation.mms_mimetype,
-            mmsFilename = conversation.mms_filename,
-            onClickCallback = onClickCallback,
-            onLongClickCallback = onLongClickCallback,
-            isSelected = selectedItems.contains(conversation),
-        )
-
+    var showScrollBottom by remember { mutableStateOf(false) }
+    LaunchedEffect(listState) {
+        showScrollBottom = listState.firstVisibleItemIndex > 0
     }
 
     Scaffold (
@@ -601,11 +436,11 @@ fun ConversationsMainLayout(
                                 mmsUri = typingMmsImage,
                                 address = address,
                                 subId = subscriptionId,
-                                viewModel = viewModel,
+                                viewModel = conversationsViewModel,
                                 navController = navController,
                                 threadId = threadId,
                             )
-                            viewModel.removeAllSelectedItems()
+                            conversationsViewModel.removeAllSelectedItems()
                         }) {
                             Icon(Icons.AutoMirrored.Filled.ArrowBack,
                                 stringResource(R.string.go_back))
@@ -639,15 +474,15 @@ fun ConversationsMainLayout(
         bottomBar = {
             if(selectedItems.isNotEmpty()) {
                 ConversationCrudBottomBar(
-                    viewModel,
+                    conversationsViewModel,
                     navController,
                     onInfoRequested = {
                         openInfoAlert = true
                         highlightedMessage = it
                     },
-                    onCompleted = { viewModel.removeAllSelectedItems() }
+                    onCompleted = { conversationsViewModel.removeAllSelectedItems() }
                 ) {
-                    viewModel.removeAllSelectedItems()
+                    conversationsViewModel.removeAllSelectedItems()
                 }
             }
             else if(!searchQuery.isNullOrEmpty()) {
@@ -731,7 +566,7 @@ fun ConversationsMainLayout(
                             typingMmsImage = null
                         },
                         sendMmsCallback = {
-                            viewModel.sendMms(
+                            conversationsViewModel.sendMms(
                                 context,
                                 it,
                                 text = typingText,
@@ -774,101 +609,33 @@ fun ConversationsMainLayout(
             ) {
                 items(
                     count = inboxMessagesItems.itemCount,
-                    contentType = {
-                        viewModel.getMessagePositionType(
-                            it,
-                            inboxMessagesItems.peek(it)!!,
-                            if(it > 0)
-                                inboxMessagesItems.peek(it - 1)!! else null,
-                            if(it + 1 < inboxMessagesItems.itemCount)
-                                inboxMessagesItems.peek(it + 1)!! else null,
-                        )
-                    },
                     key =  inboxMessagesItems.itemKey{ it.id }
-                ) { index -> inboxMessagesItems[index]?.let { conversation ->
+                ) { index ->
+                    val conversationsUi = inboxMessagesItems[index]
+                    conversationsUi?.let { conversationUi ->
+                        val conversation = conversationUi.conversation
                         if(conversation.sms_data != null) {
                             customDataView?.invoke(conversation)
                         } else {
-                            var showDate by remember(index){
-                                mutableStateOf(
-                                    when {
-                                        index == 0 ||
-                                        conversation.sms?.status == Telephony.Sms.STATUS_PENDING ||
-                                        conversation.sms?.status ==
-                                                Telephony.Sms.STATUS_FAILED -> true
-                                else -> false
-                            })}
-
-                            val date by remember { mutableStateOf(
-                                if(inPreviewMode) "1234567"
-                                else { deriveMetaDate(conversation) +
-                                        if(dualSim) {
-                                            " • " + context.getSubscriptionName(subscriptionId)
-                                        } else ""
-                                })
+                            val isSelected = remember(selectedItems) {
+                                selectedItems.contains(conversationsUi)
                             }
 
-                            TextConversationCard(
-                                conversation,
-                                index,
-                                showDate,
-                                date,
+                            ConversationUi(
+                                conversationsUi = conversationsUi,
+                                isSelected = isSelected,
+                                searchQuery = searchQuery,
                                 onLongClickCallback = {
-                                    if (selectedItems.contains(conversation))
-                                        viewModel.setSelectedItems(
-                                            selectedItems.toMutableList().apply {
-                                                this.remove(conversation)
-                                            }
-                                        )
-                                    else
-                                        viewModel.setSelectedItems(
-                                            selectedItems.toMutableList().apply {
-                                                this.add(conversation)
-                                            }
-                                        )
-                                }
-                            ) {
-                                if (selectedItems.isNotEmpty()) {
-                                    if (selectedItems.contains(conversation))
-                                        viewModel.setSelectedItems(
-                                            selectedItems.toMutableList().apply {
-                                                this.remove(conversation)
-                                            }
-                                        )
-                                    else
-                                        viewModel.setSelectedItems(
-                                            selectedItems.toMutableList().apply {
-                                                this.add(conversation)
-                                            }
-                                        )
-                                }
-                                else if(conversation.sms?.type ==
-                                    Telephony.Sms.MESSAGE_TYPE_FAILED) {
-                                    highlightedMessage = conversation
-                                    showFailedRetryModal = true
-                                }
-                                else if(conversation.mms_content_uri != null) {
-                                    navController.navigate(ImageViewScreenNav(
-                                        contentUri = conversation.mms_content_uri.toString(),
-                                        address = contactName,
-                                        date = date,
-                                        filename = conversation.mms_filename
-                                            ?: System.currentTimeMillis().toString(),
-                                        mimeType = conversation.mms_mimetype ?: "image/jpeg",
-                                    ))
-                                }
-                                else {
-                                    showDate = !showDate
-                                }
-                            }
+                                    conversationsUi.onLongClick(conversationsUi)
+                                },
+                                onClickCallback = {
+                                    conversationsUi.onClick(conversationsUi)
+                                },
+                                cuiList = inboxMessagesItems.itemSnapshotList.items,
+                                index = index
+                            )
                         }
                     }
-                }
-            }
-
-            val showScrollBottom by remember {
-                derivedStateOf {
-                    listState.firstVisibleItemIndex > 0
                 }
             }
 
@@ -918,10 +685,10 @@ fun ConversationsMainLayout(
             FailedMessageOptionsModal(
                 retryCallback = {
                     highlightedMessage?.let { conversation ->
-                        viewModel.delete(context, listOf(conversation)) {
+                        conversationsViewModel.delete(context, listOf(conversation)) {
                             if(conversation.mms_content_uri != null) {
                                 val uri = conversation.mms_content_uri!!.toUri()
-                                viewModel.sendMms(
+                                conversationsViewModel.sendMms(
                                     context,
                                     uri,
                                     text = conversation.mms_text ?: conversation.sms?.body ?: "",
@@ -951,29 +718,13 @@ fun ConversationsMainLayout(
                 },
                 deleteCallback = {
                     highlightedMessage?.let { conversation ->
-                        viewModel.delete( context, listOf(conversation)) {
+                        conversationsViewModel.delete( context, listOf(conversation)) {
                             highlightedMessage = null
                         }
                     }
                 },
             ){
                 showFailedRetryModal = false
-            }
-        }
-
-        if(rememberDeleteAlert) {
-            DeleteConfirmationAlert(
-                confirmCallback = {
-                    coroutineScope.launch {
-                        viewModel.deleteThread(context, threadId) {
-                            rememberDeleteAlert = false
-                            TODO("Navigate back to home")
-                        }
-                    }
-                }
-            ) {
-                rememberDeleteAlert = false
-                viewModel.removeAllSelectedItems()
             }
         }
 
@@ -991,6 +742,7 @@ fun ConversationsMainPreview() {
     ConversationsMainLayout(
         navController = rememberNavController(),
         threadsViewModel = remember { ThreadsViewModel() },
+        conversationsViewModel = remember { ConversationsViewModel() },
         address = "+1234567",
     )
 }
@@ -1001,6 +753,7 @@ fun ConversationsMain_Converse_only_preview() {
     ConversationsMainLayout(
         navController = rememberNavController(),
         threadsViewModel = remember { ThreadsViewModel() },
+        conversationsViewModel = remember { ConversationsViewModel() },
         address = "+1234567",
         imageUri = "".toUri()
     )

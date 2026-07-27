@@ -34,11 +34,13 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.afkanerd.smswithoutborders.libsmsmms.app.ui.theme.Lib_smsmms_androidTheme
+import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.ConversationsViewModel
 import kotlin.jvm.java
 
 class MainActivity : ComponentActivity() {
     private lateinit var navController: NavHostController
     private val threadsViewModel: ThreadsViewModel by viewModels()
+    private val conversationsViewModel: ConversationsViewModel by viewModels()
     private val searchViewModel: SearchViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -62,6 +64,7 @@ class MainActivity : ComponentActivity() {
                                         navController = navController,
                                         threadsViewModel = threadsViewModel,
                                         searchViewModel = searchViewModel,
+                                        conversationsViewModel = conversationsViewModel
                                     ) { }
                                 }
                             }

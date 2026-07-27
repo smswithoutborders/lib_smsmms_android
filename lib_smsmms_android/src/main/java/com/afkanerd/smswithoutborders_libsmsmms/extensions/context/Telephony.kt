@@ -116,6 +116,15 @@ fun Context.unblockContact(addresses: List<String>) {
     }
 }
 
+fun Context.isNumberBlocked(phoneNumber: String): Boolean {
+    return try {
+        BlockedNumberContract.isBlocked(this, phoneNumber)
+    } catch (e: SecurityException) {
+        // Handle case where app doesn't have the required blocklist permissions
+        false
+    }
+}
+
 fun Context.getBlocked(): Cursor? {
     return contentResolver.query(
         BlockedNumberContract.BlockedNumbers.CONTENT_URI,
