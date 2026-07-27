@@ -46,7 +46,6 @@ fun ConversationsMainDropDownMenu(
     customMenuCallbacks: (@Composable ((Boolean) -> Unit) -> Unit)? = null,
     dismissCallback: (() -> Unit)? = null,
 ) {
-    val expanded = expanded
     Box(modifier = Modifier
         .fillMaxWidth()
         .wrapContentSize(Alignment.TopEnd)

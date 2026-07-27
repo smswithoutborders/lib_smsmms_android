@@ -346,7 +346,7 @@ fun ConversationsMainLayout(
                 threadId = threadId,
             )
         },
-        onDropDownCloseCallback = { rememberMenuExpanded = true }
+        onDropDownCloseCallback = { rememberMenuExpanded = false }
     )
 
     BackHandler {
@@ -458,7 +458,7 @@ fun ConversationsMainLayout(
                             }
                         }
                         IconButton(onClick = {
-                            rememberMenuExpanded = !rememberMenuExpanded
+                            rememberMenuExpanded = true
                         }) {
                             Icon(
                                 imageVector = Icons.Filled.MoreVert,

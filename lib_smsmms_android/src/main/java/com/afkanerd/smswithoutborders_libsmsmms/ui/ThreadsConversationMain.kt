@@ -179,7 +179,6 @@ fun ThreadConversationLayout(
         }
     }
 
-    var rememberMenuExpanded by remember { mutableStateOf(false) }
 
     LaunchedEffect(isDefault) {
         if (!context.getNativesLoaded() && isDefault) {
@@ -189,14 +188,6 @@ fun ThreadConversationLayout(
         }
     }
 
-    ThreadsNavMenuItems(
-        navController = navController,
-        expanded = rememberMenuExpanded,
-        threadsViewModel = threadsViewModel,
-        threadMenuItems = threadsMainMenuItems,
-    ) {
-        rememberMenuExpanded = it
-    }
 
     ModalNavigationDrawer(
         drawerState = drawerState.value,
@@ -215,6 +206,15 @@ fun ThreadConversationLayout(
             )
         },
     ) {
+        var rememberMenuExpanded by remember { mutableStateOf(false) }
+        ThreadsNavMenuItems(
+            navController = navController,
+            expanded = rememberMenuExpanded,
+            threadsViewModel = threadsViewModel,
+            threadMenuItems = threadsMainMenuItems,
+        ) {
+            rememberMenuExpanded = it
+        }
         if (customThreadsView != null) {
             customThreadsView()
         } else {
