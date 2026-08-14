@@ -43,6 +43,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
@@ -51,6 +52,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -71,7 +73,10 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import androidx.paging.CombinedLoadStates
+import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
 import com.afkanerd.lib_smsmms_android.R
 import com.afkanerd.smswithoutborders_libsmsmms.data.data.models.SmsManager
@@ -109,7 +114,10 @@ import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.yield
 
 fun backHandler(
     context: Context,
@@ -193,14 +201,9 @@ fun ConversationsMainLayout(
 
     val scope = rememberCoroutineScope()
     val coroutineScope = remember { CoroutineScope(Dispatchers.Default) }
-    val listState = rememberLazyListState()
 
     val address by remember(address) {
         mutableStateOf(context.makeE16PhoneNumber(address))
-    }
-
-    val dualSim by remember {
-        mutableStateOf(if(inPreviewMode) true else context.isDualSim())
     }
 
     var typingText by remember{ mutableStateOf(text) }
@@ -242,7 +245,6 @@ fun ConversationsMainLayout(
         )
     }
     val inboxMessagesItems = messages.collectAsLazyPagingItems()
-
     var showFailedRetryModal by rememberSaveable { mutableStateOf(false) }
     var searchIndexes by remember { mutableStateOf(emptyList<Int>())}
 
@@ -258,6 +260,7 @@ fun ConversationsMainLayout(
     val smsManager = SmsManager(customsConversationsViewModel ?: conversationsViewModel)
     val scrollBehaviour = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
 
+    val listState = rememberLazyListState()
     DisposableEffect(lifecycleOwner) {
         val observer = lifecycleObservations(
             onDestroyChangeCallback = {
@@ -361,11 +364,6 @@ fun ConversationsMainLayout(
             navController = navController,
             threadId = threadId,
         )
-    }
-
-    var showScrollBottom by remember { mutableStateOf(false) }
-    LaunchedEffect(listState) {
-        showScrollBottom = listState.firstVisibleItemIndex > 0
     }
 
     Scaffold (
@@ -597,11 +595,41 @@ fun ConversationsMainLayout(
             }
         },
     ) { innerPadding ->
+
+        val listState = rememberLazyListState()
+        val scope = rememberCoroutineScope()
+
+        // Store the first item's ID
+        var lastTopItemId by remember { mutableStateOf<Any?>(null) }
+
+        LaunchedEffect(inboxMessagesItems) {
+            snapshotFlow {
+                // Peek at index 0 without triggering page loads
+                if (inboxMessagesItems.itemCount > 0) inboxMessagesItems.peek(0)?.id else null
+            }
+                .filterNotNull()
+                .distinctUntilChanged()
+                .collect { newTopId ->
+                    if (lastTopItemId != null && lastTopItemId != newTopId) {
+                        // A new message arrived at index 0
+                        scope.launch {
+                            // Yield execution to allow Compose to finish the layout pass for index 0
+                            yield()
+
+                            // Force the scroll
+                            listState.animateScrollToItem(0)
+                        }
+                    }
+                    lastTopItemId = newTopId
+                }
+        }
+
         Box(
             modifier = Modifier
                 .padding(innerPadding)
                 .imePadding()
         ) {
+
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 state = listState,
@@ -609,7 +637,8 @@ fun ConversationsMainLayout(
             ) {
                 items(
                     count = inboxMessagesItems.itemCount,
-                    key =  inboxMessagesItems.itemKey{ it.id }
+                    key =  inboxMessagesItems.itemKey{ it.id },
+                    contentType = inboxMessagesItems.itemContentType { it.conversation.sms?.type }
                 ) { index ->
                     val conversationsUi = inboxMessagesItems[index]
                     conversationsUi?.let { conversationUi ->
@@ -639,7 +668,13 @@ fun ConversationsMainLayout(
                 }
             }
 
-            if(showScrollBottom) {
+            val showScrollToBottom by remember {
+                derivedStateOf {
+                    listState.firstVisibleItemIndex > 0 || listState.firstVisibleItemScrollOffset > 0
+                }
+            }
+
+            if(showScrollToBottom) {
                 Button(
                     onClick = {
                         searchQuery = null

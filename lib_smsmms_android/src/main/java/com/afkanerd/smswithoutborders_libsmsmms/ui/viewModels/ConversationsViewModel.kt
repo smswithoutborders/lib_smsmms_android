@@ -29,12 +29,18 @@ import com.afkanerd.smswithoutborders_libsmsmms.ui.components.ConvenientMethods.
 import com.afkanerd.smswithoutborders_libsmsmms.ui.components.ConversationType
 import com.afkanerd.smswithoutborders_libsmsmms.ui.components.getConversationType
 import com.afkanerd.smswithoutborders_libsmsmms.ui.navigation.ImageViewScreenNav
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -95,7 +101,7 @@ class ConversationsViewModel : ViewModel(),  CustomConversationServices {
         val conversation: Conversations,
         val onClick: (ConversationsUi) -> Boolean,
         val onLongClick: (ConversationsUi) -> Unit,
-        val loadPreComputed: suspend (Context, List<ConversationsUi>, Int) -> ConversationsComputed?,
+        val loadPreComputed: (Context, List<ConversationsUi>, Int) -> Flow<ConversationsComputed?>,
     )
 
     data class ConversationsComputed(
@@ -159,31 +165,34 @@ class ConversationsViewModel : ViewModel(),  CustomConversationServices {
                         }
                     },
                     loadPreComputed = { ctx, listCui, index ->
-                        if(!ctx.isDefault()) return@ConversationsUi null
-                        if(currentList != listCui) {
-                            currentList = listCui
-                        }
-                        withContext(Dispatchers.IO) {
-                            val timestamp = async { DateTimeUtils
-                                .formatDateExtended( context, conversation.sms?.date!!) }
-                            val date = async {
-                                deriveMetaDate(conversation) + if(ctx.isDualSim()) {
-                                    " • " + context.getSubscriptionName(conversation.sms?.sub_id ?: -1)
-                                } else ""
+                        if(!ctx.isDefault()) return@ConversationsUi emptyFlow()
+                        flow {
+                            if(currentList != listCui) {
+                                currentList = listCui
                             }
-                            val contentType = async {
-                                getConversationType(
-                                    index = index,
-                                    conversations = currentList.map{ it.conversation }
+                            val computed = coroutineScope {
+                                val timestamp = async { DateTimeUtils
+                                    .formatDateExtended( context, conversation.sms?.date!!) }
+                                val date = async {
+                                    deriveMetaDate(conversation) + if(ctx.isDualSim()) {
+                                        " • " + context.getSubscriptionName(conversation.sms?.sub_id ?: -1)
+                                    } else ""
+                                }
+                                val contentType = async {
+                                    getConversationType(
+                                        index = index,
+                                        conversations = currentList.map{ it.conversation }
+                                    )
+                                }
+
+                                ConversationsComputed(
+                                    contentType = contentType.await(),
+                                    timestamp = timestamp.await(),
+                                    date = date.await()
                                 )
                             }
-
-                            return@withContext ConversationsComputed(
-                                contentType = contentType.await(),
-                                timestamp = timestamp.await(),
-                                date = date.await()
-                            )
-                        }
+                            emit(computed)
+                        }.flowOn(Dispatchers.IO)
                     }
                 )
             }

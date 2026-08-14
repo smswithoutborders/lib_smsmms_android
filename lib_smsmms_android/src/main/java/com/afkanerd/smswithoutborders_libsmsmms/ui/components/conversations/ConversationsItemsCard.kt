@@ -1,11 +1,14 @@
 package com.afkanerd.smswithoutborders_libsmsmms.ui.components.conversations
 
 import android.app.ProgressDialog.show
+import android.provider.Telephony
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
@@ -17,6 +20,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.core.net.toUri
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.afkanerd.smswithoutborders_libsmsmms.data.entities.Conversations
 import com.afkanerd.smswithoutborders_libsmsmms.ui.components.ConversationType
 import com.afkanerd.smswithoutborders_libsmsmms.ui.components.ConversationItem
@@ -24,6 +28,7 @@ import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.ConversationsViewM
 import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.ThreadsViewModel
 import com.google.android.mms.ContentType
 import sh.calvin.autolinktext.rememberAutoLinkText
+import kotlinx.coroutines.flow.StateFlow
 
 @Composable
 fun ConversationUi(
@@ -67,12 +72,21 @@ fun ConversationUi(
             }
         }
     }
-    var postComputed by remember(conversationsUi.id) {
-        mutableStateOf<ConversationsViewModel.ConversationsComputed?>(null)
+
+    val postComputed by produceState<ConversationsViewModel.ConversationsComputed?>(
+        initialValue = null, conversationsUi, index) {
+        conversationsUi.loadPreComputed(context, cuiList, index)
+            .collect { value ->
+                this.value = value
+            }
     }
-    var showDate by remember{ mutableStateOf(false)}
-    LaunchedEffect(conversationsUi.id) {
-        postComputed = conversationsUi.loadPreComputed(context, cuiList, index)
+
+    var showDate by remember(cuiList) {
+        mutableStateOf(
+            cuiList.first().id == conversationsUi.id || (
+                    conversationsUi.conversation.sms?.status !=
+                            Telephony.TextBasedSmsColumns.STATUS_COMPLETE)
+        )
     }
 
     ConversationItem(
