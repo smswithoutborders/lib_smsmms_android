@@ -654,6 +654,10 @@ fun ConversationsMainLayout(
                                 conversationsUi = conversationsUi,
                                 isSelected = isSelected,
                                 searchQuery = searchQuery,
+                                onFailClickCallback = {
+                                    highlightedMessage = conversation
+                                    showFailedRetryModal = true
+                                },
                                 onLongClickCallback = {
                                     conversationsUi.onLongClick(conversationsUi)
                                 },
@@ -719,6 +723,7 @@ fun ConversationsMainLayout(
         if(showFailedRetryModal) {
             FailedMessageOptionsModal(
                 retryCallback = {
+                    showFailedRetryModal = false
                     highlightedMessage?.let { conversation ->
                         conversationsViewModel.delete(context, listOf(conversation)) {
                             if(conversation.mms_content_uri != null) {
@@ -752,6 +757,7 @@ fun ConversationsMainLayout(
                     }
                 },
                 deleteCallback = {
+                    showFailedRetryModal = false
                     highlightedMessage?.let { conversation ->
                         conversationsViewModel.delete( context, listOf(conversation)) {
                             highlightedMessage = null
@@ -759,7 +765,7 @@ fun ConversationsMainLayout(
                     }
                 },
             ){
-                showFailedRetryModal = false
+                highlightedMessage = null
             }
         }
 

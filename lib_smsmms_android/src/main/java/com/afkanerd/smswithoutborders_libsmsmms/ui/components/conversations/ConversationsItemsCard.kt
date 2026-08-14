@@ -37,6 +37,7 @@ fun ConversationUi(
     searchQuery: String?,
     index: Int,
     cuiList: List<ConversationsViewModel.ConversationsUi>,
+    onFailClickCallback: () -> Unit,
     onLongClickCallback: () -> Unit,
     onClickCallback: () -> Boolean,
 ) {
@@ -99,8 +100,12 @@ fun ConversationUi(
         mmsContentUri = conversation.mms_content_uri?.toUri(),
         mmsMimeType = conversation.mms_mimetype,
         mmsFilename = conversation.mms_filename,
+        onFailClickCallback = onFailClickCallback,
         onClickCallback = {
-            if(!onClickCallback()) {
+            if(conversation.sms?.status == Telephony.Sms.STATUS_FAILED) {
+                onFailClickCallback()
+            }
+            else if(!onClickCallback()) {
                 showDate = !showDate
             }
         },
@@ -108,6 +113,7 @@ fun ConversationUi(
         isSelected = isSelected,
         contentType = postComputed?.contentType ?: ConversationType.NORMAL
     )
+
 
 }
 

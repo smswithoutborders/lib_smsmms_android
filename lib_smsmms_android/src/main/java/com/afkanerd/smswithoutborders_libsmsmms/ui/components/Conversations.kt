@@ -148,6 +148,7 @@ private fun ConversationSent(
     position: ConversationType = ConversationType.START_TIMESTAMP,
     type: Int,
     isSelected: Boolean = false,
+    onFailClickCallback: () -> Unit = {},
     onClickCallback: (() -> Unit)? = null,
     onLongClickCallback: (() -> Unit)? = null,
     color: Color = MaterialTheme.colorScheme.onPrimary
@@ -211,7 +212,7 @@ private fun ConversationSent(
         if(type == Telephony.Sms.MESSAGE_TYPE_FAILED) {
             Column(modifier = Modifier
                 .align(Alignment.CenterVertically)) {
-                IconButton(onClick = {}) {
+                IconButton(onClick = onFailClickCallback) {
                     Icon(
                         Icons.Default.Info,
                         "Message failed icon",
@@ -237,6 +238,7 @@ fun ConversationItem(
     mmsContentUri: Uri? = null,
     mmsMimeType: String? = null,
     mmsFilename: String? = null,
+    onFailClickCallback: () -> Unit = {},
     onClickCallback: (() -> Unit)? = null,
     onLongClickCallback: (() -> Unit)? = null,
 ) {
@@ -326,6 +328,7 @@ fun ConversationItem(
                                 position =contentType,
                                 type =type,
                                 isSelected = isSelected,
+                                onFailClickCallback = onFailClickCallback,
                                 onClickCallback = onClickCallback,
                                 onLongClickCallback = onLongClickCallback,
                             )
