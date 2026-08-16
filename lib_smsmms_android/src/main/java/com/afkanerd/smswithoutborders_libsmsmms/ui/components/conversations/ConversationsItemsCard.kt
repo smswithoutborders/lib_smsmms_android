@@ -85,7 +85,7 @@ fun ConversationUi(
     var showDate by remember(cuiList) {
         mutableStateOf(
             cuiList.first().id == conversationsUi.id || (
-                    conversationsUi.conversation.sms?.type == Telephony.Sms.MESSAGE_TYPE_INBOX &&
+                    conversationsUi.conversation.sms?.type != Telephony.Sms.MESSAGE_TYPE_INBOX &&
                             conversationsUi.conversation.sms?.status !=
                             Telephony.TextBasedSmsColumns.STATUS_COMPLETE
                     )
