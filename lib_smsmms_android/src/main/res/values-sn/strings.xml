@@ -117,4 +117,19 @@
     <string name="gateway_client_customization_delete">Bvisa</string>
     <string name="gateway_client_customization_edit">Chinja</string>
     <string name="gateway_client_running_title">Mutengi weGedhi: Kumhanya kweNode</string>
+    <string name="gateway_client_enqueue_description">Vatengi vepagedhi vakamirira kubatana…</string>
+    <string name="homepage_fragment_tab_encrypted">Yakavanzika</string>
+    <string name="messages_thread_delete_confirmation_title">Bvisa Kusimbiswa</string>
+    <string name="messages_thread_delete_confirmation_text">Enderera mberi nekubvisa misoro.</string>
+    <string name="messages_thread_delete_confirmation_yes">Ehe</string>
+    <string name="messages_thread_delete_confirmation_cancel">Dzima</string>
+    <string name="single_message_thread_yesterday">Nezuro</string>
+    <string name="sim_chooser_layout_text">Tumira meseji kuburikidza ne</string>
+    <string name="linked_devices_scan_qr_code_title">QR kodhi yemidziyo yakabatana</string>
+    <string name="message_threads_menu_delete">bvisa</string>
+    <string name="message_threads_menu_cancel">kanzura</string>
+    <string name="messages_threads_menu_archive">dura renhoroondo</string>
+    <string name="about_deku">Nezve</string>
+    <string name="about_deku_motto">SMS yakavhurika yaitwa nemazvo</string>
+    <string name="about_deku_github_description">SMS yeDeku ichiri yemahara uye inoburitswa pachena. Tinotenda mukudzosera kunharaunda iyo yakatipa zvakawanda. Zvakawanda paapp iyi ndezvekuyedza, asi nekuyedza kwakanaka kunouya nekuwana zvinhu zvakanaka. Ndapota titsigirei nekutanga chirongwa ichi paGithub uye muchigovana neshamwari dzenyu.</string>
 </resources>

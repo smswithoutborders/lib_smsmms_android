@@ -117,4 +117,19 @@
     <string name="gateway_client_customization_delete">حذف</string>
     <string name="gateway_client_customization_edit">ویرایش</string>
     <string name="gateway_client_running_title">کلاینت گیت‌وی: گره در حال اجرا</string>
+    <string name="gateway_client_enqueue_description">کلاینت‌های گیت‌وی منتظر اتصال هستند…</string>
+    <string name="homepage_fragment_tab_encrypted">رمزگذاری شده</string>
+    <string name="messages_thread_delete_confirmation_title">حذف تأیید</string>
+    <string name="messages_thread_delete_confirmation_text">به حذف تاپیک‌ها ادامه دهید.</string>
+    <string name="messages_thread_delete_confirmation_yes">بله</string>
+    <string name="messages_thread_delete_confirmation_cancel">لغو</string>
+    <string name="single_message_thread_yesterday">دیروز</string>
+    <string name="sim_chooser_layout_text">ارسال پیام از طریق</string>
+    <string name="linked_devices_scan_qr_code_title">کد QR دستگاه‌های مرتبط</string>
+    <string name="message_threads_menu_delete">حذف</string>
+    <string name="message_threads_menu_cancel">لغو</string>
+    <string name="messages_threads_menu_archive">بایگانی</string>
+    <string name="about_deku">درباره</string>
+    <string name="about_deku_motto">پیامک متن‌باز به درستی کار می‌کند</string>
+    <string name="about_deku_github_description">پیامک دکو همچنان رایگان و متن‌باز است. ما به جبران زحمات جامعه‌ای که به ما چیزهای زیادی داده است، اعتقاد داریم. بخش زیادی از این برنامه آزمایشی است، اما با آزمایش‌های عالی، یافته‌های خوبی حاصل می‌شود. لطفاً با ستاره دادن به این پروژه در گیت‌هاب و به اشتراک گذاشتن آن با دوستانتان، از ما حمایت کنید.</string>
 </resources>
