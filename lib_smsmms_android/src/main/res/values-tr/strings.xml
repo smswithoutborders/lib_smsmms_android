@@ -73,4 +73,37 @@
     <string name="default_check_text">Deku SMS\'i kullanmak için, onu varsayılan SMS uygulamanız yapın.</string>
     <string name="default_check_btn_text">Varsayılan SMS uygulamasını ayarla</string>
     <string name="default_check_privacy_policy">Gizlilik politikamızı okuyun.</string>
+    <string name="sms_status_delivered">Teslim edilmiş</string>
+    <string name="sms_status_sent">Gönderilmiş</string>
+    <string name="sms_status_sending">gönderiliyor…</string>
+    <string name="sms_status_failed">Başarısız oldu, tekrar denemek için tıklayın.</string>
+    <string name="sms_status_failed_only">arızalı</string>
+    <string name="settings_locale_description">Dil seçin</string>
+    <string name="gateway_server_settings_locale_description">Otomatik protokol yönlendirmesini etkinleştir</string>
+    <string name="gateway_server_settings_locale_summary">Bu seçeneği etkinleştirerek aynı anda yalnızca 1 protokole yönlendirme yapabilirsiniz. Bu işlem HTTP ile başlar ve diğer protokoller için sırayla arama yapar. Bu sayede aynı mesajın birden fazla protokole gönderilmesini önleyebilirsiniz.</string>
+    <string name="settings_about">Hakkında</string>
+    <string name="settings_title">Ayarlar</string>
+    <string name="gateway_server_settings_title">Ağ Geçidi Sunucusu Ayarları</string>
+    <string name="settings_advanced_category_title">İlerlemek</string>
+    <string name="settings_developer_category_title">Geliştiriciler</string>
+    <string name="settings_security_category_end_to_end_duration">Şifreleme isteğinin süresinin dolmasına izin ver</string>
+    <string name="settings_security_category_end_to_end_disable">Mesajların güvenliğini sağlama isteğini devre dışı bırak</string>
+    <string name="settings_security_category_end_to_end_disable_summary">Hali hazırda güvenli bir şekilde iletişim kurduğunuz kişileri etkilemeyecektir, ancak diğer kişilerle olan iletişimlerinizi güvenli hale getirmeniz istenmeyecektir.</string>
+    <string name="settings_security_category_end_to_end_duration_summary">Etkinleştirildiğinde, kişilere gönderilen şifreleme isteği, onaylanmadığı takdirde <b>1 saat</b> sonra geçerliliğini yitirecektir.</string>
+    <string name="settings_SMS_routing_title">İletilen Tarihçe</string>
+    <string name="settings_SMS_listening_title">SMS dinleme</string>
+    <string name="settings_SMS_listening_server">SMS dinleme ağ geçitlerini yapılandırın</string>
+    <string name="settings_SMS_listening_SMSWithoutBorders_summary">AMQP/s üzerinden SMS mesajlarını dinlemeye yönelik yapılandırmalar</string>
+    <string name="gateway_client_add_manually_title">Manuel olarak ekle</string>
+    <string name="settings_SMS_routing_type_base64_option">Base64</string>
+    <string name="settings_SMS_routing_type_all_option">Tümü (varsayılan)</string>
+    <string name="settings_add_gateway_client_protocol_description">Dinleme protokolünü seçin</string>
+    <string name="settings_add_gateway_server_protocol_meta_description">Tüm POST istekleri JSON formatında yönlendirilir. Tüm formatlar aşağıdaki anahtar/değer formatını kullanır:  <b>MSISDN</b>:- Gelen mesajın E.164 formatındaki adresi  <b>text</b>:- Gelen mesajın metin içeriği</string>
+    <string name="settings_gateway_server_protocol_description">Protokol</string>
+    <string name="settings_gateway_client_username_description">Kullanıcı adı</string>
+    <string name="settings_gateway_server_data_format_description">Veri formatı</string>
+    <string name="settings_gateway_client_virtualhost_description">Sanal Sunucu</string>
+    <string name="settings_gateway_client_cannot_be_empty">Boş bırakılamaz!</string>
+
+
 </resources>
