@@ -17,4 +17,14 @@
     <string name="sending_stop">Kutuma kumesimamishwa…</string>
     <string name="waiting_to_send_of">Inasubiri kutuma %1$d ya %2$d</string>
     <string name="_switch">Swichi</string>
+    <string name="incoming_messages_channel_name">Ujumbe Unaoingia</string>
+    <string name="incoming_messages_channel_description">Hupigiwa simu wakati ujumbe mpya unapopokelewa.</string>
+
+    <string name="running_gateway_clients_channel_description">Tahadhari wakati wateja wa lango wanasikiliza.</string>
+    <string name="search_messages_text">Tafuta ujumbe</string>
+    <string name="no_showable_router_message">Hakuna ujumbe ulioelekezwa wa kuonyesha!</string>
+    <string name="save_new_gateway_client">Hifadhi</string>
+    <string name="new_gateway_server_url">Ingiza URL - k.m. https://example.com:8080/api/</string>
+    <string name="new_gateway_server_tag">(Si lazima) Lebo ya Kitambulisho</string>
+    <string name="new_gateway_client_url">Ingiza URL - k.m. example.com <i>(usijumuishe itifaki)</i></string>
 </resources>

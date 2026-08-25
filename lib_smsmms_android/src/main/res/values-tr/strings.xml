@@ -17,4 +17,13 @@
     <string name="sending_stop">Gönderme işlemi durduruldu…</string>
     <string name="waiting_to_send_of">%2$d\'nin %1$d\'sini göndermeyi bekliyor.</string>
     <string name="_switch">Anahtar</string>
+    <string name="incoming_messages_channel_name">Gelen Mesajlar</string>
+    <string name="incoming_messages_channel_description">Yeni bir mesaj alındığında çağrılır.</string>
+    <string name="running_gateway_clients_channel_description">Ağ geçidi istemcileri dinleme modundayken uyarı verir.</string>
+    <string name="search_messages_text">Arama mesajları</string>
+    <string name="no_showable_router_message">Gösterilecek yönlendirilmiş mesaj yok!</string>
+    <string name="save_new_gateway_client">Kaydetmek</string>
+    <string name="new_gateway_server_url">URL adresini girin - örneğin: https://example.com:8080/api/</string>
+    <string name="new_gateway_server_tag">(İsteğe bağlı) Tanımlayıcı Etiket</string>
+    <string name="new_gateway_client_url">URL girin - örneğin example.com <i>(protokolü dahil etmeyin)</i></string>
 </resources>

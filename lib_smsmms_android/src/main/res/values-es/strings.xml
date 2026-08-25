@@ -17,4 +17,13 @@
     <string name="sending_stop">El envío se detuvo…</string>
     <string name="waiting_to_send_of">Esperando para enviar %1$d de %2$d</string>
     <string name="_switch">Cambiar</string>
+    <string name="incoming_messages_channel_name">Mensajes entrantes</string>
+    <string name="incoming_messages_channel_description">Se activa cuando se recibe un nuevo mensaje.</string>
+    <string name="running_gateway_clients_channel_description">Alertas cuando las clientas de la puerta de enlace están escuchando.</string>
+    <string name="search_messages_text">Buscar mensajes</string>
+    <string name="no_showable_router_message">¡No hay ningún mensaje enrutado para mostrar!</string>
+    <string name="save_new_gateway_client">Ahorrar</string>
+    <string name="new_gateway_server_url">Introduzca la URL, por ejemplo: https://example.com:8080/api/</string>
+    <string name="new_gateway_server_tag">Etiqueta de identificación (opcional)</string>
+    <string name="new_gateway_client_url">Introduzca la URL, por ejemplo, example.com <i>(no incluya el protocolo)</i></string>
 </resources>
