@@ -55,7 +55,7 @@
     <string name="add_new_gateway_server_smtp">Wedzera sevha yeSMTP Gateway</string>
     <string name="add_new_gateway_server_smtp_host">Mugamuchiri</string>
     <string name="add_new_gateway_server_smtp_username">Zita rekushandisa</string>
-    <string name="add_new_gateway_server_smtp_password">Pasiwedhi</string>
+    <string name="add_new_gateway_server_smtp_password"></string>
     <string name="add_new_gateway_server_smtp_port">Chiteshi chengarava</string>
     <string name="add_new_gateway_server_smtp_recipient">Mugamuchiri</string>
     <string name="add_new_gateway_server_smtp_recipient_helper">Shandisa makoma kune vagamuchiri vakawanda semuenzaniso example@email.com, example1@email.com</string>
