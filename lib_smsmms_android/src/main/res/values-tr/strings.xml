@@ -2,5 +2,19 @@
 <resources>
     <string name="app_name">Deku SMS</string>
     <string name="general_settings">Genel Ayarlar</string>
+    <string name="switch_sim_cards">SIM kartlarını değiştirin</string>
+    <string name="send_with">İle gönder</string>
+    <string name="secure_database_migrated">Güvenli veritabanı taşındı!</string>
+    <string name="foreground_service_failed_channel_description">Ağ geçidi istemcilerini yeniden bağlamak için tıklayın.</string>
+    <string name="message_failed_notifications_descriptions">Mesaj gönderiminde başarısız olunması durumunda bildirim alın.</string>
+    <string name="foreground_service_image_transmission_descriptions">SMS yoluyla görüntü iletimi</string>
+    <string name="stop">Durmak</string>
+    <string name="pause">duraklama</string>
+    <string name="failed_to_send_message">Mesaj gönderilemedi.</string>
+    <string name="queued_for_sending">Gönderilmek üzere sıraya alındı…</string>
+    <string name="will_resume_sending_shortly">Kısa süre sonra göndermeye devam edeceğiz…</string>
+    <string name="retry">Tekrar deneyin</string>
+    <string name="sending_stop">Gönderme işlemi durduruldu…</string>
     <string name="waiting_to_send_of">%2$d\'nin %1$d\'sini göndermeyi bekliyor.</string>
+    <string name="_switch">Anahtar</string>
 </resources>

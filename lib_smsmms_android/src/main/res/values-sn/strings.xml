@@ -2,5 +2,19 @@
 <resources>
     <string name="app_name">Deku SMS</string>
     <string name="general_settings">Zvirongwa Zvakajairika</string>
+    <string name="switch_sim_cards">Chinja SIM makadhi</string>
+    <string name="send_with">Tumira ne</string>
+    <string name="secure_database_migrated">Dhatabhesi yakachengeteka yatamiswa!</string>
+    <string name="foreground_service_failed_channel_description">Dzvanya kuti ubatanidze zvakare vatengi veGateway</string>
+    <string name="message_failed_notifications_descriptions">Gamuchira zviziviso kana mameseji akatadza kutumirwa</string>
+    <string name="foreground_service_image_transmission_descriptions">Kutumira mufananidzo kuburikidza neSMS</string>
+    <string name="stop">Mira</string>
+    <string name="pause">kumbomira</string>
+    <string name="failed_to_send_message">Takundikana kutumira meseji.</string>
+    <string name="queued_for_sending">Yamiswa mumutsara kuti itumirwe…</string>
+    <string name="will_resume_sending_shortly">Tichaenderera mberi nekutumira munguva pfupi…</string>
+    <string name="retry">Edza zvakare</string>
+    <string name="sending_stop">Kutumira kwamiswa…</string>
     <string name="waiting_to_send_of">Takamirira kutumira %1$d ye %2$d</string>
+    <string name="_switch">Chinja</string>
 </resources>

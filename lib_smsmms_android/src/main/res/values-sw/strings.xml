@@ -2,5 +2,19 @@
 <resources>
     <string name="app_name">Deku SMS</string>
     <string name="general_settings">Mipangilio ya Jumla</string>
+    <string name="switch_sim_cards">Badilisha SIM kadi</string>
+    <string name="send_with">Tuma na</string>
+    <string name="secure_database_migrated">Hifadhidata salama imehamishwa!</string>
+    <string name="foreground_service_failed_channel_description">Bofya ili kuunganisha tena wateja wa Gateway</string>
+    <string name="message_failed_notifications_descriptions">Pokea arifa ikiwa ujumbe hautatumwa</string>
+    <string name="foreground_service_image_transmission_descriptions">Uwasilishaji wa picha kupitia SMS</string>
+    <string name="stop">Simamisha</string>
+    <string name="pause">pause</string>
+    <string name="failed_to_send_message">Imeshindwa kutuma ujumbe.</string>
+    <string name="queued_for_sending">Imepangwa kwa ajili ya kutuma…</string>
+    <string name="will_resume_sending_shortly">Tutaendelea Kutuma Hivi Karibuni…</string>
+    <string name="retry">Jaribu tena</string>
+    <string name="sending_stop">Kutuma kumesimamishwa…</string>
     <string name="waiting_to_send_of">Inasubiri kutuma %1$d ya %2$d</string>
+    <string name="_switch">Swichi</string>
 </resources>

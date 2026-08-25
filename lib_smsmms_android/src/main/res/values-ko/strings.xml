@@ -2,5 +2,19 @@
 <resources>
     <string name="app_name">Deku SMS</string>
     <string name="general_settings">일반 설정</string>
+    <string name="switch_sim_cards">SIM 카드를 교체하세요</string>
+    <string name="send_with">함께 보내주세요</string>
+    <string name="secure_database_migrated">안전한 데이터베이스 이전이 완료되었습니다!</string>
+    <string name="foreground_service_failed_channel_description">게이트웨이 클라이언트를 다시 연결하려면 클릭하십시오.</string>
+    <string name="message_failed_notifications_descriptions">메시지 전송 실패 시 알림을 받으세요</string>
+    <string name="foreground_service_image_transmission_descriptions">SMS를 통한 이미지 전송</string>
+    <string name="stop">멈추다</string>
+    <string name="pause">정지시키다</string>
+    <string name="failed_to_send_message">메시지 전송에 실패했습니다.</string>
+    <string name="queued_for_sending">전송 대기 중…</string>
+    <string name="will_resume_sending_shortly">곧 다시 발송을 재개하겠습니다…</string>
+    <string name="retry">다시 시도해 보세요</string>
+    <string name="sending_stop">전송이 중단되었습니다…</string>
     <string name="waiting_to_send_of">%2$d의 %1$d를 보내는 중</string>
+    <string name="_switch">스위치</string>
 </resources>

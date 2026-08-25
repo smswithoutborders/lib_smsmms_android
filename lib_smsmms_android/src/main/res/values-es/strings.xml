@@ -2,5 +2,19 @@
 <resources>
     <string name="app_name">Deku SMS</string>
     <string name="general_settings">Configuración general</string>
+    <string name="switch_sim_cards">Cambiar de tarjeta SIM</string>
+    <string name="send_with">Enviar con</string>
+    <string name="secure_database_migrated">¡Base de datos segura migrada!</string>
+    <string name="foreground_service_failed_channel_description">Haga clic para volver a conectar los clientes de Gateway.</string>
+    <string name="message_failed_notifications_descriptions">Reciba notificaciones si los mensajes no se envían.</string>
+    <string name="foreground_service_image_transmission_descriptions">Transmisión de imágenes vía SMS</string>
+    <string name="stop">Detener</string>
+    <string name="pause">pausa</string>
+    <string name="failed_to_send_message">No se pudo enviar el mensaje.</string>
+    <string name="queued_for_sending">En cola para su envío…</string>
+    <string name="will_resume_sending_shortly">Los envíos se reanudarán en breve…</string>
+    <string name="retry">Intentar otra vez</string>
+    <string name="sending_stop">El envío se detuvo…</string>
     <string name="waiting_to_send_of">Esperando para enviar %1$d de %2$d</string>
+    <string name="_switch">Cambiar</string>
 </resources>

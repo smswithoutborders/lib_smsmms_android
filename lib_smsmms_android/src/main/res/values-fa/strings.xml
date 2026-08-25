@@ -2,5 +2,19 @@
 <resources>
     <string name="app_name">Deku SMS</string>
     <string name="general_settings">تنظیمات عمومی</string>
+    <string name="switch_sim_cards">سیم کارت ها را عوض کنید</string>
+    <string name="send_with">ارسال با</string>
+    <string name="secure_database_migrated">پایگاه داده امن منتقل شد!</string>
+    <string name="foreground_service_failed_channel_description">برای اتصال مجدد کلاینت‌های Gateway کلیک کنید</string>
+    <string name="message_failed_notifications_descriptions">دریافت اعلان در صورت عدم ارسال پیام‌ها</string>
+    <string name="foreground_service_image_transmission_descriptions">انتقال تصویر از طریق پیامک</string>
+    <string name="stop">توقف</string>
+    <string name="pause">مکث</string>
+    <string name="failed_to_send_message">ارسال پیام ناموفق بود.</string>
+    <string name="queued_for_sending">در صف ارسال قرار گرفت…</string>
+    <string name="will_resume_sending_shortly">ارسال به زودی از سر گرفته خواهد شد…</string>
+    <string name="retry">دوباره امتحان کنید</string>
+    <string name="sending_stop">ارسال متوقف شد…</string>
     <string name="waiting_to_send_of">منتظر ارسال %1$d از %2$d هستم</string>
+    <string name="_switch">سوئیچ</string>
 </resources>
