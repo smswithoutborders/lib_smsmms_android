@@ -104,6 +104,19 @@
     <string name="settings_gateway_server_data_format_description">Veri formatı</string>
     <string name="settings_gateway_client_virtualhost_description">Sanal Sunucu</string>
     <string name="settings_gateway_client_cannot_be_empty">Boş bırakılamaz!</string>
+    <string name="gateway_client_project_name">Proje adını girin - (Değişim)</string>
+    <string name="gateway_client_project_binding">Proje bağlamasına girin - <i>(varsayılan proje_adı.operatör_ülkesi.operatör_adı)</i></string>
+    <string name="gateway_client_no_available_gateway_clients">Hiçbir dinleme ağ geçidi istemcisi yok.</string>
+    <string name="gateway_client_customization_connected">Bağlı</string>
+    <string name="gateway_client_customization_activate">Etkinleştir</string>
+    <string name="gateway_client_customization_deactivate">Devre dışı bırak</string>
+    <string name="gateway_client_customization_deactivated">Devre dışı bırakıldı</string>
+    <string name="gateway_client_customization_reconnecting">Yeniden bağlantı kurma</string>
+    <string name="gateway_client_customization_delete">Silmek</string>
+    <string name="gateway_client_customization_edit">Düzenlemek</string>
+    <string name="gateway_client_running_title">Ağ Geçidi İstemcisi: Düğüm Çalışıyor</string>
+    <string name="gateway_client_running_description">Ağ geçidi istemcileri bağlı</string>
+    <string name="gateway_client_reconnecting_description">Ağ geçidi istemcileri yeniden bağlanıyor…</string>
 
 
 </resources>

@@ -105,4 +105,17 @@
     <string name="settings_gateway_server_data_format_description">Muundo wa data</string>
     <string name="settings_gateway_client_virtualhost_description">Mwenyeji Pepe</string>
     <string name="settings_gateway_client_cannot_be_empty">Haiwezi kuwa tupu!</string>
+    <string name="gateway_client_project_name">Ingiza jina la mradi - (Kubadilishana)</string>
+    <string name="gateway_client_project_binding">Ingiza uunganishaji wa mradi - <i>(jina_chaguo-msingi la mradi.operator_country.operator_name)</i></string>
+    <string name="gateway_client_no_available_gateway_clients">Wateja wa Lango la Kusikiliza Hawaruhusiwi</string>
+    <string name="gateway_client_customization_connected">Imeunganishwa</string>
+    <string name="gateway_client_customization_activate">Washa</string>
+    <string name="gateway_client_customization_deactivate">Zima</string>
+    <string name="gateway_client_customization_deactivated">Imezimwa</string>
+    <string name="gateway_client_customization_reconnecting">Kuunganisha upya</string>
+    <string name="gateway_client_customization_delete">Futa</string>
+    <string name="gateway_client_customization_edit">Hariri</string>
+    <string name="gateway_client_running_title">Mteja wa Lango: Uendeshaji wa Nodi</string>
+    <string name="gateway_client_running_description">Wateja wa lango wameunganishwa</string>
+    <string name="gateway_client_reconnecting_description">Wateja wa Gateway wanaunganisha tena…</string>
 </resources>

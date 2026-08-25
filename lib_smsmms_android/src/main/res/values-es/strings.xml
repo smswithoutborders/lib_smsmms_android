@@ -104,4 +104,17 @@
     <string name="settings_gateway_server_data_format_description">Formato de datos</string>
     <string name="settings_gateway_client_virtualhost_description">Anfitriona virtual</string>
     <string name="settings_gateway_client_cannot_be_empty">No puede estar vacía!</string>
+    <string name="gateway_client_project_name">Introduzca el nombre del proyecto - (Intercambio)</string>
+    <string name="gateway_client_project_binding">Introduzca la vinculación del proyecto: <i>(nombre_proyecto_predeterminado.país_operador.nombre_operador)</i></string>
+    <string name="gateway_client_no_available_gateway_clients">No hay clientes de Gateway escuchando</string>
+    <string name="gateway_client_customization_connected">Conectada</string>
+    <string name="gateway_client_customization_activate">Activar</string>
+    <string name="gateway_client_customization_deactivate">Desactivar</string>
+    <string name="gateway_client_customization_deactivated">Desactivada</string>
+    <string name="gateway_client_customization_reconnecting">Reconectando</string>
+    <string name="gateway_client_customization_delete">Borrar</string>
+    <string name="gateway_client_customization_edit">Editar</string>
+    <string name="gateway_client_running_title">Cliente de puerta de enlace: Nodo en ejecución</string>
+    <string name="gateway_client_running_description">Gateway clientes conectadas</string>
+    <string name="gateway_client_reconnecting_description">Los clientes de la puerta de enlace se están reconectando…</string>
 </resources>
