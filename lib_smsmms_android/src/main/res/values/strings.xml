@@ -111,7 +111,7 @@
     <string name="gateway_client_add_manually_title">Add Manually</string>
 
 
-    <string name="settings_SMS_routing_type_base64_option" translatable="false">Base64</string>
+    <string name="settings_SMS_routing_type_base64_option">Base64</string>
     <string name="settings_SMS_routing_type_all_option" translatable="false">All (default)</string>
 
     <string name="settings_add_gateway_client_protocol_description">Choose the Listening protocol</string>
