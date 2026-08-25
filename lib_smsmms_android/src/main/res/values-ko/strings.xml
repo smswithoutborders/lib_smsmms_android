@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Deku SMS</string>
+    <string name="general_settings">일반 설정</string>
+    <string name="waiting_to_send_of">%2$d의 %1$d를 보내는 중</string>
+</resources>

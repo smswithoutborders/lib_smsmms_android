@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Deku SMS</string>
+    <string name="general_settings">الإعدادات العامة</string>
+    <string name="_switch">يُحوّل</string>
+    <string name="switch_sim_cards">قم بتغيير شريحة SIM</string>
+    <string name="send_with">أرسل مع</string>
+    <string name="secure_database_migrated">تم ترحيل قاعدة البيانات الآمنة!</string>
+    <string name="foreground_service_failed_channel_description">انقر لإعادة توصيل عملاء البوابة</string>
+    <string name="message_failed_notifications_descriptions">ستتلقى إشعارات في حال فشل إرسال الرسائل</string>
+    <string name="foreground_service_image_transmission_descriptions">إرسال الصور عبر الرسائل النصية القصيرة</string>
+    <string name="stop">قف</string>
+    <string name="pause">يوقف</string>
+    <string name="failed_to_send_message">فشل إرسال الرسالة.</string>
+    <string name="queued_for_sending">في قائمة الانتظار للإرسال…</string>
+    <string name="will_resume_sending_shortly">سنستأنف الإرسال قريباً...</string>
+    <string name="retry">حاول ثانية</string>
+    <string name="sending_stop">توقف الإرسال…</string>
+    <string name="waiting_to_send_of">في انتظار إرسال %1$d من %2$d</string>
+</resources>

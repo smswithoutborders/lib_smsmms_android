@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Deku SMS</string>
+    <string name="general_settings">सामान्य सेटिंग्स</string>
+    <string name="_switch">बदलना</string>
+    <string name="switch_sim_cards">सिम कार्ड बदलें</string>
+    <string name="send_with">साथ भेजें</string>
+    <string name="secure_database_migrated">सुरक्षित डेटाबेस माइग्रेट हो गया!</string>
+    <string name="foreground_service_failed_channel_description">गेटवे क्लाइंट को फिर से कनेक्ट करने के लिए क्लिक करें</string>
+    <string name="message_failed_notifications_descriptions">अगर मैसेज नहीं भेजे जा सकें तो नोटिफ़िकेशन पाएं</string>
+    <string name="foreground_service_image_transmission_descriptions">SMS के माध्यम से छवि संचरण</string>
+    <string name="stop">रुकना</string>
+    <string name="pause">विराम</string>
+    <string name="failed_to_send_message">मैसेज भेजने में फेल.</string>
+    <string name="queued_for_sending">भेजने के लिए लाइन में लगा हुआ…</string>
+    <string name="will_resume_sending_shortly">जल्द ही भेजना फिर से शुरू होगा…</string>
+    <string name="retry">पुनः प्रयास करें</string>
+    <string name="sending_stop">भेजना बंद हो गया…</string>
+    <string name="waiting_to_send_of">%2$d में से %1$d भेजने का इंतज़ार है</string>
+</resources>

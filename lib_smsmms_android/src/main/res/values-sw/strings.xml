@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Deku SMS</string>
+    <string name="general_settings">Mipangilio ya Jumla</string>
+    <string name="waiting_to_send_of">Inasubiri kutuma %1$d ya %2$d</string>
+</resources>
