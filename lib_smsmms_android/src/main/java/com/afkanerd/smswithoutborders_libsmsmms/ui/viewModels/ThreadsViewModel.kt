@@ -62,8 +62,6 @@ import kotlinx.coroutines.withContext
 import kotlin.concurrent.thread
 
 open class ThreadsViewModel: ViewModel() {
-
-
     enum class InboxType {
         INBOX,
         ARCHIVED,
@@ -85,6 +83,14 @@ open class ThreadsViewModel: ViewModel() {
 
     private val _drawerState = MutableStateFlow(DrawerState(DrawerValue.Closed)) // default
     val drawerState: StateFlow<DrawerState> = _drawerState
+
+
+    private val _isDefault = MutableStateFlow(false) // default
+    val isDefault: StateFlow<Boolean> = _isDefault
+
+    fun setIsDefault(isDefault: Boolean) {
+        _isDefault.value = isDefault
+    }
 
     fun toggleDrawerValue() {
         viewModelScope.launch(AndroidUiDispatcher.Main) {
