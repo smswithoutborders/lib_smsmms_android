@@ -66,26 +66,23 @@ fun NavHostControllerInstance(
     conversationsViewModel: ConversationsViewModel,
     searchViewModel: SearchViewModel?,
     appName: String,
+    isDefault: Boolean,
     threadsMainMenuItems: (@Composable ((Boolean) -> Unit) -> Unit)? = null,
     customMenuItems: (@Composable ((Boolean) -> Unit) -> Unit)? = null,
     conversationsCustomComposable: (@Composable (CustomsConversationsViewModel?) -> Unit)? = null,
     conversationsCustomViewModel: CustomsConversationsViewModel? = null,
     conversationsCustomDataView: (@Composable (Conversations) -> Unit)? = null,
-    modalNavigationModalItems:
-    (@Composable ((ThreadsViewModel.InboxType) -> () -> Unit) -> Unit)? = null,
+    modalNavigationModalItems: (@Composable () -> Unit)? = null,
     customStartDestination: Any? = null,
     customBottomBar: @Composable (() -> Unit)? = null,
-    customThreadsView: @Composable (() -> Unit)? = null,
     showThreadsTopBar: Boolean = true,
     builder: NavGraphBuilder.() -> Unit,
 ) {
     val context = LocalContext.current
-    threadsViewModel.execMigrations(context)
 
-    val drawerState by threadsViewModel.drawerState.collectAsState()
+    val drawerState by threadsViewModel.drawerState.collectAsStateWithLifecycle()
     val inboxType by threadsViewModel.inboxType.collectAsStateWithLifecycle()
 
-    var isDefault by remember { mutableStateOf(context.isDefault()) }
 
     var startDestination: Any by remember {
         mutableStateOf(
@@ -108,6 +105,10 @@ fun NavHostControllerInstance(
                     callback = { type ->
                         if (type == ThreadsViewModel.InboxType.DEVELOPER) {
                             navController.navigate(DeveloperModeScreen)
+                        }
+                        else if(type != ThreadsViewModel.InboxType.CUSTOM) {
+                            navController.navigate(HomeScreenNav())
+                            threadsViewModel.setInboxType(type)
                         } else {
                             threadsViewModel.setInboxType(type)
                         }
@@ -129,7 +130,7 @@ fun NavHostControllerInstance(
             composable<DefaultScreenNav>{
                 DefaultCheckMain(appName) { default ->
                     if(default) {
-                        isDefault = true
+                        threadsViewModel.setIsDefault(context.isDefault())
                         navController.navigate(HomeScreenNav()) {
                             popUpTo(navController.graph.id) {
                                 inclusive = true
@@ -143,9 +144,7 @@ fun NavHostControllerInstance(
                     threadsViewModel = threadsViewModel,
                     navController = navController,
                     threadsMainMenuItems = threadsMainMenuItems,
-                    modalNavigationModalItems = modalNavigationModalItems,
                     customBottomBar = customBottomBar,
-                    customThreadsView = customThreadsView,
                     showTopBar = showThreadsTopBar,
                     appName = appName,
                 )
@@ -228,7 +227,6 @@ private fun FoldOpen(
             ThreadConversationLayout(
                 threadsViewModel = threadsViewModel,
                 navController = navController,
-                foldOpen = true
             )
         }
 

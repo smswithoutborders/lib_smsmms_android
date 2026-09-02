@@ -62,8 +62,6 @@ import kotlinx.coroutines.withContext
 import kotlin.concurrent.thread
 
 open class ThreadsViewModel: ViewModel() {
-
-
     enum class InboxType {
         INBOX,
         ARCHIVED,
@@ -85,6 +83,14 @@ open class ThreadsViewModel: ViewModel() {
 
     private val _drawerState = MutableStateFlow(DrawerState(DrawerValue.Closed)) // default
     val drawerState: StateFlow<DrawerState> = _drawerState
+
+
+    private val _isDefault = MutableStateFlow(false) // default
+    val isDefault: StateFlow<Boolean> = _isDefault
+
+    fun setIsDefault(isDefault: Boolean) {
+        _isDefault.value = isDefault
+    }
 
     fun toggleDrawerValue() {
         viewModelScope.launch(AndroidUiDispatcher.Main) {
@@ -286,32 +292,6 @@ open class ThreadsViewModel: ViewModel() {
         }
     }
 
-//    fun loadNatives(
-//        context: Context,
-//        deleteDb: Boolean = false,
-//        completeCallback: () -> Unit,
-//    ) {
-//        viewModelScope.launch {
-//            withContext(Dispatchers.IO) {
-//                messagesLoading = true
-//
-//                try {
-//                    val conversations = context.loadRawSmsMmsDb()
-//                    context.getDatabase().conversationsDao()
-//                        ?.insertAll(conversations, deleteDb)
-//
-//                } catch(e: Exception) {
-//                    e.printStackTrace()
-//                } finally {
-//                    withContext(Dispatchers.Main) {
-//                        messagesLoading = false
-//                        completeCallback()
-//                    }
-//                }
-//            }
-//        }
-//    }
-
     fun isArchived(context: Context, threadId: Int, callback: (Boolean) -> Unit) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
@@ -371,49 +351,6 @@ open class ThreadsViewModel: ViewModel() {
 
     private fun getContactPhoto(context: Context, phoneNumber: String): String? {
         return if(!context.isDefault()) null else context.retrieveContactPhoto(phoneNumber)
-    }
-
-    fun execMigrations(context: Context) {
-        viewModelScope.launch(Dispatchers.Default) {
-            Migrations(this@ThreadsViewModel)
-                .migrateV1ToV2(context)
-        }
-    }
-
-    class Migrations(private val threadsViewModel: ThreadsViewModel){
-        private val dbV2Migration = "dbV2Migration"
-
-        private fun Context.getMigratedV2(): Boolean {
-            val sharedPreferences = getSharedPreferences(
-                ActivitiesConstant.ACTIVITIES_FILENAMES, Context.MODE_PRIVATE)
-            return sharedPreferences.getBoolean(dbV2Migration, false)
-        }
-
-        private fun Context.setMigratedV2(load: Boolean) {
-            val sharedPreferences = getSharedPreferences(
-                ActivitiesConstant.ACTIVITIES_FILENAMES, Context.MODE_PRIVATE)
-            return sharedPreferences.edit {
-                putBoolean(dbV2Migration, load)
-            }
-        }
-        fun migrateV1ToV2(context: Context) {
-            if(context.isDefault()) {
-                val roomVersion = context.getDatabase().openHelper.readableDatabase.version
-                if(roomVersion == 2 && !context.getMigratedV2()) {
-                    threadsViewModel.loadNativesAsync(context) {
-                        CoroutineScope(Dispatchers.Main).launch {
-                            context.setMigratedV2(true)
-                            Toast.makeText(context,
-                                context.getString(R.string.secure_database_migrated),
-                                Toast.LENGTH_SHORT).show()
-                        }
-                    }
-                }
-            } else {
-                context.setMigratedV2(true)
-            }
-        }
-
     }
 
 }

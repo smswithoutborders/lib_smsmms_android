@@ -42,6 +42,9 @@ object DeveloperModeScreen
 @Serializable
 object DefaultScreenNav
 
+@Serializable
+object CustomScreenNav
+
 
 @Serializable
 data class ImageViewScreenNav(

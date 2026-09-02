@@ -15,6 +15,7 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
@@ -434,12 +435,17 @@ fun ThreadConversationCard(
     )
 }
 
+data class ModalDrawerCustomComposable(
+    val composable: (@Composable () -> Unit),
+    val onClickCallback: () -> Unit
+)
+
+
 @Composable
 fun ModalDrawerSheetLayout(
     callback: ((ThreadsViewModel.InboxType) -> Unit)? = null,
     selectedItemIndex: ThreadsViewModel.InboxType = ThreadsViewModel.InboxType.INBOX,
-    customComposable:
-    (@Composable ((ThreadsViewModel.InboxType) -> () -> Unit) -> Unit)? = null
+    customComposable: (@Composable () -> Unit)? = null
 ) {
     ModalDrawerSheet {
         Text(
@@ -451,12 +457,7 @@ fun ModalDrawerSheetLayout(
         HorizontalDivider()
 
         Column(modifier = Modifier.padding(16.dp)) {
-            customComposable?.invoke { inboxType ->
-                callback?.invoke(inboxType)
-                return@invoke {
-                    callback?.invoke(inboxType)
-                }
-            }
+            customComposable?.invoke()
 
             NavigationDrawerItem(
                 icon = {
@@ -843,40 +844,40 @@ fun ImportDetailsPreview() {
 fun ModalDrawerSheetLayoutPreview() {
     ModalDrawerSheetLayout(
         selectedItemIndex = ThreadsViewModel.InboxType.INBOX,
-        customComposable = {
-            NavigationDrawerItem(
-                icon = {
-                    Icon(
-                        Icons.Default.LogoDev,
-                        contentDescription = stringResource(R.string.blocked_folder)
-                    )
-                },
-                label = {
-                    Text(
-                        stringResource(R.string.conversations_navigation_view_blocked),
-                        fontSize = 14.sp
-                    )
-                },
-                selected = true,
-                onClick = {},
-            )
-            NavigationDrawerItem(
-                icon = {
-                    Icon(
-                        Icons.Default.Android,
-                        contentDescription = stringResource(R.string.blocked_folder)
-                    )
-                },
-                label = {
-                    Text(
-                        stringResource(R.string.conversations_navigation_view_blocked),
-                        fontSize = 14.sp
-                    )
-                },
-                selected = true,
-                onClick = {},
-            )
-        },
+//        customComposable = {
+//            NavigationDrawerItem(
+//                icon = {
+//                    Icon(
+//                        Icons.Default.LogoDev,
+//                        contentDescription = stringResource(R.string.blocked_folder)
+//                    )
+//                },
+//                label = {
+//                    Text(
+//                        stringResource(R.string.conversations_navigation_view_blocked),
+//                        fontSize = 14.sp
+//                    )
+//                },
+//                selected = true,
+//                onClick = {},
+//            )
+//            NavigationDrawerItem(
+//                icon = {
+//                    Icon(
+//                        Icons.Default.Android,
+//                        contentDescription = stringResource(R.string.blocked_folder)
+//                    )
+//                },
+//                label = {
+//                    Text(
+//                        stringResource(R.string.conversations_navigation_view_blocked),
+//                        fontSize = 14.sp
+//                    )
+//                },
+//                selected = true,
+//                onClick = {},
+//            )
+//        },
     )
 }
 
