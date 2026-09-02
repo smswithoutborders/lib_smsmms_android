@@ -106,9 +106,9 @@ fun NavHostControllerInstance(
                         if (type == ThreadsViewModel.InboxType.DEVELOPER) {
                             navController.navigate(DeveloperModeScreen)
                         }
-                        else if(inboxType == ThreadsViewModel.InboxType.CUSTOM) {
-                            threadsViewModel.setInboxType(type)
+                        else if(type != ThreadsViewModel.InboxType.CUSTOM) {
                             navController.navigate(HomeScreenNav())
+                            threadsViewModel.setInboxType(type)
                         } else {
                             threadsViewModel.setInboxType(type)
                         }

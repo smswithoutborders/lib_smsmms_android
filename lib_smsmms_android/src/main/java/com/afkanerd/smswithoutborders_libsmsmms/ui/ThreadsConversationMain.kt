@@ -184,7 +184,6 @@ fun ThreadConversationLayout(
         rememberMenuExpanded = it
     }
 
-
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehaviour.nestedScrollConnection),
         topBar = {
