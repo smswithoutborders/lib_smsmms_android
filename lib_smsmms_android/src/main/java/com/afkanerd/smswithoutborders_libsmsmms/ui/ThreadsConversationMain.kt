@@ -135,11 +135,6 @@ fun ThreadConversationLayout(
     val inPreviewMode = LocalInspectionMode.current
     val context = LocalContext.current
 
-    val readPhoneStatePermission =
-        rememberPermissionState(requiredReadPhoneStatePermissions)
-
-    var isDefault by remember { mutableStateOf(inPreviewMode || context.isDefault()) }
-
     val messagesAreLoading by threadsViewModel.messageLoadingUiState.collectAsStateWithLifecycle()
     val secondaryMessagesAreLoading by threadsViewModel.secondaryLoadingUiState
         .collectAsStateWithLifecycle()
@@ -160,13 +155,9 @@ fun ThreadConversationLayout(
     val listState = rememberLazyListState()
     val scrollBehaviour = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
 
-    val drawerState = threadsViewModel.drawerState.collectAsState()
-
     val selectedIconColors = MaterialTheme.colorScheme.primary
 
     var rememberDeleteMenu by remember { mutableStateOf(false) }
-
-    val scope = rememberCoroutineScope()
 
     BackHandler(
         inboxType != ThreadsViewModel.InboxType.INBOX ||
@@ -179,450 +170,424 @@ fun ThreadConversationLayout(
         }
     }
 
-
-    LaunchedEffect(isDefault) {
-        if (!context.getNativesLoaded() && isDefault) {
+    LaunchedEffect(Unit) {
+        if (!context.getNativesLoaded()) {
             threadsViewModel.loadNativesAsync(context) {
                 context.setNativesLoaded(true)
             }
         }
     }
 
-
-    ModalNavigationDrawer(
-        drawerState = drawerState.value,
-        drawerContent = {
-            ModalDrawerSheetLayout(
-                callback = { type ->
-                    if (type == ThreadsViewModel.InboxType.DEVELOPER) {
-                        navController.navigate(DeveloperModeScreen)
-                    } else {
-                        threadsViewModel.setInboxType(type)
-                    }
-                    threadsViewModel.toggleDrawerValue()
-                },
-                selectedItemIndex = inboxType,
-                customComposable = modalNavigationModalItems,
-            )
-        },
+    var rememberMenuExpanded by remember { mutableStateOf(false) }
+    ThreadsNavMenuItems(
+        navController = navController,
+        expanded = rememberMenuExpanded,
+        threadsViewModel = threadsViewModel,
+        threadMenuItems = threadsMainMenuItems,
     ) {
-        var rememberMenuExpanded by remember { mutableStateOf(false) }
-        ThreadsNavMenuItems(
-            navController = navController,
-            expanded = rememberMenuExpanded,
-            threadsViewModel = threadsViewModel,
-            threadMenuItems = threadsMainMenuItems,
-        ) {
-            rememberMenuExpanded = it
-        }
-        if (customThreadsView != null) {
-            customThreadsView()
-        } else {
-            Scaffold(
-                modifier = Modifier.nestedScroll(scrollBehaviour.nestedScrollConnection),
-                topBar = {
-                    if (showTopBar) {
-
-                        if (selectedItems.isEmpty() && inboxType == ThreadsViewModel.InboxType.INBOX) {
-                            CenterAlignedTopAppBar(
-                                title = {
-                                    Text(
-                                        text = appName,
-                                        style = MaterialTheme.typography.titleLarge
+        rememberMenuExpanded = it
+    }
+    if (customThreadsView != null) {
+        customThreadsView()
+    } else {
+        Scaffold(
+            modifier = Modifier.nestedScroll(scrollBehaviour.nestedScrollConnection),
+            topBar = {
+                if (showTopBar) {
+                    if (selectedItems.isEmpty() && inboxType == ThreadsViewModel.InboxType.INBOX) {
+                        CenterAlignedTopAppBar(
+                            title = {
+                                Text(
+                                    text = appName,
+                                    style = MaterialTheme.typography.titleLarge
+                                )
+                            },
+                            navigationIcon = {
+                                IconButton(onClick = {
+                                    threadsViewModel.toggleDrawerValue()
+                                }) {
+                                    Icon(
+                                        imageVector = Icons.Filled.Menu,
+                                        contentDescription = stringResource(R.string.open_side_menu)
                                     )
-                                },
-                                navigationIcon = {
-                                    IconButton(onClick = {
-                                        threadsViewModel.toggleDrawerValue()
-                                    }) {
-                                        Icon(
-                                            imageVector = Icons.Filled.Menu,
-                                            contentDescription = stringResource(R.string.open_side_menu)
-                                        )
-                                    }
-                                },
-                                actions = {
-                                    if (isDefault || inPreviewMode) {
-                                        IconButton(onClick = {
-                                            navController.navigate(SearchScreenNav())
-                                        }) {
-                                            Icon(
-                                                imageVector = Icons.Filled.Search,
-                                                contentDescription = stringResource(R.string.search_messages)
-                                            )
-                                        }
-                                    }
-                                    IconButton(onClick = {
-                                        rememberMenuExpanded = !rememberMenuExpanded
-                                    }) {
-                                        Icon(
-                                            imageVector = Icons.Filled.MoreVert,
-                                            contentDescription = stringResource(R.string.open_menu)
-                                        )
-                                    }
-                                },
-                                scrollBehavior = scrollBehaviour
-                            )
-                        }
-                        else if (selectedItems.isNotEmpty()) {
-                            TopAppBar(
-                                title = {
-                                    Text(
-                                        text = "${selectedItems.size} ${stringResource(R.string.selected)}",
-                                        maxLines = 1,
-                                        color = selectedIconColors,
-                                        overflow = TextOverflow.Ellipsis
+                                }
+                            },
+                            actions = {
+                                IconButton(onClick = {
+                                    navController.navigate(SearchScreenNav())
+                                }) {
+                                    Icon(
+                                        imageVector = Icons.Filled.Search,
+                                        contentDescription = stringResource(R.string.search_messages)
                                     )
-                                },
-                                navigationIcon = {
-                                    IconButton(onClick = {
-                                        threadsViewModel.removeAllSelectedItems()
-                                    }) {
-                                        Icon(
-                                            imageVector = Icons.Filled.Close,
-                                            tint = selectedIconColors,
-                                            contentDescription = stringResource(R.string.cancel_selection)
-                                        )
-                                    }
-                                },
-                                actions = {
-                                    IconButton(onClick = {
-                                        if (inboxType == ThreadsViewModel.InboxType.ARCHIVED) {
-                                            threadsViewModel.update(
-                                                context, selectedItems.apply {
-                                                    forEach { it.isArchive = false }
-                                                })
-                                            threadsViewModel.removeAllSelectedItems()
-                                        } else {
-                                            threadsViewModel.update(context, selectedItems.apply {
-                                                forEach { it.isArchive = true }
+                                }
+                                IconButton(onClick = {
+                                    rememberMenuExpanded = !rememberMenuExpanded
+                                }) {
+                                    Icon(
+                                        imageVector = Icons.Filled.MoreVert,
+                                        contentDescription = stringResource(R.string.open_menu)
+                                    )
+                                }
+                            },
+                            scrollBehavior = scrollBehaviour
+                        )
+                    }
+                    else if (selectedItems.isNotEmpty()) {
+                        TopAppBar(
+                            title = {
+                                Text(
+                                    text = "${selectedItems.size} ${stringResource(R.string.selected)}",
+                                    maxLines = 1,
+                                    color = selectedIconColors,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            },
+                            navigationIcon = {
+                                IconButton(onClick = {
+                                    threadsViewModel.removeAllSelectedItems()
+                                }) {
+                                    Icon(
+                                        imageVector = Icons.Filled.Close,
+                                        tint = selectedIconColors,
+                                        contentDescription = stringResource(R.string.cancel_selection)
+                                    )
+                                }
+                            },
+                            actions = {
+                                IconButton(onClick = {
+                                    if (inboxType == ThreadsViewModel.InboxType.ARCHIVED) {
+                                        threadsViewModel.update(
+                                            context, selectedItems.apply {
+                                                forEach { it.isArchive = false }
                                             })
-                                            threadsViewModel.removeAllSelectedItems()
-                                        }
-                                    }) {
-                                        if (inboxType == ThreadsViewModel.InboxType.ARCHIVED) {
-                                            Icon(
-                                                imageVector = Icons.Filled.Unarchive,
-                                                tint = selectedIconColors,
-                                                contentDescription =
-                                                    stringResource(R.string.unarchive_messages)
-                                            )
-                                        } else {
-                                            Icon(
-                                                imageVector = Icons.Filled.Archive,
-                                                tint = selectedIconColors,
-                                                contentDescription =
-                                                    stringResource(R.string.messages_threads_menu_archive)
-                                            )
-                                        }
+                                        threadsViewModel.removeAllSelectedItems()
+                                    } else {
+                                        threadsViewModel.update(context, selectedItems.apply {
+                                            forEach { it.isArchive = true }
+                                        })
+                                        threadsViewModel.removeAllSelectedItems()
                                     }
-
-                                    IconButton(onClick = {
-                                        rememberDeleteMenu = true
-                                    }) {
+                                }) {
+                                    if (inboxType == ThreadsViewModel.InboxType.ARCHIVED) {
                                         Icon(
-                                            imageVector = Icons.Rounded.Delete,
+                                            imageVector = Icons.Filled.Unarchive,
                                             tint = selectedIconColors,
                                             contentDescription =
-                                                stringResource(R.string.message_threads_menu_delete)
+                                                stringResource(R.string.unarchive_messages)
+                                        )
+                                    } else {
+                                        Icon(
+                                            imageVector = Icons.Filled.Archive,
+                                            tint = selectedIconColors,
+                                            contentDescription =
+                                                stringResource(R.string.messages_threads_menu_archive)
                                         )
                                     }
+                                }
 
-                                    if (selectedItems.size == 1) {
-                                        IconButton(onClick = {
-                                            val state =
-                                                inboxType == ThreadsViewModel.InboxType.MUTED
-                                                        || selectedItems.first().isMute
-                                            threadsViewModel.update(context, selectedItems.apply {
-                                                forEach { it.isMute = !state }
-                                            }) { threadsViewModel.removeAllSelectedItems() }
-                                        }) {
-                                            Icon(
-                                                imageVector = if (selectedItems.first().isMute)
-                                                    Icons.Default.Notifications
-                                                else Icons.Default.NotificationsOff,
-                                                tint = selectedIconColors,
-                                                contentDescription = stringResource(R.string.thread_muted)
-                                            )
-                                        }
-                                    }
+                                IconButton(onClick = {
+                                    rememberDeleteMenu = true
+                                }) {
+                                    Icon(
+                                        imageVector = Icons.Rounded.Delete,
+                                        tint = selectedIconColors,
+                                        contentDescription =
+                                            stringResource(R.string.message_threads_menu_delete)
+                                    )
+                                }
 
-                                    /// The following action item will pin the selected chat(s)
-                                    // Together with the subsequent action to unpin selected chat(s),
-                                    // they give the impression of a single button.
-                                    // Now, for the pinning action, even if, for example,
-                                    // 20 chats are selected, but just one among them is not pinned
-                                    // the default action would be to pin all.
-                                    if (selectedItems.find { !it.isPinned } != null) {
-                                        IconButton(
-                                            onClick = {
-                                                threadsViewModel.update(
-                                                    context,
-                                                    selectedItems.apply {
-                                                        this.forEach {
-                                                            it.isPinned = true
-                                                        }
-                                                    })
-                                                threadsViewModel.removeAllSelectedItems()
-                                            }
-                                        ) {
-                                            Icon(
-                                                Icons.Default.PushPin,
-                                                contentDescription = "Pin this thread",
-                                                tint = selectedIconColors,
-                                            )
-                                        }
-                                    }
-
-                                    // Concerning the same subject as the previous icon button,
-                                    // this one serves the role of unpinning selected chat(s).
-                                    if (selectedItems.all { it.isPinned }) {
-                                        IconButton(
-                                            onClick = {
-                                                threadsViewModel.update(context, selectedItems.let {
-                                                    it.forEach { it.isPinned = false }
-                                                    it
-                                                })
-                                                threadsViewModel.removeAllSelectedItems()
-                                            },
-                                            content = {
-                                                Box {
-                                                    Icon(
-                                                        Icons.Default.PushPin,
-                                                        contentDescription = "Unpin this thread",
-                                                        modifier =
-                                                            Modifier.align(Alignment.Center),
-                                                        tint = selectedIconColors,
-                                                    )
-                                                    Icon(
-                                                        Icons.Outlined.Block,
-                                                        contentDescription = "",
-                                                        modifier =
-                                                            Modifier
-                                                                .alpha(0.6f)
-                                                                .then(
-                                                                    Modifier.size(32.dp, 32.dp)
-                                                                )
-                                                    )
-                                                }
-                                            }
-                                        )
-                                    }
-
+                                if (selectedItems.size == 1) {
                                     IconButton(onClick = {
-                                        val state = inboxType == ThreadsViewModel.InboxType.BLOCKED
-                                        threadsViewModel.setIsBlocked(
-                                            context,
-                                            selectedItems.map { it.address },
-                                            !state
-                                        ) {
+                                        val state =
+                                            inboxType == ThreadsViewModel.InboxType.MUTED
+                                                    || selectedItems.first().isMute
+                                        threadsViewModel.update(context, selectedItems.apply {
+                                            forEach { it.isMute = !state }
+                                        }) { threadsViewModel.removeAllSelectedItems() }
+                                    }) {
+                                        Icon(
+                                            imageVector = if (selectedItems.first().isMute)
+                                                Icons.Default.Notifications
+                                            else Icons.Default.NotificationsOff,
+                                            tint = selectedIconColors,
+                                            contentDescription = stringResource(R.string.thread_muted)
+                                        )
+                                    }
+                                }
+
+                                /// The following action item will pin the selected chat(s)
+                                // Together with the subsequent action to unpin selected chat(s),
+                                // they give the impression of a single button.
+                                // Now, for the pinning action, even if, for example,
+                                // 20 chats are selected, but just one among them is not pinned
+                                // the default action would be to pin all.
+                                if (selectedItems.find { !it.isPinned } != null) {
+                                    IconButton(
+                                        onClick = {
+                                            threadsViewModel.update(
+                                                context,
+                                                selectedItems.apply {
+                                                    this.forEach {
+                                                        it.isPinned = true
+                                                    }
+                                                })
                                             threadsViewModel.removeAllSelectedItems()
                                         }
-                                    }) {
+                                    ) {
                                         Icon(
-                                            imageVector = if (inboxType != ThreadsViewModel.InboxType.BLOCKED)
-                                                Icons.Outlined.Block else Icons.Outlined.Remove,
+                                            Icons.Default.PushPin,
+                                            contentDescription = "Pin this thread",
                                             tint = selectedIconColors,
-                                            contentDescription = stringResource(R.string.block_contact)
                                         )
                                     }
-                                },
-                                scrollBehavior = scrollBehaviour
-                            )
-                        }
-                        else {
-                            TopAppBar(
-                                title = {
-                                    Text(
-                                        text = when (inboxType) {
-                                            ThreadsViewModel.InboxType.ARCHIVED ->
-                                                stringResource(
-                                                    R.string
-                                                        .conversations_navigation_view_archived
-                                                )
+                                }
 
-                                            ThreadsViewModel.InboxType.BLOCKED ->
-                                                stringResource(
-                                                    R.string
-                                                        .conversations_navigation_view_blocked
-                                                )
-
-                                            ThreadsViewModel.InboxType.MUTED ->
-                                                stringResource(
-                                                    R.string
-                                                        .conversation_menu_muted_label
-                                                )
-
-                                            ThreadsViewModel.InboxType.DRAFTS ->
-                                                stringResource(
-                                                    R.string
-                                                        .conversations_navigation_view_drafts
-                                                )
-
-                                            else -> ""
+                                // Concerning the same subject as the previous icon button,
+                                // this one serves the role of unpinning selected chat(s).
+                                if (selectedItems.all { it.isPinned }) {
+                                    IconButton(
+                                        onClick = {
+                                            threadsViewModel.update(context, selectedItems.let {
+                                                it.forEach { it.isPinned = false }
+                                                it
+                                            })
+                                            threadsViewModel.removeAllSelectedItems()
                                         },
-                                        maxLines = 1,
-                                        overflow = TextOverflow.Ellipsis
+                                        content = {
+                                            Box {
+                                                Icon(
+                                                    Icons.Default.PushPin,
+                                                    contentDescription = "Unpin this thread",
+                                                    modifier =
+                                                        Modifier.align(Alignment.Center),
+                                                    tint = selectedIconColors,
+                                                )
+                                                Icon(
+                                                    Icons.Outlined.Block,
+                                                    contentDescription = "",
+                                                    modifier =
+                                                        Modifier
+                                                            .alpha(0.6f)
+                                                            .then(
+                                                                Modifier.size(32.dp, 32.dp)
+                                                            )
+                                                )
+                                            }
+                                        }
+                                    )
+                                }
+
+                                IconButton(onClick = {
+                                    val state = inboxType == ThreadsViewModel.InboxType.BLOCKED
+                                    threadsViewModel.setIsBlocked(
+                                        context,
+                                        selectedItems.map { it.address },
+                                        !state
+                                    ) {
+                                        threadsViewModel.removeAllSelectedItems()
+                                    }
+                                }) {
+                                    Icon(
+                                        imageVector = if (inboxType != ThreadsViewModel.InboxType.BLOCKED)
+                                            Icons.Outlined.Block else Icons.Outlined.Remove,
+                                        tint = selectedIconColors,
+                                        contentDescription = stringResource(R.string.block_contact)
+                                    )
+                                }
+                            },
+                            scrollBehavior = scrollBehaviour
+                        )
+                    }
+                    else {
+                        TopAppBar(
+                            title = {
+                                Text(
+                                    text = when (inboxType) {
+                                        ThreadsViewModel.InboxType.ARCHIVED ->
+                                            stringResource(
+                                                R.string
+                                                    .conversations_navigation_view_archived
+                                            )
+
+                                        ThreadsViewModel.InboxType.BLOCKED ->
+                                            stringResource(
+                                                R.string
+                                                    .conversations_navigation_view_blocked
+                                            )
+
+                                        ThreadsViewModel.InboxType.MUTED ->
+                                            stringResource(
+                                                R.string
+                                                    .conversation_menu_muted_label
+                                            )
+
+                                        ThreadsViewModel.InboxType.DRAFTS ->
+                                            stringResource(
+                                                R.string
+                                                    .conversations_navigation_view_drafts
+                                            )
+
+                                        else -> ""
+                                    },
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            },
+                            navigationIcon = {
+                                IconButton(onClick = {
+                                    if (threads.loadState.isIdle)
+                                        threadsViewModel.toggleDrawerValue()
+                                }) {
+                                    Icon(
+                                        imageVector = Icons.Filled.Menu,
+                                        contentDescription = stringResource(R.string.open_side_menu)
+                                    )
+                                }
+                            },
+                            actions = {},
+                            scrollBehavior = scrollBehaviour
+                        )
+                    }
+
+                }
+            },
+            bottomBar = customBottomBar ?: {},
+            floatingActionButton = {
+                when (inboxType) {
+                    ThreadsViewModel.InboxType.INBOX -> {
+                        if (!messagesAreLoading || inPreviewMode) {
+                            ExtendedFloatingActionButton(
+                                onClick = {
+                                    navController.navigate(
+                                        ComposeNewMessageScreenNav()
                                     )
                                 },
-                                navigationIcon = {
-                                    IconButton(onClick = {
-                                        if (threads.loadState.isIdle)
-                                            threadsViewModel.toggleDrawerValue()
-                                    }) {
-                                        Icon(
-                                            imageVector = Icons.Filled.Menu,
-                                            contentDescription = stringResource(R.string.open_side_menu)
-                                        )
-                                    }
+                                icon = {
+                                    Icon(
+                                        Icons.Default.Edit,
+                                        stringResource(R.string.compose_new_message)
+                                    )
                                 },
-                                actions = {},
-                                scrollBehavior = scrollBehaviour
+                                text = {
+                                    Text(
+                                        stringResource(R.string.compose),
+                                        fontWeight = FontWeight.SemiBold
+                                    )
+                                },
+                                expanded = listState.isScrollingUp(),
+                                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
                             )
                         }
-
                     }
-                },
-                bottomBar = customBottomBar ?: {},
-                floatingActionButton = {
-                    when (inboxType) {
-                        ThreadsViewModel.InboxType.INBOX -> {
-                            if ((isDefault && !messagesAreLoading) || inPreviewMode) {
-                                ExtendedFloatingActionButton(
-                                    onClick = {
-                                        navController.navigate(
-                                            ComposeNewMessageScreenNav()
-                                        )
-                                    },
-                                    icon = {
-                                        Icon(
-                                            Icons.Default.Edit,
-                                            stringResource(R.string.compose_new_message)
-                                        )
-                                    },
-                                    text = {
-                                        Text(
-                                            stringResource(R.string.compose),
-                                            fontWeight = FontWeight.SemiBold
-                                        )
-                                    },
-                                    expanded = listState.isScrollingUp(),
-                                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+
+                    else -> {}
+                }
+            }
+        ) { innerPadding ->
+            Column(modifier = Modifier.padding(innerPadding)) {
+                if(secondaryMessagesAreLoading || inPreviewMode)
+                    LinearProgressIndicator(
+                        Modifier.fillMaxWidth()
+                            .testTag("secondaryMessagesAreLoading")
+                    )
+                if(messagesAreLoading || inPreviewMode) {
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        LinearProgressIndicator()
+                        Text(
+                            stringResource(R.string.give_it_a_minute),
+                            modifier = Modifier.padding(top = 8.dp),
+                            fontSize = 12.sp
+                        )
+                    }
+                }
+                else {
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        if(threads.loadState.isIdle && threads.itemCount == 0) {
+                            val message = when(inboxType) {
+                                ThreadsViewModel.InboxType.ARCHIVED ->
+                                    stringResource(R.string.homepage_archive_no_message)
+                                else -> stringResource(R.string.homepage_no_message)
+                            }
+                            Column(
+                                modifier = Modifier.fillMaxSize(),
+                                verticalArrangement = Arrangement.Center,
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text( message,
+                                    fontSize = 24.sp
                                 )
                             }
                         }
-
-                        else -> {}
-                    }
-                }
-            ) { innerPadding ->
-                Column(modifier = Modifier.padding(innerPadding)) {
-                    if (!isDefault || !readPhoneStatePermission.status.isGranted) {
-                        DefaultCheckMain { isDefault = context.isDefault() }
-                    }
-                    if(secondaryMessagesAreLoading || inPreviewMode)
-                        LinearProgressIndicator(
-                            Modifier.fillMaxWidth()
-                                .testTag("secondaryMessagesAreLoading")
-                        )
-                    if(messagesAreLoading || inPreviewMode) {
-                        Column(
-                            modifier = Modifier.fillMaxSize(),
-                            verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            LinearProgressIndicator()
-                            Text(
-                                stringResource(R.string.give_it_a_minute),
-                                modifier = Modifier.padding(top = 8.dp),
-                                fontSize = 12.sp
-                            )
+                        if(!threads.loadState.isIdle && threads.itemCount == 0) {
+                            PulsingMessagePlaceholder()
                         }
-                    }
-                    else {
-                        Box(modifier = Modifier.fillMaxSize()) {
-                            if(threads.loadState.isIdle && threads.itemCount == 0) {
-                                val message = when(inboxType) {
-                                    ThreadsViewModel.InboxType.ARCHIVED ->
-                                        stringResource(R.string.homepage_archive_no_message)
-                                    else -> stringResource(R.string.homepage_no_message)
+
+                        LazyColumn(
+                            modifier = Modifier
+                                .fillMaxSize(),
+                            state = listState
+                        ) {
+                            items(
+                                count = threads.itemCount,
+                                key = threads.itemKey { it.id },
+                                contentType = threads.itemContentType {
+                                    if(it.threads.unread) "unread" else "read"
                                 }
-                                Column(
-                                    modifier = Modifier.fillMaxSize(),
-                                    verticalArrangement = Arrangement.Center,
-                                    horizontalAlignment = Alignment.CenterHorizontally
-                                ) {
-                                    Text( message,
-                                        fontSize = 24.sp
+                            ) { index ->
+                                val threadUi = threads[index]
+                                threadUi?.let {
+                                    val isSelected = remember(selectedItems) {
+                                        selectedItems.contains(threadUi.threads)
+                                    }
+                                    ThreadItem(
+                                        threadUi,
+                                        inboxType,
+                                        isSelected,
+                                        onArchiveCallback = {
+                                            threadsViewModel.update(
+                                                context,
+                                                listOf(threadUi.threads.apply {
+                                                    this.isArchive = true
+                                                })
+                                            )
+                                            threadsViewModel.removeAllSelectedItems()
+                                        },
+                                        onDeleteCallback = {
+                                            threadsViewModel
+                                                .setSelectedItems(listOf(threadUi.threads))
+                                            rememberDeleteMenu = true
+                                        }
                                     )
                                 }
                             }
-                            if(!threads.loadState.isIdle && threads.itemCount == 0) {
-                                PulsingMessagePlaceholder()
-                            }
+                        }
 
-                            LazyColumn(
-                                modifier = Modifier
-                                    .fillMaxSize(),
-                                state = listState
-                            ) {
-                                items(
-                                    count = threads.itemCount,
-                                    key = threads.itemKey { it.id },
-                                    contentType = threads.itemContentType {
-                                        if(it.threads.unread) "unread" else "read"
-                                    }
-                                ) { index ->
-                                    val threadUi = threads[index]
-                                    threadUi?.let {
-                                        val isSelected = remember(selectedItems) {
-                                            selectedItems.contains(threadUi.threads)
-                                        }
-                                        ThreadItem(
-                                            threadUi,
-                                            inboxType,
-                                            isSelected,
-                                            onArchiveCallback = {
-                                                threadsViewModel.update(
-                                                    context,
-                                                    listOf(threadUi.threads.apply {
-                                                        this.isArchive = true
-                                                    })
-                                                )
-                                                threadsViewModel.removeAllSelectedItems()
-                                            },
-                                            onDeleteCallback = {
-                                                threadsViewModel
-                                                    .setSelectedItems(listOf(threadUi.threads))
-                                                rememberDeleteMenu = true
-                                            }
-                                        )
-                                    }
-                                }
-                            }
-
-                            if (rememberDeleteMenu) {
-                                DeleteConfirmationAlert(
-                                    confirmCallback = {
-                                        threadsViewModel.deleteThreads(
-                                            context,
-                                            selectedItems
-                                        )
-                                        threadsViewModel.removeAllSelectedItems()
-                                        rememberDeleteMenu = false
-                                    }
-                                ) {
-                                    rememberDeleteMenu = false
+                        if (rememberDeleteMenu) {
+                            DeleteConfirmationAlert(
+                                confirmCallback = {
+                                    threadsViewModel.deleteThreads(
+                                        context,
+                                        selectedItems
+                                    )
                                     threadsViewModel.removeAllSelectedItems()
+                                    rememberDeleteMenu = false
                                 }
+                            ) {
+                                rememberDeleteMenu = false
+                                threadsViewModel.removeAllSelectedItems()
                             }
                         }
                     }
                 }
             }
-
         }
+
     }
 
 }

@@ -5,8 +5,15 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -15,6 +22,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -23,9 +31,11 @@ import androidx.navigation.toRoute
 import androidx.window.layout.WindowLayoutInfo
 import com.afkanerd.lib_smsmms_android.R
 import com.afkanerd.smswithoutborders_libsmsmms.data.entities.Conversations
+import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.isDefault
 import com.afkanerd.smswithoutborders_libsmsmms.ui.ComposeNewMessage
 import com.afkanerd.smswithoutborders_libsmsmms.ui.ContactDetails
 import com.afkanerd.smswithoutborders_libsmsmms.ui.ConversationsMainLayout
+import com.afkanerd.smswithoutborders_libsmsmms.ui.DefaultCheckMain
 import com.afkanerd.smswithoutborders_libsmsmms.ui.DeveloperModeMain
 import com.afkanerd.smswithoutborders_libsmsmms.ui.MediaMain
 import com.afkanerd.smswithoutborders_libsmsmms.ui.SearchThreadsMain
@@ -34,23 +44,28 @@ import com.afkanerd.smswithoutborders_libsmsmms.ui.ThreadConversationLayout
 import com.afkanerd.smswithoutborders_libsmsmms.ui.navigation.ComposeNewMessageScreenNav
 import com.afkanerd.smswithoutborders_libsmsmms.ui.navigation.ContactDetailsScreenNav
 import com.afkanerd.smswithoutborders_libsmsmms.ui.navigation.ConversationsScreenNav
+import com.afkanerd.smswithoutborders_libsmsmms.ui.navigation.DefaultScreenNav
 import com.afkanerd.smswithoutborders_libsmsmms.ui.navigation.DeveloperModeScreen
 import com.afkanerd.smswithoutborders_libsmsmms.ui.navigation.HomeScreenNav
 import com.afkanerd.smswithoutborders_libsmsmms.ui.navigation.ImageViewScreenNav
 import com.afkanerd.smswithoutborders_libsmsmms.ui.navigation.SearchScreenNav
 import com.afkanerd.smswithoutborders_libsmsmms.ui.navigation.SettingsScreenNav
+import com.afkanerd.smswithoutborders_libsmsmms.ui.requiredReadPhoneStatePermissions
 import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.ConversationsViewModel
 import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.CustomsConversationsViewModel
 import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.SearchViewModel
 import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.ThreadsViewModel
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
 
 @Composable
 fun NavHostControllerInstance(
-    newLayoutInfo: WindowLayoutInfo,
     navController: NavHostController,
     threadsViewModel: ThreadsViewModel,
     conversationsViewModel: ConversationsViewModel,
     searchViewModel: SearchViewModel?,
+    appName: String,
     threadsMainMenuItems: (@Composable ((Boolean) -> Unit) -> Unit)? = null,
     customMenuItems: (@Composable ((Boolean) -> Unit) -> Unit)? = null,
     conversationsCustomComposable: (@Composable (CustomsConversationsViewModel?) -> Unit)? = null,
@@ -58,103 +73,148 @@ fun NavHostControllerInstance(
     conversationsCustomDataView: (@Composable (Conversations) -> Unit)? = null,
     modalNavigationModalItems:
     (@Composable ((ThreadsViewModel.InboxType) -> () -> Unit) -> Unit)? = null,
-    startDestination: Any = HomeScreenNav(),
+    customStartDestination: Any? = null,
     customBottomBar: @Composable (() -> Unit)? = null,
     customThreadsView: @Composable (() -> Unit)? = null,
     showThreadsTopBar: Boolean = true,
-    appName: String = stringResource(R.string.lib_app_name),
     builder: NavGraphBuilder.() -> Unit,
 ) {
-    // TODO: fix folding
-//    val isFolded by remember {
-//        mutableStateOf(newLayoutInfo.displayFeatures.isNotEmpty())
-//    }
-
     val context = LocalContext.current
     threadsViewModel.execMigrations(context)
 
-    NavHost(
-        modifier = Modifier,
-        navController = navController,
-        startDestination = startDestination
-    ) {
-        builder()
+    val drawerState by threadsViewModel.drawerState.collectAsState()
+    val inboxType by threadsViewModel.inboxType.collectAsStateWithLifecycle()
 
-        composable<HomeScreenNav>{ backStackEntry ->
-            ThreadConversationLayout(
-                threadsViewModel = threadsViewModel,
-                navController = navController,
-                threadsMainMenuItems = threadsMainMenuItems,
-                modalNavigationModalItems = modalNavigationModalItems,
-                customBottomBar = customBottomBar,
-                customThreadsView = customThreadsView,
-                showTopBar = showThreadsTopBar,
-                appName = appName,
-            )
-        }
-        composable<ConversationsScreenNav> { backStackEntry ->
-            val convScreen: ConversationsScreenNav = backStackEntry.toRoute()
-            ConversationsMainLayout(
-                address = convScreen.address,
-                text = convScreen.text ?: "",
-                searchQuery = convScreen.query,
-                navController = navController,
-                threadId = convScreen.threadId,
-                threadsViewModel = threadsViewModel,
-                conversationsViewModel = conversationsViewModel,
-                customComposable = conversationsCustomComposable,
-                customMenuItems = customMenuItems,
-                customsConversationsViewModel = conversationsCustomViewModel,
-                customDataView = conversationsCustomDataView,
-            )
-        }
-        composable<SearchScreenNav> { backStackEntry ->
-            val searchScreen: SearchScreenNav = backStackEntry.toRoute()
-            SearchThreadsMain(
-                address = searchScreen.address,
-                searchViewModel = searchViewModel!!,
-                navController = navController
-            )
-        }
-        composable<ContactDetailsScreenNav>{ backStackEntry ->
-            val contactsDetailsScreen: ContactDetailsScreenNav = backStackEntry.toRoute()
-            ContactDetails(
-                address = contactsDetailsScreen.address,
-                navController = navController,
-                isEncryptionEnabled = contactsDetailsScreen.encryptionAvailable,
-                subscriptionId = contactsDetailsScreen.subscriptionId
-            )
-        }
+    var isDefault by remember { mutableStateOf(context.isDefault()) }
 
-        composable<ComposeNewMessageScreenNav>{ backStackEntry ->
-            val composeDetailsScreen: ComposeNewMessageScreenNav = backStackEntry.toRoute()
-            ComposeNewMessage(
-                navController = navController,
-                text = composeDetailsScreen.text,
-                subscriptionId = composeDetailsScreen.subscriptionId,
-            )
-        }
+    var startDestination: Any by remember {
+        mutableStateOf(
+            customStartDestination
+                ?: if(isDefault) HomeScreenNav() else DefaultScreenNav
+        )
+    }
 
-        composable<SettingsScreenNav>{
-            SettingsMain(navController = navController)
-        }
-
-        composable<DeveloperModeScreen>{
-            DeveloperModeMain(navController)
-        }
-
-        composable<ImageViewScreenNav>{ backStackEntry ->
-            val imageViewScreen: ImageViewScreenNav = backStackEntry.toRoute()
-            MediaMain(
-                contentUri = imageViewScreen.contentUri.toUri(),
-                address = imageViewScreen.address,
-                date = imageViewScreen.date,
-                navController = navController,
-                filename = imageViewScreen.filename,
-                mimeType = imageViewScreen.mimeType
-            )
+    LaunchedEffect(isDefault) {
+        if(customStartDestination == null && isDefault && startDestination !is HomeScreenNav) {
+            startDestination = HomeScreenNav()
         }
     }
+
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            if(isDefault) {
+                ModalDrawerSheetLayout(
+                    callback = { type ->
+                        if (type == ThreadsViewModel.InboxType.DEVELOPER) {
+                            navController.navigate(DeveloperModeScreen)
+                        } else {
+                            threadsViewModel.setInboxType(type)
+                        }
+                        threadsViewModel.toggleDrawerValue()
+                    },
+                    selectedItemIndex = inboxType,
+                    customComposable = modalNavigationModalItems,
+                )
+            }
+        },
+    ) {
+        NavHost(
+            modifier = Modifier,
+            navController = navController,
+            startDestination = startDestination
+        ) {
+            builder()
+
+            composable<DefaultScreenNav>{
+                DefaultCheckMain(appName) { default ->
+                    if(default) {
+                        isDefault = true
+                        navController.navigate(HomeScreenNav()) {
+                            popUpTo(navController.graph.id) {
+                                inclusive = true
+                            }
+                        }
+                    }
+                }
+            }
+            composable<HomeScreenNav>{ backStackEntry ->
+                ThreadConversationLayout(
+                    threadsViewModel = threadsViewModel,
+                    navController = navController,
+                    threadsMainMenuItems = threadsMainMenuItems,
+                    modalNavigationModalItems = modalNavigationModalItems,
+                    customBottomBar = customBottomBar,
+                    customThreadsView = customThreadsView,
+                    showTopBar = showThreadsTopBar,
+                    appName = appName,
+                )
+            }
+            composable<ConversationsScreenNav> { backStackEntry ->
+                val convScreen: ConversationsScreenNav = backStackEntry.toRoute()
+                ConversationsMainLayout(
+                    address = convScreen.address,
+                    text = convScreen.text ?: "",
+                    searchQuery = convScreen.query,
+                    navController = navController,
+                    threadId = convScreen.threadId,
+                    threadsViewModel = threadsViewModel,
+                    conversationsViewModel = conversationsViewModel,
+                    customComposable = conversationsCustomComposable,
+                    customMenuItems = customMenuItems,
+                    customsConversationsViewModel = conversationsCustomViewModel,
+                    customDataView = conversationsCustomDataView,
+                )
+            }
+            composable<SearchScreenNav> { backStackEntry ->
+                val searchScreen: SearchScreenNav = backStackEntry.toRoute()
+                SearchThreadsMain(
+                    address = searchScreen.address,
+                    searchViewModel = searchViewModel!!,
+                    navController = navController
+                )
+            }
+            composable<ContactDetailsScreenNav>{ backStackEntry ->
+                val contactsDetailsScreen: ContactDetailsScreenNav = backStackEntry.toRoute()
+                ContactDetails(
+                    address = contactsDetailsScreen.address,
+                    navController = navController,
+                    isEncryptionEnabled = contactsDetailsScreen.encryptionAvailable,
+                    subscriptionId = contactsDetailsScreen.subscriptionId
+                )
+            }
+
+            composable<ComposeNewMessageScreenNav>{ backStackEntry ->
+                val composeDetailsScreen: ComposeNewMessageScreenNav = backStackEntry.toRoute()
+                ComposeNewMessage(
+                    navController = navController,
+                    text = composeDetailsScreen.text,
+                    subscriptionId = composeDetailsScreen.subscriptionId,
+                )
+            }
+
+            composable<SettingsScreenNav>{
+                SettingsMain(navController = navController)
+            }
+
+            composable<DeveloperModeScreen>{
+                DeveloperModeMain(navController)
+            }
+
+            composable<ImageViewScreenNav>{ backStackEntry ->
+                val imageViewScreen: ImageViewScreenNav = backStackEntry.toRoute()
+                MediaMain(
+                    contentUri = imageViewScreen.contentUri.toUri(),
+                    address = imageViewScreen.address,
+                    date = imageViewScreen.date,
+                    navController = navController,
+                    filename = imageViewScreen.filename,
+                    mimeType = imageViewScreen.mimeType
+                )
+            }
+        }
+    }
+
 }
 
 @Composable

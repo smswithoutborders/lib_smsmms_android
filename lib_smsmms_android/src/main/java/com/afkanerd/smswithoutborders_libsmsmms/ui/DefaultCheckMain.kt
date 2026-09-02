@@ -22,7 +22,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -48,84 +51,100 @@ import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.setNativesLoa
 @Composable
 fun getSetDefaultBehaviour(
     context: Context,
-    callback: () -> Unit,
+    callback: (Boolean) -> Unit,
 ): ManagedActivityResultLauncher<Intent, ActivityResult> {
     return rememberLauncherForActivityResult(
         ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == RESULT_OK) {
             context.setNativesLoaded(false)
             NotificationsInitializer.create(context)
-            callback.invoke()
+            callback(true)
+        } else {
+            callback(false)
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DefaultCheckMain(permissionGrantedCallback: (()->Unit)? = null) {
+fun DefaultCheckMain(
+    appName: String,
+    permissionGrantedCallback: ((Boolean)->Unit)? = null
+) {
     val context = LocalContext.current
 
     val getDefaultPermission = getSetDefaultBehaviour(context) {
-        permissionGrantedCallback?.invoke()
+        permissionGrantedCallback?.invoke(it)
     }
 
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .padding(16.dp)
-            .fillMaxSize()
-    ) {
+    Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = {
+                    Text(appName)
+                }
+            )
+        }
+    ) { innerPadding ->
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize()
         ) {
-            Image(
-                painter= painterResource(R.drawable.set_default_sms_app),
-                contentDescription = stringResource(R.string.welcome_image),
-                contentScale = ContentScale.Fit,
-            )
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier.weight(1f)
+            ) {
+                Image(
+                    painter= painterResource(R.drawable.set_default_sms_app),
+                    contentDescription = stringResource(R.string.welcome_image),
+                    contentScale = ContentScale.Fit,
+                )
 
-            Spacer(Modifier.padding())
+                Spacer(Modifier.padding())
 
-            Text(stringResource(R.string.to_use_deku_sms_make_it_your_default_sms_app),
-                fontSize = 13.sp
-            )
-            Spacer(Modifier.padding(16.dp))
+                Text(stringResource(R.string.to_use_deku_sms_make_it_your_default_sms_app),
+                    fontSize = 13.sp
+                )
+                Spacer(Modifier.padding(16.dp))
 
-            Button(
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                ),
+                Button(
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                    ),
+                    onClick = {
+                        getDefaultPermission.launch(makeDefault(context))
+                    }
+                ) {
+                    Text(
+                        stringResource(R.string.set_default_sms_app),
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                }
+
+            }
+            TextButton(
                 onClick = {
-                    getDefaultPermission.launch(makeDefault(context))
+                    // Your existing URL string resource
+                    val url = context.getString(R.string.privacy_policy_url)
+                    val intent = Intent(Intent.ACTION_VIEW, url.toUri())
+                    context.startActivity(intent)
                 }
             ) {
+                val annotatedString = buildAnnotatedString {
+                    append(stringResource(R.string.read_our_text_part))
+                    append(" ")
+                    withStyle(style = SpanStyle(textDecoration = TextDecoration.Underline)) {
+                        append(stringResource(R.string.privacy_policy_text_part))
+                    }
+                }
                 Text(
-                    stringResource(R.string.set_default_sms_app),
-                    color = MaterialTheme.colorScheme.onSecondaryContainer
+                    text = annotatedString,
+                    style = MaterialTheme.typography.labelLarge
                 )
             }
-
-        }
-        TextButton(
-            onClick = {
-                // Your existing URL string resource
-                val url = context.getString(R.string.privacy_policy_url)
-                val intent = Intent(Intent.ACTION_VIEW, url.toUri())
-                context.startActivity(intent)
-            }
-        ) {
-            val annotatedString = buildAnnotatedString {
-                append(stringResource(R.string.read_our_text_part))
-                append(" ")
-                withStyle(style = SpanStyle(textDecoration = TextDecoration.Underline)) {
-                    append(stringResource(R.string.privacy_policy_text_part))
-                }
-            }
-            Text(
-                text = annotatedString,
-                style = MaterialTheme.typography.labelLarge
-            )
         }
     }
 }
@@ -147,7 +166,7 @@ fun makeDefault(context: Context): Intent {
 @Preview(showBackground = true)
 @Composable
 fun DefaultCheckMainPreview() {
-    DefaultCheckMain()
+    DefaultCheckMain("LIB_SMS")
 }
 
 

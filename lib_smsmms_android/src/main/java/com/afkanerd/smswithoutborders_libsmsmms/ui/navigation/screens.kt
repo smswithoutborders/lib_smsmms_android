@@ -38,6 +38,11 @@ object SettingsScreenNav
 @Serializable
 object DeveloperModeScreen
 
+
+@Serializable
+object DefaultScreenNav
+
+
 @Serializable
 data class ImageViewScreenNav(
     var contentUri: String,
