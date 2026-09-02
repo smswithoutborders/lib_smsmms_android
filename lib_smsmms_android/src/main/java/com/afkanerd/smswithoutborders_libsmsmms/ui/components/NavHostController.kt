@@ -66,6 +66,7 @@ fun NavHostControllerInstance(
     conversationsViewModel: ConversationsViewModel,
     searchViewModel: SearchViewModel?,
     appName: String,
+    isDefault: Boolean,
     threadsMainMenuItems: (@Composable ((Boolean) -> Unit) -> Unit)? = null,
     customMenuItems: (@Composable ((Boolean) -> Unit) -> Unit)? = null,
     conversationsCustomComposable: (@Composable (CustomsConversationsViewModel?) -> Unit)? = null,
@@ -82,7 +83,6 @@ fun NavHostControllerInstance(
     val drawerState by threadsViewModel.drawerState.collectAsStateWithLifecycle()
     val inboxType by threadsViewModel.inboxType.collectAsStateWithLifecycle()
 
-    var isDefault by remember { mutableStateOf(context.isDefault()) }
 
     var startDestination: Any by remember {
         mutableStateOf(
@@ -130,7 +130,7 @@ fun NavHostControllerInstance(
             composable<DefaultScreenNav>{
                 DefaultCheckMain(appName) { default ->
                     if(default) {
-                        isDefault = true
+                        threadsViewModel.setIsDefault(context.isDefault())
                         navController.navigate(HomeScreenNav()) {
                             popUpTo(navController.graph.id) {
                                 inclusive = true

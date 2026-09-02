@@ -84,12 +84,15 @@ class MainActivity : ComponentActivity() {
                                 ) {
                                     val customItemSelected by threadsViewModel
                                         .inboxType.collectAsStateWithLifecycle()
+
+                                    val isDefault by threadsViewModel.isDefault.collectAsStateWithLifecycle()
                                     NavHostControllerInstance(
                                         appName = stringResource(R.string.app_name),
                                         navController = navController,
                                         threadsViewModel = threadsViewModel,
                                         searchViewModel = searchViewModel,
                                         conversationsViewModel = conversationsViewModel,
+                                        isDefault = isDefault,
                                         modalNavigationModalItems = {
                                             NavigationDrawerItem(
                                                 icon = {
