@@ -137,13 +137,15 @@ fun ThreadConversationLayout(
     val inboxType by threadsViewModel.inboxType.collectAsStateWithLifecycle()
     val selectedItems by threadsViewModel.selectedItems.collectAsStateWithLifecycle()
 
-    val messagesPagers = threadsViewModel.getThreads(context) { thread ->
-        navController.navigate(
-            ConversationsScreenNav(
-                address = thread.address,
-                threadId = thread.threadId
+    val messagesPagers = remember(threadsViewModel) {
+        threadsViewModel.getThreads(context) { thread ->
+            navController.navigate(
+                ConversationsScreenNav(
+                    address = thread.address,
+                    threadId = thread.threadId
+                )
             )
-        )
+        }
     }
 
     val threads = messagesPagers.collectAsLazyPagingItems()
