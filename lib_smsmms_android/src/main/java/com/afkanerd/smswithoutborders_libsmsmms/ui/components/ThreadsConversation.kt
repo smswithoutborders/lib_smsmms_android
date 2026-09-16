@@ -1022,7 +1022,7 @@ fun ThreadItem(
                 id = thread.threadId,
                 name = postComputed?.name ?: threadUi.threads.address,
                 content = thread.snippet,
-                date = threadUi.date,
+                date = postComputed?.date ?: "",
                 isRead = !thread.unread,
                 isContact = postComputed?.name != null,
                 isBlocked = postComputed?.blocked == true,

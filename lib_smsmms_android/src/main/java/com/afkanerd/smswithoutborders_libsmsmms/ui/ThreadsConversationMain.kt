@@ -88,6 +88,7 @@ import androidx.paging.compose.itemKey
 import com.afkanerd.lib_smsmms_android.R
 import com.afkanerd.smswithoutborders_libsmsmms.data.data.models.DateTimeUtils
 import com.afkanerd.smswithoutborders_libsmsmms.data.entities.Threads
+import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getDatabase
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getNativesLoaded
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.isDefault
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.retrieveContactName
@@ -138,7 +139,7 @@ fun ThreadConversationLayout(
     val selectedItems by threadsViewModel.selectedItems.collectAsStateWithLifecycle()
 
     val messagesPagers = remember(threadsViewModel) {
-        threadsViewModel.getThreads(context) { thread ->
+        threadsViewModel.getThreads(context.getDatabase()) { thread ->
             navController.navigate(
                 ConversationsScreenNav(
                     address = thread.address,
