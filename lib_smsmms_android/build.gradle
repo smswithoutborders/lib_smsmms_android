@@ -23,10 +23,11 @@ afterEvaluate {
 
 android {
     namespace 'com.afkanerd.lib_smsmms_android'
-    compileSdk 36
+    compileSdk 37
 
     defaultConfig {
         minSdk 24
+        targetSdk 37
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         ksp {
