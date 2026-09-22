@@ -112,7 +112,7 @@
 
 
     <string name="settings_SMS_routing_type_base64_option">Base64</string>
-    <string name="settings_SMS_routing_type_all_option">All (default)</string>
+    <string name="settings_SMS_routing_type_all_option" translatable="false">All (default)</string>
 
     <string name="settings_add_gateway_client_protocol_description">Choose the Listening protocol</string>
     <string name="settings_add_gateway_server_protocol_meta_description">All POST are routed as JSON formats.\nAll formats use the following key/value format:\n\n<b>MSISDN</b>:-The address of the incoming message in E.164 Format\n\n<b>text</b>:-The text body of the incoming message </string>
@@ -481,5 +481,19 @@
     <string name="switch_sim_cards">Switch SIM cards</string>
     <string name="send_with">Send with</string>
     <string name="secure_database_migrated">Secure database migrated!</string>
+    <string name="foreground_service_failed_channel_description">Click to reconnect Gateway clients</string>
+    <string name="message_failed_notifications_descriptions">Receive notifications if messages fail to send</string>
+    <string name="foreground_service_image_transmission_descriptions">Image transmission via SMS</string>
+    <string name="stop">Stop</string>
+    <string name="pause">pause</string>
+
+
+    <string name="failed_to_send_message">Failed to send message.</string>
+
+    <string name="queued_for_sending">Queued for sending…</string>
+    <string name="will_resume_sending_shortly">Will Resume Sending Shortly…</string>
+    <string name="retry">Try again</string>
+    <string name="sending_stop">Sending stopped…</string>
+    <string name="waiting_to_send_of">Waiting to send %1$d of %2$d</string>
 
 </resources>
