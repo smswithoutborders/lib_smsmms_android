@@ -59,6 +59,8 @@ import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.settingsSetGe
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.settingsSetKeepMessagesArchived
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.settingsSetStoreTelephonyDb
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.settingsSetTheme
+import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.settingsGetUseSystemFont
+import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.settingsSetUseSystemFont
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -107,6 +109,10 @@ fun SettingsMain(
 
     var enable24HoursFormat by remember {
         mutableStateOf(context.settingsGetEnable24HourFormat)
+    }
+
+    var useSystemFont by remember {
+        mutableStateOf(context.settingsGetUseSystemFont)
     }
 
     Scaffold(
