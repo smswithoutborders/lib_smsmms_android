@@ -280,6 +280,15 @@ fun SettingsMain(
                 enable24HoursFormat = it ?: enable24HoursFormat
             }
 
+            SettingsItem(
+                itemTitle = "Use System Font",
+                itemDescription = "Use Your Device's Defualt System Font",
+                checked = useSystemFont
+            ){
+                context.settingsSetUseSystemFont(it ?: useSystemFont)
+                useSystemFont = it ?: useSystemFont
+            }
+
         }
     }
 }
