@@ -26,6 +26,7 @@ private object Settings {
     const val SETTINGS_ENABLE_CONTEXT_REPLIES = "SETTINGS_ENABLE_CONTEXT_REPLIES"
     const val SETTINGS_ENABLE_24_HOUR_FORMAT = "SETTINGS_ENABLE_24_HOUR_FORMAT"
     const val SETTINGS_CONVERSATION_SUBSCRIPTION_ID = "SETTINGS_CONVERSATION_SUBSCRIPTION_ID"
+    const val SETTINGS_USE_SYSTEM_FONT = "SETTINGS_USE_SYSTEM_FONT"
 }
 
 fun Context.settingsGetConversationsSubscriptionId(address: String): Flow<Long?>  =
@@ -76,6 +77,11 @@ val Context.settingsGetEnable24HourFormat get(): Boolean {
     return sharedPreferences.getBoolean(Settings.SETTINGS_ENABLE_24_HOUR_FORMAT, false)
 }
 
+val Context.settingsGetUseSystemFont get(): Boolean {
+    val sharedPreferences = getSharedPreferences(
+        Settings.FILENAME, Context.MODE_PRIVATE)
+    return sharedPreferences.getBoolean(Settings.SETTINGS_USE_SYSTEM_FONT, false)
+}
 val Context.settingsGetDeleteSystem get(): Boolean {
     val sharedPreferences = getSharedPreferences(
         Settings.FILENAME, Context.MODE_PRIVATE)
@@ -134,6 +140,13 @@ fun Context.settingsSetDeleteSystem(state: Boolean) {
 fun Context.settingsSetEnable24HourFormat(state: Boolean) {
     getSharedPreferences( Settings.FILENAME, Context.MODE_PRIVATE).edit {
         putBoolean(Settings.SETTINGS_ENABLE_24_HOUR_FORMAT, state)
+        apply()
+    }
+}
+
+fun Context.settingsSetUseSystemFont(state: Boolean) {
+    getSharedPreferences(Settings.FILENAME, Context.MODE_PRIVATE).edit {
+        putBoolean(Settings.SETTINGS_USE_SYSTEM_FONT, state)
         apply()
     }
 }
