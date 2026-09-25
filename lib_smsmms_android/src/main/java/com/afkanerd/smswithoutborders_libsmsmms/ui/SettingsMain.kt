@@ -66,6 +66,7 @@ import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.settingsSetUs
 @Composable
 fun SettingsMain(
     navController: NavController,
+    onUseSystemFontChanged: (Boolean) -> Unit = {}
 ) {
     val context = LocalContext.current
     val scrollState = rememberScrollState()
@@ -285,10 +286,11 @@ fun SettingsMain(
                 itemDescription = "Use Your Device's Defualt System Font",
                 checked = useSystemFont
             ){
-                context.settingsSetUseSystemFont(it ?: useSystemFont)
-                useSystemFont = it ?: useSystemFont
+                val newValue = it ?: useSystemFont
+                context.settingsSetUseSystemFont(newValue)
+                useSystemFont = newValue
+                onUseSystemFontChanged(newValue)
             }
-
         }
     }
 }
