@@ -50,14 +50,15 @@ import com.afkanerd.smswithoutborders_libsmsmms.ui.navigation.HomeScreenNav
 import com.afkanerd.smswithoutborders_libsmsmms.ui.navigation.ImageViewScreenNav
 import com.afkanerd.smswithoutborders_libsmsmms.ui.navigation.SearchScreenNav
 import com.afkanerd.smswithoutborders_libsmsmms.ui.navigation.SettingsScreenNav
-import com.afkanerd.smswithoutborders_libsmsmms.ui.requiredReadPhoneStatePermissions
 import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.ConversationsViewModel
 import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.CustomsConversationsViewModel
 import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.SearchViewModel
 import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.ThreadsViewModel
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.isGranted
-import com.google.accompanist.permissions.rememberPermissionState
+import com.afkanerd.smswithoutborders_libsmsmms.ui.theme.UnboundedFontFamily
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Typography
+import androidx.compose.ui.text.font.FontFamily
+import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.settingsGetUseSystemFont
 
 @Composable
 fun NavHostControllerInstance(
@@ -80,6 +81,110 @@ fun NavHostControllerInstance(
 ) {
     val context = LocalContext.current
 
+    var useSystemFont by remember {
+        mutableStateOf(context.settingsGetUseSystemFont)
+    }
+
+    val currentTypography = MaterialTheme.typography
+
+    val typography = if (useSystemFont) {
+        Typography(
+            displayLarge = currentTypography.displayLarge.copy(
+                fontFamily = FontFamily.Default
+            ),
+            displayMedium = currentTypography.displayMedium.copy(
+                fontFamily = FontFamily.Default
+            ),
+            displaySmall = currentTypography.displaySmall.copy(
+                fontFamily = FontFamily.Default
+            ),
+            headlineLarge = currentTypography.headlineLarge.copy(
+                fontFamily = FontFamily.Default
+            ),
+            headlineMedium = currentTypography.headlineMedium.copy(
+                fontFamily = FontFamily.Default
+            ),
+            headlineSmall = currentTypography.headlineSmall.copy(
+                fontFamily = FontFamily.Default
+            ),
+            titleLarge = currentTypography.titleLarge.copy(
+                fontFamily = FontFamily.Default
+            ),
+            titleMedium = currentTypography.titleMedium.copy(
+                fontFamily = FontFamily.Default
+            ),
+            titleSmall = currentTypography.titleSmall.copy(
+                fontFamily = FontFamily.Default
+            ),
+            bodyLarge = currentTypography.bodyLarge.copy(
+                fontFamily = FontFamily.Default
+            ),
+            bodyMedium = currentTypography.bodyMedium.copy(
+                fontFamily = FontFamily.Default
+            ),
+            bodySmall = currentTypography.bodySmall.copy(
+                fontFamily = FontFamily.Default
+            ),
+            labelLarge = currentTypography.labelLarge.copy(
+                fontFamily = FontFamily.Default
+            ),
+            labelMedium = currentTypography.labelMedium.copy(
+                fontFamily = FontFamily.Default
+            ),
+            labelSmall = currentTypography.labelSmall.copy(
+                fontFamily = FontFamily.Default
+            ),
+        )
+    } else {
+    Typography(
+        displayLarge = currentTypography.displayLarge.copy(
+            fontFamily = UnboundedFontFamily
+        ),
+        displayMedium = currentTypography.displayMedium.copy(
+            fontFamily = UnboundedFontFamily
+        ),
+        displaySmall = currentTypography.displaySmall.copy(
+            fontFamily = UnboundedFontFamily
+        ),
+        headlineLarge = currentTypography.headlineLarge.copy(
+            fontFamily = UnboundedFontFamily
+        ),
+        headlineMedium = currentTypography.headlineMedium.copy(
+            fontFamily = UnboundedFontFamily
+        ),
+        headlineSmall = currentTypography.headlineSmall.copy(
+            fontFamily = UnboundedFontFamily
+        ),
+        titleLarge = currentTypography.titleLarge.copy(
+            fontFamily = UnboundedFontFamily
+        ),
+        titleMedium = currentTypography.titleMedium.copy(
+            fontFamily = UnboundedFontFamily
+        ),
+        titleSmall = currentTypography.titleSmall.copy(
+            fontFamily = UnboundedFontFamily
+        ),
+        bodyLarge = currentTypography.bodyLarge.copy(
+            fontFamily = UnboundedFontFamily
+        ),
+        bodyMedium = currentTypography.bodyMedium.copy(
+            fontFamily = UnboundedFontFamily
+        ),
+        bodySmall = currentTypography.bodySmall.copy(
+            fontFamily = UnboundedFontFamily
+        ),
+        labelLarge = currentTypography.labelLarge.copy(
+            fontFamily = UnboundedFontFamily
+        ),
+        labelMedium = currentTypography.labelMedium.copy(
+            fontFamily = UnboundedFontFamily
+        ),
+        labelSmall = currentTypography.labelSmall.copy(
+            fontFamily = UnboundedFontFamily
+        ),
+    )
+}
+
     val drawerState by threadsViewModel.drawerState.collectAsStateWithLifecycle()
     val inboxType by threadsViewModel.inboxType.collectAsStateWithLifecycle()
 
@@ -87,133 +192,136 @@ fun NavHostControllerInstance(
     var startDestination: Any by remember {
         mutableStateOf(
             customStartDestination
-                ?: if(isDefault) HomeScreenNav() else DefaultScreenNav
+                ?: if (isDefault) HomeScreenNav() else DefaultScreenNav
         )
     }
 
     LaunchedEffect(isDefault) {
-        if(customStartDestination == null && isDefault && startDestination !is HomeScreenNav) {
+        if (customStartDestination == null && isDefault && startDestination !is HomeScreenNav) {
             startDestination = HomeScreenNav()
         }
     }
-
-    ModalNavigationDrawer(
-        drawerState = drawerState,
-        drawerContent = {
-            if(isDefault) {
-                ModalDrawerSheetLayout(
-                    callback = { type ->
-                        if (type == ThreadsViewModel.InboxType.DEVELOPER) {
-                            navController.navigate(DeveloperModeScreen)
-                        }
-                        else if(type != ThreadsViewModel.InboxType.CUSTOM) {
-                            navController.navigate(HomeScreenNav())
-                            threadsViewModel.setInboxType(type)
-                        } else {
-                            threadsViewModel.setInboxType(type)
-                        }
-                        threadsViewModel.toggleDrawerValue()
-                    },
-                    selectedItemIndex = inboxType,
-                    customComposable = modalNavigationModalItems,
-                )
-            }
-        },
+    MaterialTheme(
+        typography = typography
     ) {
-        NavHost(
-            modifier = Modifier,
-            navController = navController,
-            startDestination = startDestination
+        ModalNavigationDrawer(
+            drawerState = drawerState,
+            drawerContent = {
+                if (isDefault) {
+                    ModalDrawerSheetLayout(
+                        callback = { type ->
+                            if (type == ThreadsViewModel.InboxType.DEVELOPER) {
+                                navController.navigate(DeveloperModeScreen)
+                            } else if (type != ThreadsViewModel.InboxType.CUSTOM) {
+                                navController.navigate(HomeScreenNav())
+                                threadsViewModel.setInboxType(type)
+                            } else {
+                                threadsViewModel.setInboxType(type)
+                            }
+                            threadsViewModel.toggleDrawerValue()
+                        },
+                        selectedItemIndex = inboxType,
+                        customComposable = modalNavigationModalItems,
+                    )
+                }
+            },
         ) {
-            builder()
+            NavHost(
+                modifier = Modifier,
+                navController = navController,
+                startDestination = startDestination
+            ) {
+                builder()
 
-            composable<DefaultScreenNav>{
-                DefaultCheckMain(appName) { default ->
-                    if(default) {
-                        threadsViewModel.setIsDefault(context.isDefault())
-                        navController.navigate(HomeScreenNav()) {
-                            popUpTo(navController.graph.id) {
-                                inclusive = true
+                composable<DefaultScreenNav> {
+                    DefaultCheckMain(appName) { default ->
+                        if (default) {
+                            threadsViewModel.setIsDefault(context.isDefault())
+                            navController.navigate(HomeScreenNav()) {
+                                popUpTo(navController.graph.id) {
+                                    inclusive = true
+                                }
                             }
                         }
                     }
                 }
-            }
-            composable<HomeScreenNav>{ backStackEntry ->
-                ThreadConversationLayout(
-                    threadsViewModel = threadsViewModel,
-                    navController = navController,
-                    threadsMainMenuItems = threadsMainMenuItems,
-                    customBottomBar = customBottomBar,
-                    showTopBar = showThreadsTopBar,
-                    appName = appName,
-                )
-            }
-            composable<ConversationsScreenNav> { backStackEntry ->
-                val convScreen: ConversationsScreenNav = backStackEntry.toRoute()
-                ConversationsMainLayout(
-                    address = convScreen.address,
-                    text = convScreen.text ?: "",
-                    searchQuery = convScreen.query,
-                    navController = navController,
-                    threadId = convScreen.threadId,
-                    threadsViewModel = threadsViewModel,
-                    conversationsViewModel = conversationsViewModel,
-                    customComposable = conversationsCustomComposable,
-                    customMenuItems = customMenuItems,
-                    customsConversationsViewModel = conversationsCustomViewModel,
-                    customDataView = conversationsCustomDataView,
-                )
-            }
-            composable<SearchScreenNav> { backStackEntry ->
-                val searchScreen: SearchScreenNav = backStackEntry.toRoute()
-                SearchThreadsMain(
-                    address = searchScreen.address,
-                    searchViewModel = searchViewModel!!,
-                    navController = navController
-                )
-            }
-            composable<ContactDetailsScreenNav>{ backStackEntry ->
-                val contactsDetailsScreen: ContactDetailsScreenNav = backStackEntry.toRoute()
-                ContactDetails(
-                    address = contactsDetailsScreen.address,
-                    navController = navController,
-                    isEncryptionEnabled = contactsDetailsScreen.encryptionAvailable,
-                    subscriptionId = contactsDetailsScreen.subscriptionId
-                )
-            }
+                composable<HomeScreenNav> { backStackEntry ->
+                    ThreadConversationLayout(
+                        threadsViewModel = threadsViewModel,
+                        navController = navController,
+                        threadsMainMenuItems = threadsMainMenuItems,
+                        customBottomBar = customBottomBar,
+                        showTopBar = showThreadsTopBar,
+                        appName = appName,
+                    )
+                }
+                composable<ConversationsScreenNav> { backStackEntry ->
+                    val convScreen: ConversationsScreenNav = backStackEntry.toRoute()
+                    ConversationsMainLayout(
+                        address = convScreen.address,
+                        text = convScreen.text ?: "",
+                        searchQuery = convScreen.query,
+                        navController = navController,
+                        threadId = convScreen.threadId,
+                        threadsViewModel = threadsViewModel,
+                        conversationsViewModel = conversationsViewModel,
+                        customComposable = conversationsCustomComposable,
+                        customMenuItems = customMenuItems,
+                        customsConversationsViewModel = conversationsCustomViewModel,
+                        customDataView = conversationsCustomDataView,
+                    )
+                }
+                composable<SearchScreenNav> { backStackEntry ->
+                    val searchScreen: SearchScreenNav = backStackEntry.toRoute()
+                    SearchThreadsMain(
+                        address = searchScreen.address,
+                        searchViewModel = searchViewModel!!,
+                        navController = navController
+                    )
+                }
+                composable<ContactDetailsScreenNav> { backStackEntry ->
+                    val contactsDetailsScreen: ContactDetailsScreenNav = backStackEntry.toRoute()
+                    ContactDetails(
+                        address = contactsDetailsScreen.address,
+                        navController = navController,
+                        isEncryptionEnabled = contactsDetailsScreen.encryptionAvailable,
+                        subscriptionId = contactsDetailsScreen.subscriptionId
+                    )
+                }
 
-            composable<ComposeNewMessageScreenNav>{ backStackEntry ->
-                val composeDetailsScreen: ComposeNewMessageScreenNav = backStackEntry.toRoute()
-                ComposeNewMessage(
-                    navController = navController,
-                    text = composeDetailsScreen.text,
-                    subscriptionId = composeDetailsScreen.subscriptionId,
-                )
-            }
+                composable<ComposeNewMessageScreenNav> { backStackEntry ->
+                    val composeDetailsScreen: ComposeNewMessageScreenNav = backStackEntry.toRoute()
+                    ComposeNewMessage(
+                        navController = navController,
+                        text = composeDetailsScreen.text,
+                        subscriptionId = composeDetailsScreen.subscriptionId,
+                    )
+                }
 
-            composable<SettingsScreenNav>{
-                SettingsMain(navController = navController)
-            }
+                composable<SettingsScreenNav> {
+                    SettingsMain(navController = navController,
+                        onUseSystemFontChanged = { useSystemFont = it}
+                    )
+                }
 
-            composable<DeveloperModeScreen>{
-                DeveloperModeMain(navController)
-            }
+                composable<DeveloperModeScreen> {
+                    DeveloperModeMain(navController)
+                }
 
-            composable<ImageViewScreenNav>{ backStackEntry ->
-                val imageViewScreen: ImageViewScreenNav = backStackEntry.toRoute()
-                MediaMain(
-                    contentUri = imageViewScreen.contentUri.toUri(),
-                    address = imageViewScreen.address,
-                    date = imageViewScreen.date,
-                    navController = navController,
-                    filename = imageViewScreen.filename,
-                    mimeType = imageViewScreen.mimeType
-                )
+                composable<ImageViewScreenNav> { backStackEntry ->
+                    val imageViewScreen: ImageViewScreenNav = backStackEntry.toRoute()
+                    MediaMain(
+                        contentUri = imageViewScreen.contentUri.toUri(),
+                        address = imageViewScreen.address,
+                        date = imageViewScreen.date,
+                        navController = navController,
+                        filename = imageViewScreen.filename,
+                        mimeType = imageViewScreen.mimeType
+                    )
+                }
             }
         }
     }
-
 }
 
 @Composable
