@@ -50,15 +50,10 @@ import com.afkanerd.smswithoutborders_libsmsmms.ui.navigation.HomeScreenNav
 import com.afkanerd.smswithoutborders_libsmsmms.ui.navigation.ImageViewScreenNav
 import com.afkanerd.smswithoutborders_libsmsmms.ui.navigation.SearchScreenNav
 import com.afkanerd.smswithoutborders_libsmsmms.ui.navigation.SettingsScreenNav
-import com.afkanerd.smswithoutborders_libsmsmms.ui.requiredReadPhoneStatePermissions
 import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.ConversationsViewModel
 import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.CustomsConversationsViewModel
 import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.SearchViewModel
 import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.ThreadsViewModel
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.isGranted
-import com.google.accompanist.permissions.rememberPermissionState
-
 import com.afkanerd.smswithoutborders_libsmsmms.ui.theme.UnboundedFontFamily
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Typography
