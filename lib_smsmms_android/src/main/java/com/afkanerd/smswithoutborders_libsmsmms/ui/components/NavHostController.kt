@@ -136,54 +136,8 @@ fun NavHostControllerInstance(
             ),
         )
     } else {
-    Typography(
-        displayLarge = currentTypography.displayLarge.copy(
-            fontFamily = UnboundedFontFamily
-        ),
-        displayMedium = currentTypography.displayMedium.copy(
-            fontFamily = UnboundedFontFamily
-        ),
-        displaySmall = currentTypography.displaySmall.copy(
-            fontFamily = UnboundedFontFamily
-        ),
-        headlineLarge = currentTypography.headlineLarge.copy(
-            fontFamily = UnboundedFontFamily
-        ),
-        headlineMedium = currentTypography.headlineMedium.copy(
-            fontFamily = UnboundedFontFamily
-        ),
-        headlineSmall = currentTypography.headlineSmall.copy(
-            fontFamily = UnboundedFontFamily
-        ),
-        titleLarge = currentTypography.titleLarge.copy(
-            fontFamily = UnboundedFontFamily
-        ),
-        titleMedium = currentTypography.titleMedium.copy(
-            fontFamily = UnboundedFontFamily
-        ),
-        titleSmall = currentTypography.titleSmall.copy(
-            fontFamily = UnboundedFontFamily
-        ),
-        bodyLarge = currentTypography.bodyLarge.copy(
-            fontFamily = UnboundedFontFamily
-        ),
-        bodyMedium = currentTypography.bodyMedium.copy(
-            fontFamily = UnboundedFontFamily
-        ),
-        bodySmall = currentTypography.bodySmall.copy(
-            fontFamily = UnboundedFontFamily
-        ),
-        labelLarge = currentTypography.labelLarge.copy(
-            fontFamily = UnboundedFontFamily
-        ),
-        labelMedium = currentTypography.labelMedium.copy(
-            fontFamily = UnboundedFontFamily
-        ),
-        labelSmall = currentTypography.labelSmall.copy(
-            fontFamily = UnboundedFontFamily
-        ),
-    )
-}
+        currentTypography
+    }
 
     val drawerState by threadsViewModel.drawerState.collectAsStateWithLifecycle()
     val inboxType by threadsViewModel.inboxType.collectAsStateWithLifecycle()
