@@ -54,7 +54,6 @@ import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.ConversationsViewM
 import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.CustomsConversationsViewModel
 import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.SearchViewModel
 import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.ThreadsViewModel
-import com.afkanerd.smswithoutborders_libsmsmms.ui.theme.UnboundedFontFamily
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.font.FontFamily
