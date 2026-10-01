@@ -282,8 +282,8 @@ fun SettingsMain(
             }
 
             SettingsItem(
-                itemTitle = "Use System Font",
-                itemDescription = "Use Your Device's Defualt System Font",
+                itemTitle = stringResource(R.string.use_system_font),
+                itemDescription = stringResource(R.string.use_your_devices_defualt_system_font),
                 checked = useSystemFont
             ){
                 val newValue = it ?: useSystemFont
