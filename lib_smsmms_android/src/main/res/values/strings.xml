@@ -481,5 +481,7 @@
     <string name="switch_sim_cards">Switch SIM cards</string>
     <string name="send_with">Send with</string>
     <string name="secure_database_migrated">Secure database migrated!</string>
+    <string name="use_system_font">Use System Font</string>
+    <string name="use_your_devices_defualt_system_font">Use Your Device\'s Defualt System Font</string>
 
 </resources>
