@@ -1,25 +1,24 @@
 plugins {
     id 'com.android.library'
     id 'com.google.devtools.ksp'
-    id 'org.jetbrains.kotlin.android'
     id 'org.jetbrains.kotlin.plugin.compose'
     id 'org.jetbrains.kotlin.plugin.serialization'
     id("maven-publish") apply true
 }
 
-afterEvaluate {
-    publishing {
-        publications {
-            release(MavenPublication) {
-                from components.release
-
-                groupId = "com.afkanerd"
-                artifactId = "lib_smsmms_android"
-                version = "1.0.0"
-            }
-        }
-    }
-}
+//afterEvaluate {
+//    publishing {
+//        publications {
+//            release(MavenPublication) {
+//                from components.relase
+//
+//                groupId = "com.afkanerd"
+//                artifactId = "lib_smsmms_android"
+//                version = "1.0.0"
+//            }
+//        }
+//    }
+//}
 
 android {
     namespace 'com.afkanerd.lib_smsmms_android'
@@ -51,10 +50,6 @@ android {
     buildFeatures {
         compose true
         buildConfig = true
-    }
-
-    kotlinOptions {
-        jvmTarget = '11'
     }
 
     lint {
