@@ -28,6 +28,7 @@ import androidx.paging.PagingSource
 import androidx.paging.cachedIn
 import androidx.paging.map
 import com.afkanerd.lib_smsmms_android.R
+import com.afkanerd.smswithoutborders_libsmsmms.data.DatabaseImpl
 import com.afkanerd.smswithoutborders_libsmsmms.data.dao.ConversationsDao
 import com.afkanerd.smswithoutborders_libsmsmms.data.data.models.DateTimeUtils
 import com.afkanerd.smswithoutborders_libsmsmms.data.entities.Threads
@@ -124,7 +125,6 @@ open class ThreadsViewModel: ViewModel() {
     data class ThreadsUi(
         val id: Int,
         val threads: Threads,
-        val date: String,
         val isSelected: Boolean,
         val unreadCount: Flow<Int>,
         val onClick: () -> Unit,
@@ -136,13 +136,13 @@ open class ThreadsViewModel: ViewModel() {
         val name: String?,
         val blocked: Boolean,
         val photo: String?,
+        val date: String,
     )
 
     fun getThreads(
-        context: Context,
+        db: DatabaseImpl,
         navigationCallback: (thread: Threads) -> Unit,
     ): Flow<PagingData<ThreadsUi>> {
-        val db = context.getDatabase()
         val threadsDao = db.threadsDao() ?: throw Exception("Failed to open threads db")
 
         return Pager(
@@ -166,13 +166,11 @@ open class ThreadsViewModel: ViewModel() {
             .flow
             .map{ pd -> pd.map{ thread ->
                 val isSelected = _selectedItems.value.contains(thread)
-                val date = DateTimeUtils.formatDate(context, thread.date) ?: ""
                 val unreadCount = threadsDao.getUnreadCount(thread.threadId)
 
                 ThreadsUi(
                     id = thread.threadId,
                     threads = thread,
-                    date = date,
                     isSelected = isSelected,
                     unreadCount = unreadCount,
                     onClick = {
@@ -199,11 +197,13 @@ open class ThreadsViewModel: ViewModel() {
                             val nameDeferred = async { ctx.retrieveContactName(thread.address) }
                             val blockedDeferred = async { ctx.isNumberBlocked(thread.address) }
                             val photoDeferred = async { getContactPhoto(ctx, thread.address) }
+                            val date = async { DateTimeUtils.formatDate(ctx, thread.date) ?: "" }
 
                             return@withContext ThreadsComputations(
                                 name = nameDeferred.await(),
                                 blocked = blockedDeferred.await(),
                                 photo = photoDeferred.await(),
+                                date = date.await()
                             )
                         }
                     }
