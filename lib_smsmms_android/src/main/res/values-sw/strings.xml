@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="router_list_gateways">Ağ Geçidi sunucularını görüntüle</string>
+    <string name="conversation_menu_block">Zuia</string>
+    <string name="conversation_menu_export">Hamisha</string>
+    <string name="conversation_menu_mute">Nyamazisha</string>
+    <string name="conversation_menu_muted_label">Imenyamazishwa</string>
+    <string name="conversation_menu_unmute">Ondoa unyamazishaji</string>
+    <string name="conversation_menu_muted">Mwasiliani sasa amenyamazishwa!</string>
+    <string name="conversation_menu_unmuted">Mwasiliani sasa ameondolewa unyamazishaji!</string>
+    <string name="conversation_menu_view_details">Angalia maelezo</string>
+    <string name="conversation_menu_view_replay">Cheza tena</string>
+    <string name="conversation_menu_view_details_title">Maelezo ya ujumbe</string>
+</resources>

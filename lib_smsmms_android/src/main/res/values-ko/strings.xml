@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="router_list_gateways">게이트웨이 서버 보기</string>
+    <string name="conversation_menu_copy">복사</string>
+    <string name="conversation_menu_delete">삭제</string>
+    <string name="conversation_menu_unarchive">보관 해제</string>
+    <string name="conversation_menu_share">공유하다</string>
+    <string name="conversation_menu_block">차단</string>
+    <string name="conversation_menu_export">내보내기</string>
+    <string name="conversation_menu_mute">음소거</string>
+    <string name="conversation_menu_muted_label">음소거됨</string>
+    <string name="conversation_menu_unmute">음소거 해제</string>
+    <string name="conversation_menu_muted">연락처가 이제 음소거되었습니다!</string>
+    <string name="conversation_menu_unmuted">연락처의 음소거가 해제되었습니다!</string>
+    <string name="conversation_menu_view_details">세부 정보 보기</string>
+    <string name="conversation_menu_view_replay">다시 재생</string>
+    <string name="conversation_menu_view_details_title">메시지 세부 정보</string>
+</resources>

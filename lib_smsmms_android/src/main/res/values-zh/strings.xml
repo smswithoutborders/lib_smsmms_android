@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="router_list_gateways">查看网关服务器</string>
+    <string name="conversation_menu_copy">复制</string>
+    <string name="conversation_menu_delete">删除</string>
+    <string name="conversation_menu_unarchive">取消归档</string>
+    <string name="conversation_menu_share">分享</string>
+    <string name="conversation_menu_block">屏蔽</string>
+    <string name="conversation_menu_export">导出</string>
+    <string name="conversation_menu_mute">静音</string>
+    <string name="conversation_menu_muted_label">已静音</string>
+    <string name="conversation_menu_unmute">取消静音</string>
+    <string name="conversation_menu_muted">联系人现已静音！</string>
+    <string name="conversation_menu_unmuted">联系人现已取消静音！</string>
+    <string name="conversation_menu_view_details">查看详情</string>
+    <string name="conversation_menu_view_replay">重播</string>
+    <string name="conversation_menu_view_details_title">消息详情</string>
+</resources>

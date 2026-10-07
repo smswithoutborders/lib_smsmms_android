@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="router_list_gateways">Tarisa maseva eGateway</string>
+    <string name="conversation_menu_block">Vharira</string>
+    <string name="conversation_menu_export">Tumira kunze</string>
+    <string name="conversation_menu_mute">Nyaradza</string>
+    <string name="conversation_menu_muted_label">Nyaradzwa</string>
+    <string name="conversation_menu_unmute">Bvisa kunyaradza</string>
+    <string name="conversation_menu_muted">Munhu waunotaura naye anyaradzwa!</string>
+    <string name="conversation_menu_unmuted">Munhu waunotaura naye anyaradzwa zvakare!</string>
+    <string name="conversation_menu_view_details">Ona ruzivo</string>
+    <string name="conversation_menu_view_replay">Ridza zvakare</string>
+    <string name="conversation_menu_view_details_title">Ruzivo rwemeseji</string>
+</resources>

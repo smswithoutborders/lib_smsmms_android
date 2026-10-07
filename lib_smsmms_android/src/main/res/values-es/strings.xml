@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="router_list_gateways">Ver servidores de puerta de enlace</string>
+    <string name="conversation_menu_block">Bloquear</string>
+    <string name="conversation_menu_export">Exportar</string>
+    <string name="conversation_menu_mute">Silenciar</string>
+    <string name="conversation_menu_muted_label">Silenciado</string>
+    <string name="conversation_menu_unmute">Dejar de silenciar</string>
+    <string name="conversation_menu_muted">¡El contacto ahora está silenciado!</string>
+    <string name="conversation_menu_unmuted">¡El contacto ahora ya no está silenciado!</string>
+    <string name="conversation_menu_view_details">Ver detalles</string>
+    <string name="conversation_menu_view_replay">Reproducir de nuevo</string>
+    <string name="conversation_menu_view_details_title">Detalles del mensaje</string>
+</resources>

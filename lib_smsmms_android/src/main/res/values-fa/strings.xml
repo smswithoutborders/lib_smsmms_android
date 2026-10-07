@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="router_list_gateways">مشاهده سرورهای دروازه</string>
+    <string name="conversation_menu_copy">نسخه</string>
+    <string name="conversation_menu_delete">حذف</string>
+    <string name="conversation_menu_unarchive">خارج‌سازی از بایگانی</string>
+    <string name="conversation_menu_share">اشتراک‌گذاری</string>
+    <string name="conversation_menu_block">مسدود کردن</string>
+    <string name="conversation_menu_export">صادر کردن</string>
+    <string name="conversation_menu_mute">بی‌صدا کردن</string>
+    <string name="conversation_menu_muted_label">بی‌صدا شده</string>
+    <string name="conversation_menu_unmute">لغو بی‌صدا</string>
+    <string name="conversation_menu_muted">مخاطب اکنون بی‌صدا شده است!</string>
+    <string name="conversation_menu_unmuted">صدای مخاطب اکنون فعال شده است!</string>
+    <string name="conversation_menu_view_details">مشاهده جزئیات</string>
+    <string name="conversation_menu_view_replay">پخش مجدد</string>
+    <string name="conversation_menu_view_details_title">جزئیات پیام</string>
+</resources>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="router_list_gateways">Ağ Geçidi sunucularını görüntüle</string>
+    <string name="conversation_menu_block">Engelle</string>
+    <string name="conversation_menu_export">Dışa aktar</string>
+    <string name="conversation_menu_mute">Sessize al</string>
+    <string name="conversation_menu_muted_label">Sessize alındı</string>
+    <string name="conversation_menu_unmute">Sessizi kaldır</string>
+    <string name="conversation_menu_muted">Kişi artık sessize alındı!</string>
+    <string name="conversation_menu_unmuted">Kişinin sessizi kaldırıldı!</string>
+    <string name="conversation_menu_view_details">Ayrıntıları görüntüle</string>
+    <string name="conversation_menu_view_replay">Tekrar oynat</string>
+    <string name="conversation_menu_view_details_title">Mesaj ayrıntıları</string>
+</resources>

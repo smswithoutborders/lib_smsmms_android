@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="router_list_gateways">عرض خوادم البوابة</string>
+    <string name="conversation_menu_copy">ينسخ</string>
+    <string name="conversation_menu_delete">يمسح</string>
+    <string name="conversation_menu_unarchive">إلغاء الأرشفة</string>
+    <string name="conversation_menu_share">يشارك</string>
+    <string name="conversation_menu_block">حظر</string>
+    <string name="conversation_menu_export">تصدير</string>
+    <string name="conversation_menu_mute">كتم</string>
+    <string name="conversation_menu_muted_label">مكتوم</string>
+    <string name="conversation_menu_unmute">إلغاء الكتم</string>
+    <string name="conversation_menu_muted">تم كتم جهة الاتصال الآن!</string>
+    <string name="conversation_menu_unmuted">تم إلغاء كتم جهة الاتصال الآن!</string>
+    <string name="conversation_menu_view_details">عرض التفاصيل</string>
+    <string name="conversation_menu_view_replay">إعادة التشغيل</string>
+    <string name="conversation_menu_view_details_title">تفاصيل الرسالة</string>
+</resources>

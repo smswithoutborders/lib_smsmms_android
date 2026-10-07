@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="router_list_gateways">गेटवे सर्वर देखें</string>
+    <string name="conversation_menu_copy">कॉपी</string>
+    <string name="conversation_menu_delete">मिटाना</string>
+    <string name="conversation_menu_unarchive">संग्रह से निकालें</string>
+    <string name="conversation_menu_share">शेयर करना</string>
+    <string name="conversation_menu_block">अवरोध पैदा करना</string>
+    <string name="conversation_menu_export">निर्यात करें</string>
+    <string name="conversation_menu_mute">म्यूट करें</string>
+    <string name="conversation_menu_muted_label">म्यूट किया गया</string>
+    <string name="conversation_menu_unmute">अनम्यूट करें</string>
+    <string name="conversation_menu_muted">संपर्क अब म्यूट कर दिया गया है!</string>
+    <string name="conversation_menu_unmuted">संपर्क अब अनम्यूट कर दिया गया है!</string>
+    <string name="conversation_menu_view_details">विवरण देखें</string>
+    <string name="conversation_menu_view_replay">फिर से चलाएँ</string>
+    <string name="conversation_menu_view_details_title">संदेश का विवरण</string>
+</resources>
