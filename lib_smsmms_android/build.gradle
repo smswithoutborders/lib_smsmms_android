@@ -6,19 +6,28 @@ plugins {
     id("maven-publish") apply true
 }
 
-//afterEvaluate {
-//    publishing {
-//        publications {
-//            release(MavenPublication) {
-//                from components.relase
-//
-//                groupId = "com.afkanerd"
-//                artifactId = "lib_smsmms_android"
-//                version = "1.0.0"
-//            }
-//        }
-//    }
-//}
+android {
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
+        }
+    }
+}
+
+
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                from components.release
+
+                groupId = "com.afkanerd"
+                artifactId = "lib_smsmms_android"
+                version = "1.0.0"
+            }
+        }
+    }
+}
 
 android {
     namespace 'com.afkanerd.lib_smsmms_android'

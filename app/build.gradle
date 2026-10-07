@@ -1,5 +1,4 @@
 plugins {
-    id 'maven-publish'
     id 'com.android.application'
     id 'org.jetbrains.kotlin.plugin.compose'
     id 'org.jetbrains.kotlin.plugin.serialization'
@@ -35,6 +34,7 @@ android {
         compose true
     }
 }
+
 
 dependencies {
     implementation project(':lib_smsmms_android')
