@@ -61,6 +61,8 @@ import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.settingsSetSt
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.settingsSetTheme
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.settingsGetUseSystemFont
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.settingsSetUseSystemFont
+import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.settingsGetMessageFontSize
+import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.settingsSetMessageFontSize
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -114,6 +116,13 @@ fun SettingsMain(
 
     var useSystemFont by remember {
         mutableStateOf(context.settingsGetUseSystemFont)
+    }
+
+    var massageFontSize by remember {
+        mutableStateOf(context.settingsGetMessageFontSize)
+    }
+    var fontSizeExpanded by remember{
+        mutableStateOf(false)
     }
 
     Scaffold(
