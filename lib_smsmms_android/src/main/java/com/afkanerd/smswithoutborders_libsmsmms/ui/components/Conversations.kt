@@ -562,10 +562,12 @@ fun PreviewConversationsReceived() {
             ConversationReceived(
                 text = AnnotatedString("Hello world"),
                 date = "yesterday",
+                fontSize = 16
             )
             ConversationSent(
                 text = AnnotatedString("Hello world"),
-                type = Telephony.Mms.MESSAGE_BOX_FAILED
+                type = Telephony.Mms.MESSAGE_BOX_FAILED,
+                fontSize = 16
             )
         }
     }
