@@ -27,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
@@ -38,6 +39,7 @@ import com.afkanerd.lib_smsmms_android.R
 import com.afkanerd.smswithoutborders_libsmsmms.data.data.models.DateTimeUtils
 import com.afkanerd.smswithoutborders_libsmsmms.data.data.models.SmsMmsNatives
 import com.afkanerd.smswithoutborders_libsmsmms.data.entities.Conversations
+import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.settingsGetMessageFontSize
 
 enum class ConversationType(val value: Int) {
     NORMAL(0),
@@ -245,6 +247,8 @@ fun ConversationItem(
     onLongClickCallback: (() -> Unit)? = null,
 ) {
     val inPreview = LocalInspectionMode.current
+    val context = LocalContext.current
+    val messageFontSize = context.settingsGetMessageFontSize
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
