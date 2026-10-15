@@ -10,6 +10,7 @@ import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
+import com.afkanerd.smswithoutborders_libsmsmms.ui.components.font_scale.withUserSettings
 
 private val DarkColorScheme = darkColorScheme(
     primary = Purple80,
@@ -52,7 +53,7 @@ fun Lib_smsmms_androidTheme(
 
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = Typography,
+        typography = Typography.withUserSettings().value,
         content = content
     )
 }

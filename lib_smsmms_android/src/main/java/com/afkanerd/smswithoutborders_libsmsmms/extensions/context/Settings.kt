@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.map
 // At the top level of your kotlin file:
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
-private object Settings {
+object Settings {
     const val FILENAME: String = "com.afkanerd.deku.settings"
     const val SETTINGS_CAN_SWIPE = "SETTINGS_CAN_SWIPE"
     const val SETTINGS_STORE_IN_TELEPHONY = "SETTINGS_STORE_IN_TELEPHONY"
@@ -27,6 +27,8 @@ private object Settings {
     const val SETTINGS_ENABLE_24_HOUR_FORMAT = "SETTINGS_ENABLE_24_HOUR_FORMAT"
     const val SETTINGS_CONVERSATION_SUBSCRIPTION_ID = "SETTINGS_CONVERSATION_SUBSCRIPTION_ID"
     const val SETTINGS_USE_SYSTEM_FONT = "SETTINGS_USE_SYSTEM_FONT"
+
+    const val FONT_SCALE = "SETTINGS_TEXT_FONT_SCALE"
 }
 
 fun Context.settingsGetConversationsSubscriptionId(address: String): Flow<Long?>  =
@@ -158,4 +160,22 @@ suspend fun Context.settingsSetConversationsSubscriptionId(address: String, subs
             preferences[key] = subscriptionId
         }
     }
+}
+
+
+
+/**
+ * This function changes the stored value of the system's base font size.
+ * The value is expected to be in %, e.g 100, 150, 350
+ */
+fun Context.setFontScale(value: Int){
+    this.getSharedPreferences(Settings.FILENAME, Context.MODE_PRIVATE, ).edit(commit=true){
+        putInt(Settings.FONT_SCALE, value)
+    }
+}
+/**
+ * This function returns the stored value of the user's preferred font size.
+ */
+fun Context.getFontScale(): Int{
+    return this.getSharedPreferences(Settings.FILENAME, Context.MODE_PRIVATE, ).getInt(Settings.FONT_SCALE, 100)
 }
