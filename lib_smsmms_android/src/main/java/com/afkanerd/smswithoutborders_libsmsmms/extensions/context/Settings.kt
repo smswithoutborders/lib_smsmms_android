@@ -27,6 +27,7 @@ private object Settings {
     const val SETTINGS_ENABLE_24_HOUR_FORMAT = "SETTINGS_ENABLE_24_HOUR_FORMAT"
     const val SETTINGS_CONVERSATION_SUBSCRIPTION_ID = "SETTINGS_CONVERSATION_SUBSCRIPTION_ID"
     const val SETTINGS_USE_SYSTEM_FONT = "SETTINGS_USE_SYSTEM_FONT"
+    const val SETTINGS_MESSAGE_FONT_SIZE = "SETTINGS_MESSAGE_FONT_SIZE"
 }
 
 fun Context.settingsGetConversationsSubscriptionId(address: String): Flow<Long?>  =
@@ -82,6 +83,14 @@ val Context.settingsGetUseSystemFont get(): Boolean {
         Settings.FILENAME, Context.MODE_PRIVATE)
     return sharedPreferences.getBoolean(Settings.SETTINGS_USE_SYSTEM_FONT, false)
 }
+
+val Context.settingsGetMessageFontSize: Int get(){
+    val sharedPreferences = getSharedPreferences(
+        Settings.FILENAME, Context.MODE_PRIVATE
+    )
+    return sharedPreferences.getInt(Settings.SETTINGS_MESSAGE_FONT_SIZE, 16)
+}
+
 val Context.settingsGetDeleteSystem get(): Boolean {
     val sharedPreferences = getSharedPreferences(
         Settings.FILENAME, Context.MODE_PRIVATE)
@@ -148,6 +157,13 @@ fun Context.settingsSetUseSystemFont(state: Boolean) {
     getSharedPreferences(Settings.FILENAME, Context.MODE_PRIVATE).edit {
         putBoolean(Settings.SETTINGS_USE_SYSTEM_FONT, state)
         apply()
+    }
+}
+
+fun Context.settingsSetMessageFontSize(size: Int) {
+    getSharedPreferences(Settings.FILENAME, Context.MODE_PRIVATE).edit {
+        putInt(Settings.SETTINGS_MESSAGE_FONT_SIZE, size)
+
     }
 }
 
