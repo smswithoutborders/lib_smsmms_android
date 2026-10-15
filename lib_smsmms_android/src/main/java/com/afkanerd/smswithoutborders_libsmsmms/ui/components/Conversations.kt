@@ -81,6 +81,7 @@ private fun ConversationIsKey(isReceived: Boolean = false) {
 private fun ConversationReceived(
     text: AnnotatedString,
     date: String,
+    fontSize: Int,
     position: ConversationType = ConversationType.START_TIMESTAMP,
     isSelected: Boolean = false,
     onClickCallback: (() -> Unit)? = null,
@@ -146,6 +147,7 @@ private fun ConversationReceived(
 private fun ConversationSent(
     text: AnnotatedString,
     position: ConversationType = ConversationType.START_TIMESTAMP,
+    fontSize: Int,
     type: Int,
     isSelected: Boolean = false,
     onFailClickCallback: () -> Unit = {},
