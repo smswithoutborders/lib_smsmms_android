@@ -289,6 +289,7 @@ fun ConversationItem(
                         if(text.isNotEmpty()) {
                             ConversationReceived(
                                 text =text,
+                                fontSize = messageFontSize,
                                 position =contentType,
                                 date =date,
                                 isSelected = isSelected,
@@ -331,6 +332,7 @@ fun ConversationItem(
                         if(text.isNotEmpty()) {
                             ConversationSent(
                                 text =text,
+                                fontSize = messageFontSize,
                                 position =contentType,
                                 type =type,
                                 isSelected = isSelected,
