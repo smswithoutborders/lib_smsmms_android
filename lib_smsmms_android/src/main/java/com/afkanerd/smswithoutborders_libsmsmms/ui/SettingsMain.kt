@@ -61,6 +61,7 @@ import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.settingsSetSt
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.settingsSetTheme
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.settingsGetUseSystemFont
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.settingsSetUseSystemFont
+import com.afkanerd.smswithoutborders_libsmsmms.ui.components.font_scale.FontScaleSetting
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -178,6 +179,8 @@ fun SettingsMain(
             ) {
                 themeExpanded = true
             }
+
+            FontScaleSetting()
 
             Column(
                 modifier = Modifier
