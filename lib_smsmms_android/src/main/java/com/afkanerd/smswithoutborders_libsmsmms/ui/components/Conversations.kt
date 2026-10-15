@@ -207,6 +207,7 @@ private fun ConversationSent(
                     text= text,
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.padding(16.dp),
+                    fontSize = fontSize.sp,
                     color = if(isSelected)
                         MaterialTheme.colorScheme.onSecondary
                     else color
