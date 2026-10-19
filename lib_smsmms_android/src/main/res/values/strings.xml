@@ -497,5 +497,13 @@
     <string name="retry">Try again</string>
     <string name="sending_stop">Sending stopped…</string>
     <string name="waiting_to_send_of">Waiting to send %1$d of %2$d</string>
+    <string name="message_font_size">Message font size</string>
+    <string name="cancel">Cancel</string>
+    <string name="font_size_normal">Normal</string>
+    <string name="font_size_extra_small">Extra small</string>
+    <string name="font_size_small">Small</string>
+    <string name="font_size_large">Large</string>
+    <string name="font_size_extra_large">Extra large</string>
+    <string name="font_size_extra_extra_large">Extra extra large</string>
 
 </resources>

@@ -132,12 +132,12 @@ fun SettingsMain(
     }
 
     val fontSizes = listOf(
-        "Extra small" to 12,
-        "Small" to 14,
-        "Normal" to 16,
-        "Large" to 18,
-        "Extra large" to 20,
-        "Extra extra large" to 22
+        stringResource(R.string.font_size_extra_small) to 12,
+        stringResource(R.string.font_size_small) to 14,
+        stringResource(R.string.font_size_normal) to 16,
+        stringResource(R.string.font_size_large) to 18,
+        stringResource(R.string.font_size_extra_large) to 20,
+        stringResource(R.string.font_size_extra_extra_large) to 22
     )
 
     Scaffold(
@@ -243,10 +243,10 @@ fun SettingsMain(
             }
 
             SettingsItem(
-                itemTitle = "Message font size",
+                itemTitle = stringResource(R.string.message_font_size),
                 itemDescription = fontSizes.firstOrNull {
                     it.second == messageFontSize
-                }?.first ?: "Normal",
+                }?.first ?: stringResource(R.string.font_size_normal),
                 checked = null
             ) {
                 fontSizeExpanded = true
@@ -258,7 +258,7 @@ fun SettingsMain(
                         fontSizeExpanded = false
                     },
                     title = {
-                        Text("Message font size")
+                        Text(stringResource(R.string.message_font_size),)
                     },
                     text = {
                         Column {
@@ -297,7 +297,7 @@ fun SettingsMain(
                                 fontSizeExpanded = false
                             }
                         ) {
-                            Text("Cancel")
+                            Text(stringResource(R.string.cancel))
                         }
                     }
                 )
