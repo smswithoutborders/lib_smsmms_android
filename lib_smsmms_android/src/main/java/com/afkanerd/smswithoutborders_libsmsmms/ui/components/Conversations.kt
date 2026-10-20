@@ -222,7 +222,7 @@ private fun ConversationSent(
                 IconButton(onClick = onFailClickCallback) {
                     Icon(
                         Icons.Default.Info,
-                        "Message failed icon",
+                        stringResource(R.string.message_failed_icon),
 //                        tint= colorResource(R.color.design_default_color_error)
                         tint= MaterialTheme.colorScheme.error
                     )
