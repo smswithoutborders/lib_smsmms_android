@@ -497,5 +497,28 @@
     <string name="retry">Try again</string>
     <string name="sending_stop">Sending stopped…</string>
     <string name="waiting_to_send_of">Waiting to send %1$d of %2$d</string>
+    <string name="message_font_size">Message font size</string>
+    <string name="cancel">Cancel</string>
+    <string name="font_size_normal">Normal</string>
+    <string name="font_size_extra_small">Extra small</string>
+    <string name="font_size_small">Small</string>
+    <string name="font_size_large">Large</string>
+    <string name="font_size_extra_large">Extra large</string>
+    <string name="font_size_extra_extra_large">Extra extra large</string>
+    <string name="trigger_mms_notification">Trigger MMS notification</string>
+    <string name="delete_all">Delete all</string>
+    <string name="back">Back</string>
+    <string name="contact_photo">Contact Photo</string>
+    <string name="default_avatar">Default Avatar</string>
+    <string name="add_contact">Add Contact</string>
+    <string name="search">Search</string>
+    <string name="copy_phone_number">Copy Phone Number</string>
+    <string name="contact_image">Contact Image</string>
+    <string name="pin_this_thread">Pin this thread</string>
+    <string name="unpin_this_thread">Unpin this thread</string>
+    <string name="message_failed_icon">Message failed icon</string>
+    <string name="sampler_custom_name">Sampler custom name</string>
+    <string name="sampler_carrier_name">Sampler carrier name</string>
+    <string name="play_video">Play Video</string>
 
 </resources>
