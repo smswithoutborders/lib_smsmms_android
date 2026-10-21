@@ -20,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
@@ -48,18 +49,19 @@ fun DeveloperModeMain(
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("Developer mode") },
+                title = { Text (stringResource(R.string.developer_mode)) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.AutoMirrored.Default.ArrowBack,
-                            "Go back")
+                            contentDescription = stringResource(R.string.go_back),
+                        )
                     }
                 }
             )
         },
     ) { innerPadding ->
         Column(Modifier.padding(innerPadding)) {
-            DeveloperModeItems("Trigger MMS notification") {
+            DeveloperModeItems(stringResource(R.string.trigger_mms_notification)) {
                 val address = "+237123456789"
                 val uri = context.getUriForDrawable(R.drawable.egs_cyberpunk2077_cdprojektred_s1_03_2560x1440_359e77d3cd0a40aebf3bbc130d14c5c7)
                     .toString()
@@ -98,7 +100,7 @@ fun DeveloperModeMain(
                 }
             }
 
-            DeveloperModeItems("Delete all") {
+            DeveloperModeItems(stringResource(R.string.delete_all)) {
                 CoroutineScope(Dispatchers.IO).launch {
                     context.getDatabase().conversationsDao()?.deleteAllThreads()
                     context.getDatabase().conversationsDao()?.deleteAllConversations()

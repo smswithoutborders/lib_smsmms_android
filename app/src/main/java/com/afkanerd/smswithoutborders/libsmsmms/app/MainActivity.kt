@@ -101,7 +101,7 @@ class MainActivity : ComponentActivity() {
                                                 },
                                                 label = {
                                                     Text(
-                                                        "Customized",
+                                                        stringResource(R.string.customized),
                                                         fontSize = 14.sp
                                                     )
                                                 },
