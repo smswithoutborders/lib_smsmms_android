@@ -15,4 +15,15 @@
     <string name="conversation_menu_view_details">세부 정보 보기</string>
     <string name="conversation_menu_view_replay">다시 재생</string>
     <string name="conversation_menu_view_details_title">메시지 세부 정보</string>
+    <string name="delete_messages_from_system_s_database">시스템 데이터베이스에서 메시지 삭제</string>
+    <string name="this_would_delete_messages_from_system_s_database_accessible_by_other_apps">이렇게 하면 다른 앱들이 접근할 수 있는 시스템 데이터베이스에서 메시지가 삭제됩니다.</string>
+    <string name="sending_with">~와 함께 보냄</string>
+    <string name="sim">SIM %1$s</string>
+    <string name="sim_card_switching">SIM 카드 교체</string>
+    <string name="_switch">스위치</string>
+    <string name="switch_sim_cards">SIM 카드 교체</string>
+    <string name="send_with">함께 보내기</string>
+    <string name="secure_database_migrated">보안 데이터베이스 이전 완료!</string>
+    <string name="use_system_font">시스템 글꼴 사용</string>
+    <string name="use_your_devices_defualt_system_font">기기의 기본 시스템 글꼴 사용</string>
 </resources>

@@ -11,4 +11,15 @@
     <string name="conversation_menu_view_details">Ona ruzivo</string>
     <string name="conversation_menu_view_replay">Ridza zvakare</string>
     <string name="conversation_menu_view_details_title">Ruzivo rwemeseji</string>
+    <string name="delete_messages_from_system_s_database">Bvisa mameseji kubva mudhatabhesi yesisitimu</string>
+    <string name="this_would_delete_messages_from_system_s_database_accessible_by_other_apps">Izvi zvaizobvisa mameseji kubva mudhatabhesi yesisitimu inogona kuwanikwa nedzimwe purogiramu.</string>
+    <string name="sending_with">Kutumira ne</string>
+    <string name="sim">SIM %1$s</string>
+    <string name="sim_card_switching">Kuchinja SIM kadhi</string>
+    <string name="_switch">Chinjo</string>
+    <string name="switch_sim_cards">Chinja makadhi eSIM</string>
+    <string name="send_with">Tumira ne</string>
+    <string name="secure_database_migrated">Dhatabhesi yakachengetedzeka yatamiswa!</string>
+    <string name="use_system_font">Shandisa Fonti yeSistimu</string>
+    <string name="use_your_devices_defualt_system_font">Shandisa fonti yesisitimu yakatarwa pachishandiso chako</string>
 </resources>

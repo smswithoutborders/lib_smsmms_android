@@ -404,5 +404,7 @@
     <string name="switch_sim_cards">Changer de carte SIM</string>
     <string name="send_with">Envoyer avec</string>
     <string name="secure_database_migrated">Base de données sécurisée migrée !</string>
+    <string name="use_system_font">Utiliser la police système</string>
+    <string name="use_your_devices_defualt_system_font">Utiliser la police système par défaut de votre appareil</string>
 
 </resources>

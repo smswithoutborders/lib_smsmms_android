@@ -15,4 +15,17 @@
     <string name="conversation_menu_view_details">مشاهده جزئیات</string>
     <string name="conversation_menu_view_replay">پخش مجدد</string>
     <string name="conversation_menu_view_details_title">جزئیات پیام</string>
+    <string name="play_video">پخش ویدیو</string>
+    <string name="delete_messages_from_system_s_database">حذف پیام‌ها از پایگاه داده سیستم</string>
+    <string name="this_would_delete_messages_from_system_s_database_accessible_by_other_apps">این کار پیام‌ها را از پایگاه دادهٔ سیستم، که برای سایر برنامه‌ها قابل دسترسی است، حذف خواهد کرد.</string>
+    <string name="sending_with">ارسال با</string>
+    <string name="sim">سیم‌کارت %1$s</string>
+    <string name="sim_card_switching">تعویض سیم‌کارت</string>
+    <string name="_switch">سوئیچ</string>
+    <string name="switch_sim_cards">تعویض سیم‌کارت‌ها</string>
+    <string name="send_with">ارسال با</string>
+    <string name="secure_database_migrated">پایگاه داده امن منتقل شد!</string>
+    <string name="use_system_font">استفاده از فونت سیستم</string>
+    <string name="use_your_devices_defualt_system_font">از فونت پیش‌فرض سیستم دستگاه خود استفاده کنید</string>
+
 </resources>
