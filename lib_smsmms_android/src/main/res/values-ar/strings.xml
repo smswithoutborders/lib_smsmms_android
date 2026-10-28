@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="message_failed_channel_name">فشلت الرسالة</string>
     <string name="router_list_gateways">عرض خوادم البوابة</string>
     <string name="conversation_menu_copy">ينسخ</string>
     <string name="conversation_menu_delete">يمسح</string>

@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="app_name">Deku SMS</string>
     <string name="privacy_policy_url">https://smswithoutborders.com/privacy-policy</string>
     <string name="incoming_messages_channel_name">수신 메시지</string>
+    <string name="message_failed_channel_name">메시지 전송 실패</string>
     <string name="incoming_messages_channel_description">새 메시지가 수신되면 호출됩니다.</string>
     <string name="running_gateway_clients_channel_description">게이트웨이 클라이언트가 수신 대기 중일 때 알림을 제공합니다.</string>
     <string name="search_messages_text">메시지 검색</string>

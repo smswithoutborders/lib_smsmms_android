@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="app_name">Deku SMS</string>
     <string name="privacy_policy_url">https://smswithoutborders.com/privacy-policy</string>
     <string name="incoming_messages_channel_name">پیام‌های دریافتی</string>
+    <string name="message_failed_channel_name">ارسال پیام ناموفق بود</string>
     <string name="incoming_messages_channel_description">هنگامی که پیام جدیدی دریافت می‌شود، فراخوانی می‌گردد.</string>
     <string name="running_gateway_clients_channel_description">هنگامی که کلاینت‌های گیت‌وی در حال شنود هستند، هشدار می‌دهد.</string>
     <string name="search_messages_text">جستجوی پیام‌ها</string>

@@ -1,4 +1,5 @@
 <resources>
+    <string name="app_name">Deku SMS</string>
     <string name="privacy_policy_url">https://smswithoutborders.com/privacy-policy</string>
     <string name="incoming_messages_channel_name">Входящие Сообщения</string>
 
@@ -449,5 +450,7 @@
     <string name="switch_sim_cards">Сменить SIM-карту</string>
     <string name="send_with">Отправить с</string>
     <string name="secure_database_migrated">База данных перенесена в защищенном режиме!</string>
+    <string name="use_system_font">Использовать системный шрифт</string>
+    <string name="use_your_devices_defualt_system_font">Использовать системный шрифт, заданный по умолчанию на вашем устройстве</string>
 
 </resources>

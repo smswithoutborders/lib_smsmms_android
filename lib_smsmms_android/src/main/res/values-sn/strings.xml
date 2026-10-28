@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="app_name">Deku SMS</string>
+    <string name="privacy_policy_url">https://smswithoutborders.com/privacy-policy</string>
     <string name="router_list_gateways">Tarisa maseva eGateway</string>
+    <string name="conversation_menu_copy">kopa</string>
+    <string name="conversation_menu_delete">Bvisa</string>
+    <string name="conversation_menu_unarchive">Bvisa muArchive</string>
+    <string name="conversation_menu_share">Goverana</string>
     <string name="conversation_menu_block">Vharira</string>
     <string name="conversation_menu_export">Tumira kunze</string>
     <string name="conversation_menu_mute">Nyaradza</string>

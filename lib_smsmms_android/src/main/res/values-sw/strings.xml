@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="app_name">Deku SMS</string>
+    <string name="privacy_policy_url">https://smswithoutborders.com/privacy-policy</string>
     <string name="router_list_gateways">Ağ Geçidi sunucularını görüntüle</string>
+    <string name="conversation_menu_copy">nakala</string>
+    <string name="conversation_menu_delete">Futa</string>
+    <string name="conversation_menu_unarchive">Ondoa kwenye kumbukumbu</string>
+    <string name="conversation_menu_share">Shiriki</string>
     <string name="conversation_menu_block">Zuia</string>
     <string name="conversation_menu_export">Hamisha</string>
     <string name="conversation_menu_mute">Nyamazisha</string>
@@ -11,4 +17,15 @@
     <string name="conversation_menu_view_details">Angalia maelezo</string>
     <string name="conversation_menu_view_replay">Cheza tena</string>
     <string name="conversation_menu_view_details_title">Maelezo ya ujumbe</string>
+    <string name="delete_messages_from_system_s_database">Futa ujumbe kutoka kwenye hifadhidata ya mfumo</string>
+    <string name="this_would_delete_messages_from_system_s_database_accessible_by_other_apps">Hii ingefuta ujumbe kutoka kwenye hifadhidata ya mfumo ambayo inaweza kufikiwa na programu nyingine</string>
+    <string name="sending_with">Inatuma na</string>
+    <string name="sim">SIM %1$s</string>
+    <string name="sim_card_switching">Kubadilisha kadi ya SIM</string>
+    <string name="_switch">Badili</string>
+    <string name="switch_sim_cards">Badilisha kadi za SIM</string>
+    <string name="send_with">Tuma kwa kutumia</string>
+    <string name="secure_database_migrated">Hifadhidata salama imehamishwa!</string>
+    <string name="use_system_font">Tumia Fonti ya Mfumo</string>
+    <string name="use_your_devices_defualt_system_font">Tumia fonti ya mfumo chaguo-msingi ya kifaa chako</string>
 </resources>

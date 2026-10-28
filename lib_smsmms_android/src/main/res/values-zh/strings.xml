@@ -86,6 +86,7 @@
     <string name="export_native_sms_database">导出原生短信数据库</string>
     <string name="something_went_wrong_with_sending">发送时出错了！</string>
     <string name="set_default_sms_app">设置默认短信应用</string>
+    <string name="to_use_deku_sms_make_it_your_default_sms_app">若要使用 Deku SMS，请将其设为默认短信应用。</string>
     <string name="reset_complete">重置完成！</string>
     <string name="give_it_a_minute">稍等片刻……</string>
     <string name="general_settings">常规设置</string>

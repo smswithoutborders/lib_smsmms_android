@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="app_name">Deku SMS</string>
+    <string name="privacy_policy_url">https://smswithoutborders.com/privacy-policy</string>
     <string name="router_list_gateways">Ver servidores de puerta de enlace</string>
+    <string name="conversation_menu_copy">Copiar</string>
+    <string name="conversation_menu_delete">Borrar</string>
+    <string name="conversation_menu_unarchive">Desarchivar</string>
+    <string name="conversation_menu_share">Compartir</string>
     <string name="conversation_menu_block">Bloquear</string>
     <string name="conversation_menu_export">Exportar</string>
     <string name="conversation_menu_mute">Silenciar</string>
@@ -11,4 +17,15 @@
     <string name="conversation_menu_view_details">Ver detalles</string>
     <string name="conversation_menu_view_replay">Reproducir de nuevo</string>
     <string name="conversation_menu_view_details_title">Detalles del mensaje</string>
+    <string name="delete_messages_from_system_s_database">Eliminar mensajes de la base de datos del sistema</string>
+    <string name="this_would_delete_messages_from_system_s_database_accessible_by_other_apps">Esto eliminaría mensajes de la base de datos del sistema a la que pueden acceder otras aplicaciones.</string>
+    <string name="sending_with">Enviando con</string>
+    <string name="sim">SIM %1$s</string>
+    <string name="sim_card_switching">Cambio de tarjeta SIM</string>
+    <string name="_switch">Cambiar</string>
+    <string name="switch_sim_cards">Cambiar tarjetas SIM</string>
+    <string name="send_with">Enviar con</string>
+    <string name="secure_database_migrated">¡Base de datos segura migrada!</string>
+    <string name="use_system_font">Usar fuente del sistema</string>
+    <string name="use_your_devices_defualt_system_font">Utiliza la fuente del sistema predeterminada de tu dispositivo</string>
 </resources>

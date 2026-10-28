@@ -491,6 +491,8 @@
     <string name="switch_sim_cards">Zmień karty SIM</string>
     <string name="send_with">Wyślij z</string>
     <string name="secure_database_migrated">Migracja bezpiecznej bazy danych!</string>
+    <string name="use_system_font">Użyj czcionki systemowej</string>
+    <string name="use_your_devices_defualt_system_font">Użyj domyślnej czcionki systemowej swojego urządzenia</string>
 
 
 </resources>
