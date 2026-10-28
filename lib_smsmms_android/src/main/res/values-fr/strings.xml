@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="privacy_policy_url">https://smswithoutborders.com/privacy-policy</string>
     <string name="incoming_messages_channel_name">Messages entrants</string>
     <string name="running_gateway_clients_channel_name">Exécution de passerelles SMS</string>
     <string name="foreground_service_failed_channel_name">Les clients de la passerelle SMS se reconnectent automatiquement</string>

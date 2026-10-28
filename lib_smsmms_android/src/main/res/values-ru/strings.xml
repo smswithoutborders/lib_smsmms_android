@@ -1,4 +1,5 @@
 <resources>
+    <string name="privacy_policy_url">https://smswithoutborders.com/privacy-policy</string>
     <string name="incoming_messages_channel_name">Входящие Сообщения</string>
 
     <string name="incoming_messages_channel_description">Вызывается при получении нового сообщения.</string>
