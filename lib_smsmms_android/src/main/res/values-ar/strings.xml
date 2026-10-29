@@ -58,6 +58,12 @@
     <string name="default_check_btn_text">تعيين تطبيق الرسائل النصية الافتراضي</string>
     <string name="default_check_privacy_policy">اقرأ سياسة الخصوصية الخاصة بنا</string>
     <string name="sms_status_delivered">تم التوصيل</string>
+    <string name="sms_status_sent">مرسل</string>
+    <string name="sms_status_sending">إرسال…</string>
+    <string name="sms_status_failed">فشلت العملية، انقر لإعادة المحاولة.</string>
+    <string name="sms_status_failed_only">فشل</string>
+    <string name="settings_locale_description">اختر اللغة</string>
+    <string name="gateway_server_settings_locale_description">تفعيل التوجيه التلقائي للبروتوكولات</string>
     <string name="router_list_gateways">عرض خوادم البوابة</string>
     <string name="conversation_menu_copy">ينسخ</string>
     <string name="conversation_menu_delete">يمسح</string>

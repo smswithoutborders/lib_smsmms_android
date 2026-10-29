@@ -58,6 +58,12 @@
     <string name="default_check_btn_text">设置默认短信应用</string>
     <string name="default_check_privacy_policy">阅读我们的隐私政策</string>
     <string name="sms_status_delivered">发表</string>
+    <string name="sms_status_sent">发送</string>
+    <string name="sms_status_sending">正在发送……</string>
+    <string name="sms_status_failed">失败，点击重试。</string>
+    <string name="sms_status_failed_only">失败的</string>
+    <string name="settings_locale_description">选择语言</string>
+    <string name="gateway_server_settings_locale_description">启用自动协议路由</string>
     <string name="router_list_gateways">查看网关服务器</string>
     <string name="conversation_menu_copy">复制</string>
     <string name="conversation_menu_delete">删除</string>

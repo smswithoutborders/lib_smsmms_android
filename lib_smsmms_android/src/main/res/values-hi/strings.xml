@@ -59,6 +59,12 @@
     <string name="default_check_btn_text">डिफ़ॉल्ट SMS ऐप सेट करें</string>
     <string name="default_check_privacy_policy">हमारी गोपनीयता नीति पढ़ें</string>
     <string name="sms_status_delivered">पहुंचा दिया</string>
+    <string name="sms_status_sent">भेजा</string>
+    <string name="sms_status_sending">भेजा जा रहा है…</string>
+    <string name="sms_status_failed">असफल, पुनः प्रयास करने के लिए क्लिक करें।</string>
+    <string name="sms_status_failed_only">असफल</string>
+    <string name="settings_locale_description">भाषा चुनें</string>
+    <string name="gateway_server_settings_locale_description">स्वचालित प्रोटोकॉल रूटिंग सक्षम करें</string>
     <string name="router_list_gateways">गेटवे सर्वर देखें</string>
     <string name="conversation_menu_copy">कॉपी</string>
     <string name="conversation_menu_delete">मिटाना</string>
