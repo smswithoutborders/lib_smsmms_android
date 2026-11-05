@@ -27,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
@@ -34,10 +35,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.afkanerd.lib_smsmms_android.R
 import com.afkanerd.smswithoutborders_libsmsmms.data.data.models.DateTimeUtils
 import com.afkanerd.smswithoutborders_libsmsmms.data.data.models.SmsMmsNatives
 import com.afkanerd.smswithoutborders_libsmsmms.data.entities.Conversations
+import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.settingsGetMessageFontSize
 
 enum class ConversationType(val value: Int) {
     NORMAL(0),
@@ -81,6 +84,7 @@ private fun ConversationIsKey(isReceived: Boolean = false) {
 private fun ConversationReceived(
     text: AnnotatedString,
     date: String,
+    fontSize: Int,
     position: ConversationType = ConversationType.START_TIMESTAMP,
     isSelected: Boolean = false,
     onClickCallback: (() -> Unit)? = null,
@@ -134,6 +138,7 @@ private fun ConversationReceived(
                     text = text,
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.padding(16.dp),
+                    fontSize = fontSize.sp,
 //                    color = color
                 )
             }
@@ -146,6 +151,7 @@ private fun ConversationReceived(
 private fun ConversationSent(
     text: AnnotatedString,
     position: ConversationType = ConversationType.START_TIMESTAMP,
+    fontSize: Int,
     type: Int,
     isSelected: Boolean = false,
     onFailClickCallback: () -> Unit = {},
@@ -201,6 +207,7 @@ private fun ConversationSent(
                     text= text,
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.padding(16.dp),
+                    fontSize = fontSize.sp,
                     color = if(isSelected)
                         MaterialTheme.colorScheme.onSecondary
                     else color
@@ -215,7 +222,7 @@ private fun ConversationSent(
                 IconButton(onClick = onFailClickCallback) {
                     Icon(
                         Icons.Default.Info,
-                        "Message failed icon",
+                        stringResource(R.string.message_failed_icon),
 //                        tint= colorResource(R.color.design_default_color_error)
                         tint= MaterialTheme.colorScheme.error
                     )
@@ -243,6 +250,8 @@ fun ConversationItem(
     onLongClickCallback: (() -> Unit)? = null,
 ) {
     val inPreview = LocalInspectionMode.current
+    val context = LocalContext.current
+    val messageFontSize = context.settingsGetMessageFontSize
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -283,6 +292,7 @@ fun ConversationItem(
                         if(text.isNotEmpty()) {
                             ConversationReceived(
                                 text =text,
+                                fontSize = messageFontSize,
                                 position =contentType,
                                 date =date,
                                 isSelected = isSelected,
@@ -325,6 +335,7 @@ fun ConversationItem(
                         if(text.isNotEmpty()) {
                             ConversationSent(
                                 text =text,
+                                fontSize = messageFontSize,
                                 position =contentType,
                                 type =type,
                                 isSelected = isSelected,
@@ -551,10 +562,12 @@ fun PreviewConversationsReceived() {
             ConversationReceived(
                 text = AnnotatedString("Hello world"),
                 date = "yesterday",
+                fontSize = 16
             )
             ConversationSent(
                 text = AnnotatedString("Hello world"),
-                type = Telephony.Mms.MESSAGE_BOX_FAILED
+                type = Telephony.Mms.MESSAGE_BOX_FAILED,
+                fontSize = 16
             )
         }
     }

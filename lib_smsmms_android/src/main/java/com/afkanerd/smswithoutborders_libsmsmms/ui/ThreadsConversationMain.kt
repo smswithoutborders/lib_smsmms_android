@@ -334,7 +334,7 @@ fun ThreadConversationLayout(
                                 ) {
                                     Icon(
                                         Icons.Default.PushPin,
-                                        contentDescription = "Pin this thread",
+                                        contentDescription = stringResource(R.string.pin_this_thread),
                                         tint = selectedIconColors,
                                     )
                                 }
@@ -355,7 +355,7 @@ fun ThreadConversationLayout(
                                         Box {
                                             Icon(
                                                 Icons.Default.PushPin,
-                                                contentDescription = "Unpin this thread",
+                                                contentDescription = stringResource(R.string.unpin_this_thread),
                                                 modifier =
                                                     Modifier.align(Alignment.Center),
                                                 tint = selectedIconColors,

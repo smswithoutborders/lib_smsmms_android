@@ -680,13 +680,13 @@ private fun SimChooserDisplay(
         text = {
             Column {
                 Text(
-                    text = if(LocalInspectionMode.current) "Sampler custom name" else
+                    text = if(LocalInspectionMode.current) stringResource(R.string.sampler_custom_name) else
                         subscriptionInformation?.displayName.toString(),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onBackground
                 )
                 Text(
-                    text = if(LocalInspectionMode.current) "Sampler carrier name" else
+                    text = if(LocalInspectionMode.current) stringResource(R.string.sampler_carrier_name) else
                         subscriptionInformation?.carrierName.toString(),
                     color = MaterialTheme.colorScheme.onBackground
                 )
@@ -1045,7 +1045,7 @@ fun MmsContentView(
                         // 3. The Play Button Icon is the top layer
                         Icon(
                             imageVector = Icons.Default.PlayCircle,
-                            contentDescription = "Play Video",
+                            contentDescription = stringResource(R.string.play_video),
                             tint = Color.White, // Set the color of the icon
                             modifier = Modifier.size(48.dp) // Set a visible size for the icon
                         )
@@ -1092,7 +1092,7 @@ fun MmsContentView(
                 IconButton(onClick = {}) {
                     Icon(
                         Icons.Default.Info,
-                        "Message failed icon",
+                        stringResource(R.string.message_failed_icon),
 //                        tint= colorResource(R.color.design_default_color_error)
                         tint= MaterialTheme.colorScheme.error
                     )

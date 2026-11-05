@@ -24,9 +24,6 @@
     <string name="homepage_menu_unmute_all">모두 음소거 해제</string>
     <string name="homepage_menu_clear_mark_unread">읽지 않음으로 표시</string>
     <string name="homepage_menu_clear_mark_read">읽음으로 표시</string>
-    <string name="homepage_no_message">첫 메시지를 보내세요</string>
-    <string name="homepage_draft_no_message">Drafts에 아무것도 없음</string>
-    <string name="homepage_archive_no_message">아카이브에 아무것도 없음</string>
     <string name="homepage_blocked_no_message">차단된 연락처 없음</string>
     <string name="homepage_muted_no_muted">음소거된 연락처 없음</string>
     <string name="homepage_unread_no_message">읽지 않은 메시지 없음</string>

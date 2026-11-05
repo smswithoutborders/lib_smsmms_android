@@ -160,7 +160,7 @@ fun ContactDetails (
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back")
+                            contentDescription = stringResource(R.string.back))
                     }
                 },
                 title = {Text("")},
@@ -182,7 +182,7 @@ fun ContactDetails (
                     if (contactPhotoUri != null && contactPhotoUri != "null") {
                         AsyncImage(
                             model = contactPhotoUri,
-                            contentDescription = "Contact Photo",
+                            contentDescription = stringResource(R.string.contact_photo),
                             modifier = Modifier
                                 .size(75.dp)
                                 .clip(CircleShape)
@@ -211,7 +211,7 @@ fun ContactDetails (
                 } else {
                     Icon(
                         Icons.Filled.Person,
-                        contentDescription = "Default Avatar",
+                        contentDescription = stringResource(R.string.default_avatar),
                         modifier = Modifier
                             .size(75.dp)
                             .clip(CircleShape)
@@ -250,7 +250,7 @@ fun ContactDetails (
                         ) {
                             Icon(
                                 Icons.Outlined.Call,
-                                contentDescription = "Call",
+                                contentDescription = stringResource(R.string.call),
                                 modifier = Modifier.size(24.dp)
                             )
                         }
@@ -292,7 +292,7 @@ fun ContactDetails (
                             ) {
                                 Icon(
                                     Icons.Outlined.Edit,
-                                    contentDescription = "Edit",
+                                    contentDescription = stringResource(R.string.edit),
                                     modifier = Modifier.size(24.dp)
                                 )
                             }
@@ -318,7 +318,7 @@ fun ContactDetails (
                             ) {
                                 Icon(
                                     imageVector = Icons.Outlined.PersonAdd,
-                                    contentDescription = "Add Contact",
+                                    contentDescription = stringResource(R.string.add_contact),
                                     modifier = Modifier.size(24.dp)
                                 )
                             }
@@ -342,7 +342,7 @@ fun ContactDetails (
                     ) {
                         Icon(
                             Icons.Outlined.Search,
-                            contentDescription = "Search",
+                            contentDescription = stringResource(R.string.search),
                             modifier = Modifier.size(24.dp)
                         )
                     }
@@ -471,7 +471,7 @@ fun ContactDetails (
                         ) {
                             Icon(
                                 Icons.Outlined.Block,
-                                contentDescription = "Block",
+                                contentDescription = stringResource(R.string.block),
                                 tint = Color.Red
                             )
 
@@ -570,7 +570,7 @@ fun ContactDetails (
                             }) {
                                 Icon(
                                     Icons.Outlined.ContentCopy,
-                                    contentDescription = "Copy Phone Number"
+                                    contentDescription = stringResource(R.string.copy_phone_number)
                                 )
                             }
                         }

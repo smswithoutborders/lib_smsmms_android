@@ -150,7 +150,7 @@ fun DeleteConfirmationAlert(
                 onClick = { dismissCallback?.invoke() }
             ) {
                 Text(
-                    "Cancel",
+                    stringResource(R.string.cancel),
                     color = MaterialTheme.colorScheme.secondaryContainer,
                     style = MaterialTheme.typography.bodyMedium
                 )
@@ -223,7 +223,7 @@ fun ImportDetails(
                 onClick = { dismissCallback?.invoke() }
             ) {
                 Text(
-                    "Cancel",
+                    stringResource(R.string.cancel),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.secondaryContainer
                 )
@@ -245,7 +245,7 @@ private fun ThreadConversationsAvatar(
             if (!contactPhotoUri.isNullOrEmpty()) {
                 AsyncImage(
                     model = contactPhotoUri,
-                    contentDescription = "Contact Image",
+                    contentDescription = stringResource(R.string.contact_image),
                     modifier = Modifier
                         .fillMaxSize()
                         .clip(CircleShape)
