@@ -2,10 +2,15 @@
 <resources>
     <string name="app_name">Deku SMS</string>
     <string name="incoming_messages_channel_name">आने वाले संदेश</string>
+    <string name="incoming_messages_channel_description">नया संदेश प्राप्त होने पर कॉल किया जाता है।</string>
+    <string name="running_gateway_clients_channel_description">जब गेटवे क्लाइंट सुन रहे हों, तो अलर्ट मिलते हैं।</string>
     <string name="search_messages_text">संदेश खोजें</string>
+    <string name="no_showable_router_message">दिखाने के लिए कोई रूट किया गया संदेश नहीं है!</string>
     <string name="save_new_gateway_client">बचाना</string>
     <string name="new_gateway_server_url">URL डालें - जैसे https://example.com:8080/api/</string>
     <string name="new_gateway_server_tag">(वैकल्पिक) पहचानकर्ता टैग</string>
+    <string name="new_gateway_client_url">URL दर्ज करें - जैसे example.com <i>(प्रोटोकॉल शामिल न करें)</i></string>
+    <string name="new_gateway_client_username">यूज़रनेम दर्ज करें</string>
     <string name="new_gateway_client_password">पास वर्ड दर्ज करें</string>
     <string name="new_gateway_client_friendly_name">एक आसान नाम दर्ज करें - जैसे: उदाहरण नोड</string>
     <string name="new_gateway_client_virtualhost_name">वर्चुअलहोस्ट डालें - <i>डिफ़ॉल्ट /</i></string>
