@@ -429,6 +429,8 @@
     <string name="switch_sim_cards">SIM-Karten tauschen</string>
     <string name="send_with">Senden mit</string>
     <string name="secure_database_migrated">Sichere Datenbank migriert!</string>
+    <string name="use_system_font">Systemschriftart verwenden</string>
+    <string name="use_your_devices_defualt_system_font">Verwenden Sie die Standardschriftart Ihres Geräts</string>
 
 
 </resources>
