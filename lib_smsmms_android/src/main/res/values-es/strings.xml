@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Deku SMS</string>
+    <string name="app_name">DekuSMS</string>
     <string name="incoming_messages_channel_name">Mensajes entrantes</string>
+    <string name="incoming_messages_channel_description">Se invoca cuando se recibe un mensaje nuevo.</string>
     <string name="running_gateway_clients_channel_description">Alertas cuando las clientas de la puerta de enlace están escuchando.</string>
     <string name="search_messages_text">Buscar mensajes</string>
     <string name="save_new_gateway_client">Ahorrar</string>
@@ -53,10 +54,41 @@
     <string name="settings_SMS_listening_SMSWithoutBorders_summary">Configuraciones para escuchar mensajes SMS a través de AMQP/s</string>
     <string name="settings_SMS_routing_type_base64_option">Base64</string>
     <string name="settings_SMS_routing_type_all_option">Todos (predeterminado)</string>
+    <string name="about_deku">Acerca de</string>
+    <string name="about_deku_motto">SMS de código abierto, bien hechos</string>
+    <string name="about_deku_github_description">Deku SMS sigue siendo gratuito y de código abierto. Creemos en retribuir a la comunidad que tanto nos ha aportado. Gran parte de esta aplicación es experimental, pero los grandes experimentos conducen a grandes descubrimientos. Por favor, apóyanos marcando el proyecto con una estrella en GitHub y compartiéndolo con tus amigos.</string>
+    <string name="about_deku_github_btn">Ver en GitHub</string>
+
+    <string name="archive_folder">Carpeta de archivo</string>
+    <string name="archive">Archivo</string>
+    <string name="activated">Activada</string>
+    <string name="add">Agregar</string>
+
+    <string name="auto_filled_to">Autocompletado en:</string>
+    <string name="general_settings">Configuración general</string>
     <string name="text_body_cannot_empty">¡El cuerpo del texto no puede estar vacío!</string>
     <string name="secure">Segura</string>
     <string name="image_transmission_service">Servicio de transmisión de imágenes</string>
+    <string name="aspect_ratio_is_locked_width_and_height_will_be_adjusted_proportionally">La relación de aspecto está bloqueada. El ancho y la altura se ajustarán de forma proporcional.</string>
     <string name="quality">Calidad</string>
     <string name="resize">Cambiar tamaño</string>
     <string name="compression">Compresión</string>
+    <string name="apply">Aplicar</string>
+    <string name="_switch">Cambiar</string>
+    <string name="switch_sim_cards">Cambiar tarjetas SIM</string>
+    <string name="send_with">Enviar con</string>
+    <string name="secure_database_migrated">¡Base de datos segura migrada!</string>
+    <string name="foreground_service_failed_channel_description">Haz clic para reconectar los clientes de Gateway</string>
+    <string name="message_failed_notifications_descriptions">Recibe notificaciones si los mensajes no se envían</string>
+    <string name="foreground_service_image_transmission_descriptions">Transmisión de imágenes mediante SMS</string>
+    <string name="stop">Detener</string>
+    <string name="pause">pausa</string>
+    <string name="failed_to_send_message">No se pudo enviar el mensaje.</string>
+    <string name="queued_for_sending">En cola para el envío…</string>
+    <string name="will_resume_sending_shortly">En breve se reanudará el envío…</string>
+    <string name="retry">Intentar otra vez</string>
+    <string name="sending_stop">Envío detenido…</string>
+    <string name="waiting_to_send_of">Esperando para enviar %1$d de %2$d</string>
+    <string name="back">Atrás</string>
+    <string name="add_contact">Añadir contacto</string>
 </resources>

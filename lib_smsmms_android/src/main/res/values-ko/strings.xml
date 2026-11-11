@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Deku SMS</string>
+    <string name="app_name">DekuSMS</string>
     <string name="privacy_policy_url">https://smswithoutborders.com/privacy-policy</string>
     <string name="incoming_messages_channel_name">수신 메시지</string>
     <string name="message_failed_channel_name">메시지 전송 실패</string>

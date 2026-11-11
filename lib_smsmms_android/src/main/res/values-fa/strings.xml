@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Deku SMS</string>
+    <string name="app_name">DekuSMS</string>
     <string name="incoming_messages_channel_name">پیام‌های دریافتی</string>
     <string name="search_messages_text">جستجوی پیام‌ها</string>
     <string name="save_new_gateway_client">ذخیره</string>
@@ -34,4 +34,9 @@
     <string name="settings_SMS_routing_type_base64_option">پایه64</string>
     <string name="settings_SMS_routing_type_all_option">همه (پیش‌فرض)</string>
     <string name="settings_add_gateway_client_protocol_description">پروتکل شنود را انتخاب کنید</string>
+    <string name="general_settings">تنظیمات عمومی</string>
+    <string name="_switch">سوئیچ</string>
+    <string name="switch_sim_cards">تعویض سیم‌کارت‌ها</string>
+    <string name="send_with">ارسال با</string>
+    <string name="secure_database_migrated">پایگاه داده امن منتقل شد!</string>
 </resources>

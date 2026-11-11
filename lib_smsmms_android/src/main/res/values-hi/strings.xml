@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Deku SMS</string>
+    <string name="app_name">DekuSMS</string>
     <string name="incoming_messages_channel_name">आने वाले संदेश</string>
     <string name="incoming_messages_channel_description">नया संदेश प्राप्त होने पर कॉल किया जाता है।</string>
     <string name="running_gateway_clients_channel_description">जब गेटवे क्लाइंट सुन रहे हों, तो अलर्ट मिलते हैं।</string>

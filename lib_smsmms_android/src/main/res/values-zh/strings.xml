@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="app_name">DekuSMS</string>
     <string name="incoming_messages_channel_name">收到的消息</string>
     <string name="incoming_messages_channel_description">当收到新消息时会被调用。</string>
     <string name="running_gateway_clients_channel_description">当网关客户端处于监听状态时发出提醒。</string>
@@ -63,4 +64,10 @@
     <string name="settings_SMS_routing_type_base64_option">Base64</string>
     <string name="settings_gateway_server_data_format_description">数据格式</string>
     <string name="gateway_server_settings_locale_description">启用自动协议路由</string>
+    <string name="general_settings">常规设置</string>
+    <string name="_switch">转变</string>
+    <string name="switch_sim_cards">更换 SIM 卡</string>
+    <string name="send_with">更换 SIM 卡</string>
+    <string name="secure_database_migrated">安全数据库已完成迁移！</string>
+    <string name="foreground_service_failed_channel_description">点击以重新连接网关客户端</string>
 </resources>

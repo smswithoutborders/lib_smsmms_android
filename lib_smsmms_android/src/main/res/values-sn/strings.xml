@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Deku SMS</string>
+    <string name="app_name">DekuSMS</string>
     <string name="privacy_policy_url">https://smswithoutborders.com/privacy-policy</string>
     <string name="incoming_messages_channel_name">Mameseji Ari Kupinda</string>
     <string name="incoming_messages_channel_description">Inodanwa kana shoko idzva ragamuchirwa.</string>

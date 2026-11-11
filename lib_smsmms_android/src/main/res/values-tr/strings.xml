@@ -1,10 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Deku SMS</string>
+    <string name="app_name">DekuSMS</string>
+    <string name="compose_new_message_to">İle</string>
+    <string name="compose_new_message_title">Yeni sohbet</string>
+    <string name="compose_new_message">Yeni ileti oluştur</string>
+    <string name="call">Arama</string>
+    <string name="cancel_selection">Seçimi iptal et</string>
+    <string name="archive_folder">Arşiv klasörü</string>
+    <string name="blocked_folder">Engellenmiş Klasör</string>
+    <string name="cancel_selected_messages">Seçili iletileri iptal et</string>
+    <string name="cancel_search">Aramayı iptal et</string>
+    <string name="choose_sim_card">SIM kart seçin</string>
+    <string name="compose_new">Yeni oluştur</string>
+    <string name="compose">Oluştur</string>
+    <string name="block_report_spam"><![CDATA[İstenmeyen içeriği engelle ve bildir]]></string>
+    <string name="archive">Arşiv</string>
+    <string name="block">Engellemek</string>
+    <string name="activated">Etkinleştirildi</string>
+    <string name="connected">Bağlı</string>
+    <string name="add">Eklemek</string>
+    <string name="auto_filled_to">Şu şekilde otomatik dolduruldu:</string>
+    <string name="channel_number">Kanal numarası:</string>
+    <string name="choose_protocol">Protokol seçin</string>
+    <string name="click_to_add_queues">• Kuyruk eklemek için tıklayın</string>
+    <string name="behaviour">Şu şekilde otomatik doldurma:</string>
+    <string name="close">Kapalı</string>
     <string name="general_settings">Genel Ayarlar</string>
     <string name="switch_sim_cards">SIM kartlarını değiştirin</string>
     <string name="send_with">İle gönder</string>
     <string name="secure_database_migrated">Güvenli veritabanı taşındı!</string>
+    <string name="use_system_font">Sistem Yazı Tipini Kullan</string>
+    <string name="use_your_devices_defualt_system_font">Cihazınızın Varsayılan Sistem Yazı Tipini Kullanın</string>
     <string name="foreground_service_failed_channel_description">Ağ geçidi istemcilerini yeniden bağlamak için tıklayın.</string>
     <string name="message_failed_notifications_descriptions">Mesaj gönderiminde başarısız olunması durumunda bildirim alın.</string>
     <string name="foreground_service_image_transmission_descriptions">SMS yoluyla görüntü iletimi</string>
@@ -160,6 +186,16 @@
     <string name="quality">Kalite</string>
     <string name="resize">Boyutunu değiştir</string>
     <string name="compression">Sıkıştırma</string>
+    <string name="find_out_when_an_sms_message_is_delivered">Bir SMS mesajının ne zaman iletildiğini öğrenin</string>
+    <string name="messages_can_be_deleted_or_archived_by_swiping">Mesajlar, kaydırma hareketiyle silinebilir veya arşivlenebilir.</string>
+    <string name="keep_messages_archived">İletileri arşivlenmiş durumda tut</string>
+    <string name="messages_remain_in_archive_even_when_new_ones_are_sent_or_received">Yeni iletiler gönderildiğinde veya alındığında bile iletiler arşivde kalır</string>
+    <string name="enable_notification_context_replies">Bildirim bağlamlı yanıtlarını etkinleştir</string>
+    <string name="your_phone_would_suggest_smart_replies_in_notifications_if_enabled">Etkinleştirildiği takdirde telefonunuz, bildirimlerde akıllı yanıtlar önerir.</string>
+    <string name="reset">Sıfırla</string>
+    <string name="image">Görsel</string>
+    <string name="download_for_offline">Çevrim dışı kullanım için indir</string>
+    <string name="share_mms_content">MMS içeriğini paylaş</string>
     <string name="waiting_to_send">Göndermeyi bekliyor…</string>
     <string name="language">Dil</string>
     <string name="light">Işık</string>
@@ -169,6 +205,29 @@
     <string name="when_turned_off_would_use_your_system_s_default_time_format">Kapatıldığında sisteminizin varsayılan saat biçimini kullanır.</string>
     <string name="enable_24_hours_time_format">24 saatlik zaman formatını etkinleştirin</string>
     <string name="block_contact">İletişimi engelle</string>
+    <string name="message_font_size">İleti yazı tipi boyutu</string>
+    <string name="cancel">İptal etmek</string>
+    <string name="font_size_normal">Normal</string>
+    <string name="font_size_extra_small">Çok küçük</string>
+    <string name="font_size_small">Küçük</string>
+    <string name="font_size_large">Büyük</string>
+    <string name="font_size_extra_large">Ekstra büyük</string>
+    <string name="font_size_extra_extra_large">Çok çok büyük</string>
+    <string name="trigger_mms_notification">MMS bildirimini tetikle</string>
+    <string name="delete_all">Tümünü sil</string>
+    <string name="back">Geri</string>
+    <string name="contact_photo">Kişi Fotoğrafı</string>
+    <string name="default_avatar">Varsayılan Avatar</string>
+    <string name="add_contact">Kişi Ekle</string>
+    <string name="search">Aramak</string>
+    <string name="copy_phone_number">Telefon Numarasını Kopyala</string>
+    <string name="contact_image">İletişim Görseli</string>
+    <string name="pin_this_thread">Bu başlığı sabitle</string>
+    <string name="unpin_this_thread">Bu başlığı sabitlemekten kaldır</string>
+    <string name="message_failed_icon">İleti başarısız simgesi</string>
+    <string name="sampler_custom_name">Özel isim örneği</string>
+    <string name="sampler_carrier_name">Numune taşıyıcısının adı</string>
+    <string name="play_video">Videoyu Oynat</string>
 
 
 </resources>

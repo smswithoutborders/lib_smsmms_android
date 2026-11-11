@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Deku SMS</string>
+    <string name="app_name">DekuSMS</string>
     <string name="privacy_policy_url">https://smswithoutborders.com/privacy-policy</string>
     <string name="incoming_messages_channel_name">Ujumbe unaoingia</string>
     <string name="incoming_messages_channel_description">Huitwa wakati ujumbe mpya unapopokelewa.</string>
@@ -83,6 +83,11 @@
     <string name="settings_SMS_routing_type_base64_option">Base64</string>
     <string name="settings_SMS_routing_type_all_option">Zote (chaguo-msingi)</string>
     <string name="settings_add_gateway_client_protocol_description">Chagua itifaki ya kusikiliza</string>
+    <string name="about_deku">Kuhusu</string>
+    <string name="about_deku_motto">SMS ya chanzo huria iliyotekelezwa ipasavyo</string>
+
+    <string name="about_deku_github_description">Deku SMS inaendelea kuwa ya bure na ya chanzo huria. Tunaamini katika kurudisha fadhila kwa jamii ambayo imetupa mengi. Vipengele vingi katika programu hii ni vya majaribio, lakini majaribio makubwa huleta matokeo makubwa. Tafadhali tuunge mkono kwa kuweka alama ya nyota (star) kwenye mradi huu katika Github na kuushiriki na marafiki zako.</string>
+    <string name="about_deku_github_btn">Tazama kwenye GitHub</string>
     <string name="router_list_gateways">Ağ Geçidi sunucularını görüntüle</string>
     <string name="conversation_menu_copy">nakala</string>
     <string name="conversation_menu_delete">Futa</string>
@@ -98,6 +103,22 @@
     <string name="conversation_menu_view_details">Angalia maelezo</string>
     <string name="conversation_menu_view_replay">Cheza tena</string>
     <string name="conversation_menu_view_details_title">Maelezo ya ujumbe</string>
+    <string name="compose_new_message_to">Kwa</string>
+    <string name="compose_new_message_title">Mazungumzo mapya</string>
+    <string name="compose_new_message">Andika ujumbe mpya</string>
+    <string name="call">Piga simu</string>
+    <string name="cancel_selection">Ghairi uteuzi</string>
+    <string name="archive_folder">Folda ya kumbukumbu</string>
+    <string name="blocked_folder">Folda Iliyozuiwa</string>
+    <string name="cancel_selected_messages">Ghairi ujumbe uliochaguliwa</string>
+    <string name="cancel_search">Ghairi utafutaji</string>
+    <string name="choose_sim_card">Chagua kadi ya SIM</string>
+    <string name="compose_new">Andika mpya</string>
+    <string name="compose">Tunga</string>
+    <string name="block_report_spam"><![CDATA[Zuia na uripoti barua taka]]></string>
+    <string name="archive">Kumbukumbu</string>
+
+    <string name="block">Zuia</string>
     <string name="no_queues_added">Hakuna foleni zilizoongezwa</string>
     <string name="friendly_name">Jina rafiki:</string>
     <string name="state">hali:</string>
@@ -112,6 +133,7 @@
     <string name="queue_name">Jina la foleni:</string>
     <string name="editing_a_queue_would_restart_the_connection">Kuhariri foleni kutasababisha muunganisho kuanza upya</string>
     <string name="sim_1_binding">Kufunga kwa SIM 1</string>
+
     <string name="auto_filled_to">Imejazwa kiotomatiki hadi:</string>
     <string name="exchange">Kubadilishana</string>
     <string name="defaulting_to_topic_exchange">Inatumia \'Topic exchange\' kwa chaguo-msingi</string>
@@ -135,6 +157,8 @@
     <string name="click_to_add_queues">• Bofya ili kuongeza foleni</string>
     <string name="press_and_hold_to_manage">• Bonyeza na ushikilie ili kudhibiti</string>
     <string name="queues">Foleni %1$s</string>
+    <string name="behaviour">Şu şekilde otomatik dolduruldu:</string>
+    <string name="close">Funga</string>
     <string name="mms_image">Picha ya MMS…</string>
     <string name="mms_video">Video ya MMS…</string>
     <string name="export_sms_mms_database">Hamisha hifadhidata ya SMS/MMS</string>
@@ -204,4 +228,7 @@
     <string name="secure_database_migrated">Hifadhidata salama imehamishwa!</string>
     <string name="use_system_font">Tumia Fonti ya Mfumo</string>
     <string name="use_your_devices_defualt_system_font">Tumia fonti ya mfumo chaguo-msingi ya kifaa chako</string>
+    <string name="cancel">Ghairi</string>
+    <string name="back">Nyuma</string>
+    <string name="add_contact">Ongeza Anwani</string>
 </resources>
