@@ -202,4 +202,27 @@
     <string name="secure_database_migrated">보안 데이터베이스 이전 완료!</string>
     <string name="use_system_font">시스템 글꼴 사용</string>
     <string name="use_your_devices_defualt_system_font">기기의 기본 시스템 글꼴 사용</string>
+    <string name="message_font_size">메시지 글꼴 크기</string>
+    <string name="cancel">취소</string>
+    <string name="font_size_normal">정상</string>
+    <string name="font_size_extra_small">아주 작음</string>
+    <string name="font_size_small">작은</string>
+    <string name="font_size_large">크기가 큰</string>
+    <string name="font_size_extra_large">특대</string>
+    <string name="font_size_extra_extra_large">특대형</string>
+    <string name="trigger_mms_notification">MMS 알림 트리거</string>
+    <string name="delete_all">모두 삭제</string>
+    <string name="back">뒤쪽에</string>
+    <string name="contact_photo">연락처 사진</string>
+    <string name="default_avatar">기본 아바타</string>
+    <string name="add_contact">연락처 추가</string>
+    <string name="search">찾다</string>
+    <string name="copy_phone_number">전화번호 복사</string>
+    <string name="contact_image">연락처 이미지</string>
+    <string name="pin_this_thread">이 스레드를 고정하세요</string>
+    <string name="unpin_this_thread">이 스레드 고정 해제</string>
+    <string name="message_failed_icon">메시지 전송 실패 아이콘</string>
+    <string name="sampler_custom_name">샘플러 맞춤 이름</string>
+    <string name="sampler_carrier_name">샘플러 운반자 이름</string>
+    <string name="play_video">동영상 재생</string>
 </resources>
