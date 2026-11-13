@@ -407,5 +407,28 @@
     <string name="secure_database_migrated">Base de données sécurisée migrée !</string>
     <string name="use_system_font">Utiliser la police système</string>
     <string name="use_your_devices_defualt_system_font">Utiliser la police système par défaut de votre appareil</string>
+    <string name="message_font_size">Taille de la police du message</string>
+    <string name="cancel">Annuler</string>
+    <string name="font_size_normal">Normale</string>
+    <string name="font_size_extra_small">Très petit</string>
+    <string name="font_size_small">Petite</string>
+    <string name="font_size_large">Grande</string>
+    <string name="font_size_extra_large">Extra-large</string>
+    <string name="font_size_extra_extra_large">Très, très grand</string>
+    <string name="trigger_mms_notification">Déclencher une notification MMS</string>
+    <string name="delete_all">Tout supprimer</string>
+    <string name="back">Dos</string>
+    <string name="contact_photo">Photo du contact</string>
+    <string name="default_avatar">Avatar par défaut</string>
+    <string name="add_contact">Ajouter un contact</string>
+    <string name="search">Recherche</string>
+    <string name="copy_phone_number">Copier le numéro de téléphone</string>
+    <string name="contact_image">Image de contact</string>
+    <string name="pin_this_thread">Épingler ce fil de discussion</string>
+    <string name="unpin_this_thread">Détacher ce fil de discussion</string>
+    <string name="message_failed_icon">Icône d\'échec du message</string>
+    <string name="sampler_custom_name">Échantillonneur avec nom personnalisé</string>
+    <string name="sampler_carrier_name">Nom du porteur d’échantillonneur</string>
+    <string name="play_video">Lire la vidéo</string>
 
 </resources>
