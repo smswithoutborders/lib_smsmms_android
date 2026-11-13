@@ -452,5 +452,28 @@
     <string name="secure_database_migrated">База данных перенесена в защищенном режиме!</string>
     <string name="use_system_font">Использовать системный шрифт</string>
     <string name="use_your_devices_defualt_system_font">Использовать системный шрифт, заданный по умолчанию на вашем устройстве</string>
+    <string name="message_font_size">Размер шрифта сообщения</string>
+    <string name="cancel">Отмена</string>
+    <string name="font_size_normal">Нормальный</string>
+    <string name="font_size_extra_small">Очень маленький</string>
+    <string name="font_size_small">Маленький</string>
+    <string name="font_size_large">Большой</string>
+    <string name="font_size_extra_large">Очень большой</string>
+    <string name="font_size_extra_extra_large">Очень, очень большой</string>
+    <string name="trigger_mms_notification">Инициировать уведомление о MMS</string>
+    <string name="delete_all">Удалить всё</string>
+    <string name="back">Назад</string>
+    <string name="contact_photo">Фото контакта</string>
+    <string name="default_avatar">Аватар по умолчанию</string>
+    <string name="add_contact">Добавить контакт</string>
+    <string name="search">Поиск</string>
+    <string name="copy_phone_number">Скопировать номер телефона</string>
+    <string name="contact_image">Изображение контакта</string>
+    <string name="pin_this_thread">Закрепить эту тему</string>
+    <string name="unpin_this_thread">Открепить эту тему</string>
+    <string name="message_failed_icon">Значок \"Сообщение не отправлено\"</string>
+    <string name="sampler_custom_name">Индивидуальное название для сэмплера</string>
+    <string name="sampler_carrier_name">Название носителя пробы</string>
+    <string name="play_video">Воспроизвести видео</string>
 
 </resources>

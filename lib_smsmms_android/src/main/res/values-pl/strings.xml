@@ -493,6 +493,29 @@
     <string name="secure_database_migrated">Migracja bezpiecznej bazy danych!</string>
     <string name="use_system_font">Użyj czcionki systemowej</string>
     <string name="use_your_devices_defualt_system_font">Użyj domyślnej czcionki systemowej swojego urządzenia</string>
+    <string name="message_font_size">Rozmiar czcionki wiadomości</string>
+    <string name="cancel">Anulować</string>
+    <string name="font_size_normal">Normalna</string>
+    <string name="font_size_extra_small">Bardzo mały</string>
+    <string name="font_size_small">Mały</string>
+    <string name="font_size_large">Duży</string>
+    <string name="font_size_extra_large">Bardzo duży</string>
+    <string name="font_size_extra_extra_large">Bardzo, bardzo duży</string>
+    <string name="trigger_mms_notification">Wywołaj powiadomienie MMS</string>
+    <string name="delete_all">Usuń wszystko</string>
+    <string name="back">Z powrotem</string>
+    <string name="contact_photo">Zdjęcie kontaktu</string>
+    <string name="default_avatar">Domyślny awatar</string>
+    <string name="add_contact">Dodaj kontakt</string>
+    <string name="search">Szukaj</string>
+    <string name="copy_phone_number">Skopiuj numer telefonu</string>
+    <string name="contact_image">Obraz kontaktu</string>
+    <string name="pin_this_thread">Przypnij ten wątek</string>
+    <string name="unpin_this_thread">Odepnij ten wątek</string>
+    <string name="message_failed_icon">Ikona niepowodzenia wiadomości</string>
+    <string name="sampler_custom_name">Sampler z własną nazwą</string>
+    <string name="sampler_carrier_name">Nazwa przewoźnika próbek</string>
+    <string name="play_video">Odtwórz wideo</string>
 
 
 </resources>
