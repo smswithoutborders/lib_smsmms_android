@@ -315,6 +315,14 @@
     <string name="type">Aina: %1$s</string>
     <string name="priority">Kipaumbele: %1$s</string>
     <string name="text_message_1">Ujumbe mfupi</string>
+    <string name="normal">Kawaida</string>
+    <string name="from">Kuanzia: %1$s</string>
+    <string name="to">Kwa: %1$s</string>
+    <string name="sent">Imetumwa: %1$s</string>
+    <string name="received">Imepokelewa: %1$s</string>
+    <string name="dev_mode">Hali ya usanidi</string>
+    <string name="read_our_text_part">Soma yetu</string>
+    <string name="privacy_policy_text_part">sera ya faragha</string>
     <string name="send_mms_photo">Tuma picha kwa MMS</string>
     <string name="mms_selected_image">Picha iliyochaguliwa ya MMS</string>
     <string name="unknown_error_sending_mms">Hitilafu isiyojulikana wakati wa kutuma MMS:</string>

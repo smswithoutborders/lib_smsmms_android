@@ -315,6 +315,14 @@
     <string name="type">Tipo: %1$s</string>
     <string name="priority">Prioridad: %1$s</string>
     <string name="text_message_1">Ujumbe mfupi</string>
+    <string name="normal">Normal</string>
+    <string name="from">De: %1$s</string>
+    <string name="to">Para: %1$s</string>
+    <string name="sent">Enviado: %1$s</string>
+    <string name="received">Recibido: %1$s</string>
+    <string name="dev_mode">Modo de desarrollo</string>
+    <string name="read_our_text_part">Lee nuestra</string>
+    <string name="privacy_policy_text_part">política de privacidad</string>
     <string name="send_mms_photo">Enviar foto por MMS</string>
     <string name="mms_selected_image">Imagen seleccionada para MMS</string>
     <string name="unknown_error_sending_mms">Error desconocido al enviar un MMS:</string>

@@ -197,6 +197,14 @@
     <string name="type">Tür: %1$s</string>
     <string name="priority">Öncelik: %1$s</string>
     <string name="text_message_1">Kısa mesaj</string>
+    <string name="normal">Normal</string>
+    <string name="from">Kimden: %1$s</string>
+    <string name="to">Kime: %1$s</string>
+    <string name="sent">Gönderildi: %1$s</string>
+    <string name="received">Alındı: %1$s</string>
+    <string name="dev_mode">Geliştirici modu</string>
+    <string name="read_our_text_part">Okuyun</string>
+    <string name="privacy_policy_text_part">gizlilik politikası</string>
     <string name="send_mms_photo">MMS fotoğrafı gönder</string>
     <string name="mms_selected_image">MMS seçili görseli</string>
     <string name="unknown_error_sending_mms">MMS gönderilirken bilinmeyen bir hata oluştu:</string>
