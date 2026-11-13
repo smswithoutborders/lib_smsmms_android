@@ -1,9 +1,9 @@
 <resources>
-    <string name="app_name" translatable="false">Deku SMS</string>
+    <string name="app_name" translatable="false">DekuSMS</string>
     <string name="privacy_policy_url" translatable="false">https://smswithoutborders.com/privacy-policy</string>
     <string name="incoming_messages_channel_name">Incoming Messages</string>
-    <string name="running_gateway_clients_channel_name" translatable="false">Running Gateway Listeners</string>
-    <string name="message_failed_channel_name" translatable="false">Message Failed</string>
+    <string name="running_gateway_clients_channel_name">Running Gateway Listeners</string>
+    <string name="message_failed_channel_name">Message Failed</string>
 
     <string name="incoming_messages_channel_description">Gets called when a new message is received.</string>
     <string name="running_gateway_clients_channel_description">Alerts when gateway clients are listening.</string>
@@ -288,7 +288,7 @@
     <string name="search_messages">Search messages</string>
     <string name="open_menu">Open menu</string>
     <string name="compose_new_message">Compose new message</string>
-    <string name="open_side_menu">Open side menu</string>
+    <string name="open_side_menu">Open the side menu</string>
     <string name="call">Call</string>
     <string name="text_message">Text message</string>
     <string name="send_message">Send message</string>
@@ -377,7 +377,7 @@
     <string name="new_remote_listener">New remote listener</string>
     <string name="return_back">Return back</string>
     <string name="host_url">Host Url</string>
-    <string name="example_com">example.com</string>
+    <string name="example_com" translatable="false">example.com</string>
     <string name="username">Username</string>
     <string name="password">Password</string>
     <string name="hide_password">Hide password</string>
@@ -391,7 +391,7 @@
     <string name="no_messages_sent_from_remote_listeners">No messages sent from remote listeners</string>
     <string name="disabling_would_stop_the_swipe_actions_in_the_threads_screen_to_archive_and_delete_this_is_enabled_by_default">Disabling would turn off swipe gestures in the threads screen (to archive and delete). This is enabled by default</string>
     <string name="enable_swipe">Enable Swipe</string>
-    <string name="behaviour">Behaviour</string>
+    <string name="behaviour">Behavior</string>
     <string name="message_information">message information</string>
     <string name="close">Close</string>
     <string name="message_details">Message Details</string>
@@ -417,7 +417,7 @@
     <string name="android_developer">Android developer</string>
     <string name="sms_mms_import_export">SMS/MMS Import/Export</string>
     <string name="deku_sms_dev_mode_export" translatable="false">deku_sms_dev_mode_export_%1$d</string>
-    <string name="export_native_sms_database">Export native SMS database</string>
+    <string name="export_native_sms_database">Vinculación de la SIM 2</string>
     <string name="something_went_wrong_with_sending">Something went wrong with sending!</string>
     <string name="set_default_sms_app">Set default SMS app</string>
     <string name="to_use_deku_sms_make_it_your_default_sms_app">To use Deku SMS, make it your default SMS app</string>
