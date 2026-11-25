@@ -5,6 +5,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import com.afkanerd.smswithoutborders_libsmsmms.data.Addresses
 
 @Entity(indices = [Index(value = ["address"], unique = true)])
 data class Threads(

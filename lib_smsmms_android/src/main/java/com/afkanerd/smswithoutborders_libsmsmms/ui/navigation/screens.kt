@@ -1,5 +1,6 @@
 package com.afkanerd.smswithoutborders_libsmsmms.ui.navigation
 
+import com.afkanerd.smswithoutborders_libsmsmms.data.Addresses
 import kotlinx.serialization.Serializable
 
 @Serializable

@@ -3,6 +3,7 @@ package com.afkanerd.smswithoutborders_libsmsmms.ui
 import android.Manifest
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
@@ -41,6 +42,7 @@ import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -76,6 +78,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
 import com.afkanerd.lib_smsmms_android.R
+import com.afkanerd.smswithoutborders_libsmsmms.data.Addresses
 import com.afkanerd.smswithoutborders_libsmsmms.data.SmsManager
 import com.afkanerd.smswithoutborders_libsmsmms.data.entities.Conversations
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.call
@@ -115,7 +118,7 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
 
-fun backHandler(
+private fun backHandler(
     context: Context,
     text: String,
     mmsUri: Uri?,
@@ -168,7 +171,7 @@ private fun lifecycleObservations(
 )
 @Composable
 fun ConversationsMainLayout(
-    address: String,
+    addresses: Addresses,
     navController: NavController,
     threadsViewModel: ThreadsViewModel,
     conversationsViewModel: ConversationsViewModel,
@@ -182,22 +185,22 @@ fun ConversationsMainLayout(
     customsConversationsViewModel: CustomsConversationsViewModel? = null,
     customDataView: (@Composable (Conversations) -> Unit)? = null,
 ) {
+
     val readPhoneStatePermission = rememberPermissionState(requiredReadPhoneStatePermissions)
     if(!readPhoneStatePermission.status.isGranted) {
         navController.navigate(HomeScreenNav())
         return
     }
 
+    val smsManager = SmsManager(customsConversationsViewModel ?: conversationsViewModel)
     val context = LocalContext.current
     val inPreviewMode = LocalInspectionMode.current
     val lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current
-
     val scope = rememberCoroutineScope()
     val coroutineScope = remember { CoroutineScope(Dispatchers.Default) }
+    val scrollBehaviour = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
 
-    val address by remember(address) {
-        mutableStateOf(context.makeE16PhoneNumber(address))
-    }
+    val address = remember{ if (addresses.isLocal) addresses.getAddress else addresses.getFullE164Address }
 
     var typingText by remember{ mutableStateOf(text) }
     var typingMmsImage by remember{ mutableStateOf<Uri?>(null) }
@@ -207,6 +210,7 @@ fun ConversationsMainLayout(
 
     var subscriptionId by remember{ mutableLongStateOf(
         context.getDefaultSimSubscription() ?: -1) }
+
     var highlightedMessage by remember{ mutableStateOf<Conversations?>(null) }
 
     var isBlocked by remember { mutableStateOf( false ) }
@@ -224,23 +228,25 @@ fun ConversationsMainLayout(
         if(inPreviewMode) 0 else { threadId ?: context.getThreadId(address) })
     }
 
-    val messages = conversationsViewModel.getConversations(context, threadId) { cui ->
-        navController.navigate(
-            ImageViewScreenNav(
-                contentUri = cui.conversation.mms_content_uri.toString(),
-                address = contactName,
-                date = "", // TODO
-                filename = cui.conversation.mms_filename
-                    ?: System.currentTimeMillis()
-                        .toString(),
-                mimeType = cui.conversation.mms_mimetype ?: "image/jpeg",
+    val messages = remember(threadId) {
+        conversationsViewModel.getConversations(context, threadId) { cui ->
+            navController.navigate(
+                ImageViewScreenNav(
+                    contentUri = cui.conversation.mms_content_uri.toString(),
+                    address = contactName,
+                    date = "", // TODO
+                    filename = cui.conversation.mms_filename
+                        ?: System.currentTimeMillis()
+                            .toString(),
+                    mimeType = cui.conversation.mms_mimetype ?: "image/jpeg",
+                )
             )
-        )
+        }
     }
+
     val inboxMessagesItems = messages.collectAsLazyPagingItems()
     var showFailedRetryModal by rememberSaveable { mutableStateOf(false) }
     var searchIndexes by remember { mutableStateOf(emptyList<Int>())}
-
 
     val selectedItems by conversationsViewModel.selectedItems.collectAsState()
 
@@ -250,8 +256,6 @@ fun ConversationsMainLayout(
 
     var openInfoAlert by remember { mutableStateOf(false) }
 
-    val smsManager = SmsManager(customsConversationsViewModel ?: conversationsViewModel)
-    val scrollBehaviour = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
 
     val listState = rememberLazyListState()
     DisposableEffect(lifecycleOwner) {
@@ -316,11 +320,10 @@ fun ConversationsMainLayout(
         }
     }
 
-    var rememberMenuExpanded by remember{ mutableStateOf(false) }
-
     val isSecured by (customsConversationsViewModel?.isSecured ?: MutableStateFlow(false))
         .collectAsStateWithLifecycle()
 
+    var rememberMenuExpanded by remember{ mutableStateOf(false) }
     ConversationDropDown(
         context = context,
         expanded = rememberMenuExpanded,
@@ -560,7 +563,7 @@ fun ConversationsMainLayout(
                                 context,
                                 it,
                                 text = typingText,
-                                address = address,
+                                address = addresses.getFullE164Address,
                                 subscriptionId = subscriptionId,
                                 threadId = threadId,
                                 filename = context.getFileNameFromUri(it)
@@ -574,7 +577,7 @@ fun ConversationsMainLayout(
                             smsManager.sendSms(
                                 context,
                                 text = typingText,
-                                address = address,
+                                address = addresses.getFullE164Address,
                                 subscriptionId = subscriptionId,
                                 threadId = threadId,
                                 data = null
@@ -643,6 +646,7 @@ fun ConversationsMainLayout(
                             }
 
                             ConversationUi(
+                                modifier = Modifier.animateItem(),
                                 conversationsUi = conversationsUi,
                                 isSelected = isSelected,
                                 searchQuery = searchQuery,
@@ -661,6 +665,7 @@ fun ConversationsMainLayout(
                             )
                         }
                     }
+
                 }
             }
 
@@ -763,7 +768,7 @@ fun ConversationsMainLayout(
 
         if (customComposable != null) {
             customsConversationsViewModel?.apply {
-                setConversationAddress(address)
+                setConversationAddress(addresses)
                 setConversationThreadId(threadId)
                 setConversationSubscriptionId(subscriptionId)
             }
@@ -775,22 +780,26 @@ fun ConversationsMainLayout(
 @Preview
 @Composable
 fun ConversationsMainPreview() {
+    val context = LocalContext.current
+    val address = Addresses.build(context, "234567890")
     ConversationsMainLayout(
         navController = rememberNavController(),
         threadsViewModel = remember { ThreadsViewModel() },
         conversationsViewModel = remember { ConversationsViewModel() },
-        address = "+1234567",
+        addresses = address,
     )
 }
 
 @Preview
 @Composable
 fun ConversationsMain_Converse_only_preview() {
+    val context = LocalContext.current
+    val address = Addresses.build(context, "234567890")
     ConversationsMainLayout(
         navController = rememberNavController(),
         threadsViewModel = remember { ThreadsViewModel() },
         conversationsViewModel = remember { ConversationsViewModel() },
-        address = "+1234567",
+        addresses = address,
         imageUri = "".toUri()
     )
 }

@@ -1,5 +1,7 @@
 package com.afkanerd.smswithoutborders_libsmsmms.ui
 
+import android.R.attr.text
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -44,8 +46,12 @@ import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.CustomsConversatio
 import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.SearchViewModel
 import com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels.ThreadsViewModel
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.Typography
+import androidx.compose.material3.rememberTopAppBarState
+import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.text.font.FontFamily
+import com.afkanerd.smswithoutborders_libsmsmms.data.Addresses
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.settingsGetUseSystemFont
 import com.afkanerd.smswithoutborders_libsmsmms.ui.components.ModalDrawerSheetLayout
 
@@ -144,6 +150,7 @@ fun NavHostControllerInstance(
             startDestination = HomeScreenNav()
         }
     }
+
     MaterialTheme(
         typography = typography
     ) {
@@ -201,7 +208,7 @@ fun NavHostControllerInstance(
                 composable<ConversationsScreenNav> { backStackEntry ->
                     val convScreen: ConversationsScreenNav = backStackEntry.toRoute()
                     ConversationsMainLayout(
-                        address = convScreen.address,
+                        addresses = Addresses.build(context, convScreen.address),
                         text = convScreen.text ?: "",
                         searchQuery = convScreen.query,
                         navController = navController,

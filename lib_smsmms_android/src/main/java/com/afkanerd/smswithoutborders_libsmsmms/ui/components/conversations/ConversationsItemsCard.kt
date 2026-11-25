@@ -11,6 +11,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.text.AnnotatedString
@@ -32,6 +33,7 @@ import kotlinx.coroutines.flow.StateFlow
 
 @Composable
 fun ConversationUi(
+    modifier: Modifier = Modifier,
     conversationsUi: ConversationsViewModel.ConversationsUi,
     isSelected: Boolean,
     searchQuery: String?,
@@ -93,6 +95,7 @@ fun ConversationUi(
     }
 
     ConversationItem(
+        modifier = modifier,
         text= text,
         timestamp = postComputed?.timestamp ?: "",
         type= conversation.sms?.type!!,

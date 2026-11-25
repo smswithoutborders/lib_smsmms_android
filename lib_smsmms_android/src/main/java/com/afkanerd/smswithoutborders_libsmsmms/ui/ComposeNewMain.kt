@@ -52,6 +52,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.afkanerd.lib_smsmms_android.R
+import com.afkanerd.smswithoutborders_libsmsmms.data.Addresses
 import com.afkanerd.smswithoutborders_libsmsmms.data.Contacts
 import com.afkanerd.smswithoutborders_libsmsmms.data.SmsManager
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getThreadId
@@ -157,19 +158,18 @@ fun ComposeNewMessage(
             items(_items ?: items) { contact ->
                 Card(
                     onClick = {
-                        val address = context.makeE16PhoneNumber(contact.address)
-                        val threadId = context.getThreadId(address)
+                        val threadId = context.getThreadId(contact.address.getAddress)
                         if(!text.isNullOrEmpty() && subscriptionId != null) {
                             SmsManager(ConversationsViewModel()).sendSms(
                                 context = context,
                                 text = text,
-                                address = address,
+                                address = contact.address.getAddress,
                                 subscriptionId = subscriptionId,
                                 threadId = threadId
                             ) {
                                 CoroutineScope(Dispatchers.Main).launch {
                                     navController.navigate(ConversationsScreenNav(
-                                        address = contact.address
+                                        address = contact.address.getAddress
                                     )) {
                                         popUpTo(navController.graph.startDestinationId) {
                                             inclusive = true
@@ -179,7 +179,7 @@ fun ComposeNewMessage(
                             }
                         } else {
                             navController.navigate(ConversationsScreenNav(
-                                address = contact.address
+                                address = contact.address.getAddress
                             )) {
                                 popUpTo(navController.graph.startDestinationId) {
                                     inclusive = true
@@ -194,7 +194,7 @@ fun ComposeNewMessage(
                         ContactAvatar(
                             id= contact.id.toString(),
                             name= contact.displayName,
-                            phoneNumber = contact.address,
+                            phoneNumber = contact.address.getAddress,
                         )
                         Spacer(Modifier.padding(start = 16.dp))
 
@@ -209,7 +209,7 @@ fun ComposeNewMessage(
 
                                 Spacer(Modifier.height(4.dp))
                                 Text(
-                                    text = contact.address,
+                                    text = contact.address.getAddress,
                                     color = MaterialTheme.colorScheme.onBackground,
                                     style = MaterialTheme.typography.bodySmall,
                                 )
@@ -226,13 +226,17 @@ fun ComposeNewMessage(
 @Preview(showBackground = true)
 @Composable
 fun PreviewComposeMessage() {
-    var contacts: MutableList<Contacts> =
+    val contacts: MutableList<Contacts> =
         remember { mutableListOf( ) }
+
+    val context = LocalContext.current
+    val address = Addresses.build(context, "234567890")
+
     for(i in 0..10) {
         val contact = Contacts(
             i.toLong(),
             "$i$i$i$i$i$i$i$i$i$i",
-            "Jane Doe ($i)"
+            address
         )
         contacts.add(contact)
     }

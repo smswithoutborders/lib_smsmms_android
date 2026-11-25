@@ -1,7 +1,8 @@
 plugins {
     id 'com.android.application'
-    id 'org.jetbrains.kotlin.plugin.compose'
-    id 'org.jetbrains.kotlin.plugin.serialization'
+    id "com.diffplug.spotless" version "8.10.3"
+    id 'org.jetbrains.kotlin.plugin.serialization' version '2.4.20'
+    id 'com.google.devtools.ksp' version '2.3.6'
 }
 
 android {

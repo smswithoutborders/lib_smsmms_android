@@ -234,6 +234,7 @@ private fun ConversationSent(
 
 @Composable
 fun ConversationItem(
+    modifier: Modifier = Modifier,
     text: AnnotatedString,
     timestamp: String,
     date: String,
@@ -253,7 +254,8 @@ fun ConversationItem(
     val context = LocalContext.current
     val messageFontSize = context.settingsGetMessageFontSize
     Column(
-        modifier = Modifier.fillMaxWidth()
+        modifier = modifier
+            .fillMaxWidth()
     ) {
         when(contentType) {
             ConversationType.START_TIMESTAMP,

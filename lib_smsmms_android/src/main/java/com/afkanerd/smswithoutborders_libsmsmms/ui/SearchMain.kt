@@ -34,6 +34,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import com.afkanerd.lib_smsmms_android.R
+import com.afkanerd.smswithoutborders_libsmsmms.data.Addresses
 import com.afkanerd.smswithoutborders_libsmsmms.data.DateTimeUtils
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.isDefault
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.retrieveContactName
@@ -138,13 +139,14 @@ fun SearchThreadsMain(
                 key = inboxMessagesItems.itemKey { it.threadId }
             ) { index ->
                 val message = inboxMessagesItems[index]
-
                 message?.let {
+                    val address = message.address
+
                     val contactName = if(isDefault)
-                        context.retrieveContactName(message.address)
+                        context.retrieveContactName(address)
                     else address
 
-                    var firstName = message.address
+                    var firstName = address
                     var lastName = ""
                     if (!contactName.isNullOrEmpty()) {
                         contactName.split(" ").let {
@@ -169,7 +171,7 @@ fun SearchThreadsMain(
                         modifier = Modifier.combinedClickable(
                             onClick = {
                                 navController.navigate( ConversationsScreenNav(
-                                    message.address,
+                                    address,
                                     query = searchQuery,
                                 ))
                             },

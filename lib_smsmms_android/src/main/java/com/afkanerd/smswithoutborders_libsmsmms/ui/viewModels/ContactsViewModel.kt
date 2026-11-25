@@ -6,6 +6,7 @@ import android.telephony.PhoneNumberUtils
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.afkanerd.lib_smsmms_android.R
+import com.afkanerd.smswithoutborders_libsmsmms.data.Addresses
 import com.afkanerd.smswithoutborders_libsmsmms.data.Contacts
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.filterContacts
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getPhonebookContacts
@@ -50,7 +51,7 @@ class ContactsViewModel : ViewModel() {
                     contactsList.add(Contacts(
                         id = id,
                         displayName = displayName,
-                        address = number))
+                        address = Addresses.build(context, number)))
                 } while (cursor.moveToNext())
                 cursor.close()
             }
@@ -60,7 +61,7 @@ class ContactsViewModel : ViewModel() {
             contactsList.add(Contacts(
                 id = -1,
                 displayName = "${context.getString(R.string.send_to)} $details",
-                address = details
+                address = Addresses.build(context, details)
             ))
         }
         contactsMutableLiveData?.postValue(contactsList)
@@ -86,7 +87,7 @@ class ContactsViewModel : ViewModel() {
                 contactsList.add(Contacts(
                     id,
                     displayName,
-                    number))
+                    Addresses.build(context, number)))
             } while (cursor.moveToNext())
             cursor.close()
         }
