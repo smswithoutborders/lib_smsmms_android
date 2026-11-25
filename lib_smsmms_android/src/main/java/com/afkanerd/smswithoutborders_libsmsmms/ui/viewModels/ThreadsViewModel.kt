@@ -1,38 +1,22 @@
 package com.afkanerd.smswithoutborders_libsmsmms.ui.viewModels
 
-import android.R.attr.onClick
 import android.content.Context
-import android.net.Uri
 import android.os.Bundle
 import android.provider.BlockedNumberContract.AUTHORITY_URI
-import android.provider.BlockedNumberContract.isBlocked
 import android.provider.Telephony
-import android.widget.Toast
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.toString
 import androidx.compose.ui.platform.AndroidUiDispatcher
-import androidx.compose.ui.test.isSelected
-import androidx.core.content.edit
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
-import androidx.paging.PagingSource
 import androidx.paging.cachedIn
 import androidx.paging.map
-import com.afkanerd.lib_smsmms_android.R
 import com.afkanerd.smswithoutborders_libsmsmms.data.DatabaseImpl
-import com.afkanerd.smswithoutborders_libsmsmms.data.dao.ConversationsDao
-import com.afkanerd.smswithoutborders_libsmsmms.data.data.models.DateTimeUtils
+import com.afkanerd.smswithoutborders_libsmsmms.data.DateTimeUtils
 import com.afkanerd.smswithoutborders_libsmsmms.data.entities.Threads
-import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.ActivitiesConstant
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.blockContact
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.deleteSmsThreads
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getDatabase
@@ -44,23 +28,14 @@ import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.retrieveConta
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.retrieveContactPhoto
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.settingsGetDeleteSystem
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.unblockContact
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEmpty
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlin.concurrent.thread
 
 open class ThreadsViewModel: ViewModel() {
     enum class InboxType {

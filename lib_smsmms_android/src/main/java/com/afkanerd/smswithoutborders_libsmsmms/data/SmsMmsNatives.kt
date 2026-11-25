@@ -1,8 +1,6 @@
-package com.afkanerd.smswithoutborders_libsmsmms.data.data.models
+package com.afkanerd.smswithoutborders_libsmsmms.data
 
 import androidx.room.Entity
-import androidx.room.Index
-import androidx.room.PrimaryKey
 import kotlinx.serialization.Serializable
 
 /**

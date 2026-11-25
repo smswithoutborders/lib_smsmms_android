@@ -20,8 +20,8 @@ import androidx.core.database.getLongOrNull
 import androidx.core.database.getStringOrNull
 import androidx.core.net.toUri
 import com.afkanerd.lib_smsmms_android.R
-import com.afkanerd.smswithoutborders_libsmsmms.data.data.models.MmsParser
-import com.afkanerd.smswithoutborders_libsmsmms.data.data.models.SmsMmsNatives
+import com.afkanerd.smswithoutborders_libsmsmms.data.MmsParser
+import com.afkanerd.smswithoutborders_libsmsmms.data.SmsMmsNatives
 import com.afkanerd.smswithoutborders_libsmsmms.data.entities.Conversations
 import com.afkanerd.smswithoutborders_libsmsmms.receivers.MmsSentReceiverImpl
 import com.afkanerd.smswithoutborders_libsmsmms.receivers.SmsTextReceivedReceiver

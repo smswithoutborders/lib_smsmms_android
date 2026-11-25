@@ -34,7 +34,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import com.afkanerd.lib_smsmms_android.R
-import com.afkanerd.smswithoutborders_libsmsmms.data.data.models.DateTimeUtils
+import com.afkanerd.smswithoutborders_libsmsmms.data.DateTimeUtils
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.isDefault
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.retrieveContactName
 import com.afkanerd.smswithoutborders_libsmsmms.ui.components.ThreadConversationCard

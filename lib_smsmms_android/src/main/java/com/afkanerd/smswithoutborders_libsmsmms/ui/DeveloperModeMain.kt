@@ -26,7 +26,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.afkanerd.lib_smsmms_android.R
 import com.afkanerd.smswithoutborders_libsmsmms.activities.DeveloperModeNotificationCls
-import com.afkanerd.smswithoutborders_libsmsmms.data.data.models.SmsMmsNatives
+import com.afkanerd.smswithoutborders_libsmsmms.data.SmsMmsNatives
 import com.afkanerd.smswithoutborders_libsmsmms.data.entities.Conversations
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getDatabase
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getThreadId

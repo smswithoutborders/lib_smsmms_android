@@ -3,7 +3,6 @@ package com.afkanerd.smswithoutborders_libsmsmms.ui
 import android.Manifest
 import android.content.Context
 import android.net.Uri
-import android.provider.Telephony
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
@@ -73,20 +72,17 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import androidx.paging.CombinedLoadStates
-import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
 import com.afkanerd.lib_smsmms_android.R
-import com.afkanerd.smswithoutborders_libsmsmms.data.data.models.SmsManager
+import com.afkanerd.smswithoutborders_libsmsmms.data.SmsManager
 import com.afkanerd.smswithoutborders_libsmsmms.data.entities.Conversations
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.call
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.cancelNotification
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getDefaultSimSubscription
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getFileNameFromUri
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getMimeTypeFromUri
-import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getSubscriptionName
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getThreadId
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.isDualSim
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.isShortCode
@@ -94,7 +90,6 @@ import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.makeE16PhoneN
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.retrieveContactName
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.settingsGetConversationsSubscriptionId
 import com.afkanerd.smswithoutborders_libsmsmms.ui.components.ChatCompose
-import com.afkanerd.smswithoutborders_libsmsmms.ui.components.ConvenientMethods.deriveMetaDate
 import com.afkanerd.smswithoutborders_libsmsmms.ui.components.ConversationCrudBottomBar
 import com.afkanerd.smswithoutborders_libsmsmms.ui.components.FailedMessageOptionsModal
 import com.afkanerd.smswithoutborders_libsmsmms.ui.components.MessageInfoAlert
@@ -114,6 +109,7 @@ import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
@@ -150,9 +146,6 @@ fun backHandler(
         }
     }
 }
-
-const val requiredSendSMSPermission = Manifest.permission.SEND_SMS
-const val requiredReceiveSMSPermission = Manifest.permission.READ_SMS
 const val requiredReadPhoneStatePermissions = Manifest.permission.READ_PHONE_STATE
 
 private fun lifecycleObservations(
@@ -184,7 +177,7 @@ fun ConversationsMainLayout(
     foldOpen: Boolean = false,
     threadId: Int? = null,
     imageUri: Uri? = null,
-    customComposable: (@Composable (CustomsConversationsViewModel?) -> Unit)? = null,
+    customComposable: (@Composable () -> Unit)? = null,
     customMenuItems: (@Composable ((Boolean) -> Unit) -> Unit)? = null,
     customsConversationsViewModel: CustomsConversationsViewModel? = null,
     customDataView: (@Composable (Conversations) -> Unit)? = null,
@@ -325,6 +318,9 @@ fun ConversationsMainLayout(
 
     var rememberMenuExpanded by remember{ mutableStateOf(false) }
 
+    val isSecured by (customsConversationsViewModel?.isSecured ?: MutableStateFlow(false))
+        .collectAsStateWithLifecycle()
+
     ConversationDropDown(
         context = context,
         expanded = rememberMenuExpanded,
@@ -377,10 +373,9 @@ fun ConversationsMainLayout(
                         TextButton(onClick = {
                             navController.navigate(
                                 ContactDetailsScreenNav(
-                                    address,
-                                    customsConversationsViewModel
-                                        ?.isSecured == true,
-                                    subscriptionId.toInt()
+                                    address = address,
+                                    encryptionAvailable = isSecured,
+                                    subscriptionId = subscriptionId.toInt()
                                 )
                             )
                         }) {
@@ -401,9 +396,7 @@ fun ConversationsMainLayout(
                                         modifier = Modifier.size(16.dp)
                                     )
                                 }
-                                if(customsConversationsViewModel?.isSecured == true ||
-                                    inPreviewMode
-                                ) {
+                                if (isSecured || inPreviewMode) {
                                     Spacer(Modifier.padding(4.dp))
                                     Icon(
                                         Icons.Filled.Security,
@@ -548,8 +541,7 @@ fun ConversationsMainLayout(
                             navController.navigate(
                                 ContactDetailsScreenNav(
                                     address,
-                                    customsConversationsViewModel
-                                        ?.isSecured == true,
+                                    isSecured,
                                     subscriptionId.toInt()
                                 )
                             )
@@ -769,11 +761,14 @@ fun ConversationsMainLayout(
             }
         }
 
-        customComposable?.invoke(customsConversationsViewModel?.apply {
-            setConversationAddress(address)
-            setConversationThreadId(threadId)
-            setConversationSubscriptionId(subscriptionId)
-        })
+        if (customComposable != null) {
+            customsConversationsViewModel?.apply {
+                setConversationAddress(address)
+                setConversationThreadId(threadId)
+                setConversationSubscriptionId(subscriptionId)
+            }
+            customComposable()
+        }
     }
 }
 

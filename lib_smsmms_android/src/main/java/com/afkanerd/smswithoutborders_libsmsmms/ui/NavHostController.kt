@@ -1,4 +1,4 @@
-package com.afkanerd.smswithoutborders_libsmsmms.ui.components
+package com.afkanerd.smswithoutborders_libsmsmms.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -9,7 +9,6 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -28,19 +27,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
-import androidx.window.layout.WindowLayoutInfo
 import com.afkanerd.lib_smsmms_android.R
 import com.afkanerd.smswithoutborders_libsmsmms.data.entities.Conversations
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.isDefault
-import com.afkanerd.smswithoutborders_libsmsmms.ui.ComposeNewMessage
-import com.afkanerd.smswithoutborders_libsmsmms.ui.ContactDetails
-import com.afkanerd.smswithoutborders_libsmsmms.ui.ConversationsMainLayout
-import com.afkanerd.smswithoutborders_libsmsmms.ui.DefaultCheckMain
-import com.afkanerd.smswithoutborders_libsmsmms.ui.DeveloperModeMain
-import com.afkanerd.smswithoutborders_libsmsmms.ui.MediaMain
-import com.afkanerd.smswithoutborders_libsmsmms.ui.SearchThreadsMain
-import com.afkanerd.smswithoutborders_libsmsmms.ui.SettingsMain
-import com.afkanerd.smswithoutborders_libsmsmms.ui.ThreadConversationLayout
 import com.afkanerd.smswithoutborders_libsmsmms.ui.navigation.ComposeNewMessageScreenNav
 import com.afkanerd.smswithoutborders_libsmsmms.ui.navigation.ContactDetailsScreenNav
 import com.afkanerd.smswithoutborders_libsmsmms.ui.navigation.ConversationsScreenNav
@@ -58,6 +47,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.font.FontFamily
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.settingsGetUseSystemFont
+import com.afkanerd.smswithoutborders_libsmsmms.ui.components.ModalDrawerSheetLayout
 
 @Composable
 fun NavHostControllerInstance(
@@ -69,7 +59,7 @@ fun NavHostControllerInstance(
     isDefault: Boolean,
     threadsMainMenuItems: (@Composable ((Boolean) -> Unit) -> Unit)? = null,
     customMenuItems: (@Composable ((Boolean) -> Unit) -> Unit)? = null,
-    conversationsCustomComposable: (@Composable (CustomsConversationsViewModel?) -> Unit)? = null,
+    conversationsCustomComposable: (@Composable () -> Unit)? = null,
     conversationsCustomViewModel: CustomsConversationsViewModel? = null,
     conversationsCustomDataView: (@Composable (Conversations) -> Unit)? = null,
     modalNavigationModalItems: (@Composable () -> Unit)? = null,

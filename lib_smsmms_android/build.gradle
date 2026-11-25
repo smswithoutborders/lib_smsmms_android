@@ -3,16 +3,19 @@ plugins {
     id 'com.google.devtools.ksp'
     id 'org.jetbrains.kotlin.plugin.compose'
     id 'org.jetbrains.kotlin.plugin.serialization'
-    id("maven-publish") apply true
+//    id("maven-publish") apply true
+    id 'maven-publish'
+    id 'signing'
+    alias(libs.plugins.org.jetbrains.kotlin.android)
 }
 
-android {
-    publishing {
-        singleVariant("release") {
-            withSourcesJar()
-        }
-    }
-}
+//android {
+//    publishing {
+//        singleVariant("release") {
+//            withSourcesJar()
+//        }
+//    }
+//}
 
 
 afterEvaluate {
@@ -45,6 +48,12 @@ android {
         resourceConfigurations += ["en", "fr", "ru", "de", "pl"]
     }
 
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -67,10 +76,12 @@ android {
     testOptions {
         targetSdk 36
     }
+    kotlinOptions {
+        jvmTarget = '11'
+    }
 }
 
 dependencies {
-
     implementation "androidx.core:core-ktx:1.19.0"
     implementation "androidx.appcompat:appcompat:1.8.0"
     implementation "com.google.android.material:material:1.14.0"
@@ -87,10 +98,11 @@ dependencies {
     implementation("androidx.media3:media3-exoplayer-dash:1.11.1")
     implementation("androidx.media3:media3-ui:1.11.1")
     implementation("androidx.media3:media3-ui-compose:1.11.1")
-    implementation libs.ui.test.junit4
-    testImplementation libs.junit
-    androidTestImplementation libs.androidx.junit
-    androidTestImplementation libs.androidx.espresso.core
+    implementation libs.androidx.core.ktx
+
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
+
+    debugImplementation("androidx.compose.ui:ui-test-manifest")
     annotationProcessor "androidx.room:room-compiler:2.8.5"
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0"
 
@@ -128,7 +140,8 @@ dependencies {
     implementation composeBom
     androidTestImplementation composeBom
 
-    implementation libs.androidx.compose.material
+    implementation "androidx.compose.material:material:1.13.0"
+//    implementation libs.androidx.compose.material
     // or skip Material Design and build directly on top of foundational components
     implementation 'androidx.compose.foundation:foundation'
     // or only import the main APIs for the underlying toolkit systems,

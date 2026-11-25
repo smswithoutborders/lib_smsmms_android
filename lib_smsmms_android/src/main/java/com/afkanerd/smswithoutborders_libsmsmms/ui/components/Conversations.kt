@@ -37,8 +37,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.afkanerd.lib_smsmms_android.R
-import com.afkanerd.smswithoutborders_libsmsmms.data.data.models.DateTimeUtils
-import com.afkanerd.smswithoutborders_libsmsmms.data.data.models.SmsMmsNatives
+import com.afkanerd.smswithoutborders_libsmsmms.data.DateTimeUtils
+import com.afkanerd.smswithoutborders_libsmsmms.data.SmsMmsNatives
 import com.afkanerd.smswithoutborders_libsmsmms.data.entities.Conversations
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.settingsGetMessageFontSize
 

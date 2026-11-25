@@ -6,7 +6,7 @@ import android.telephony.PhoneNumberUtils
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.afkanerd.lib_smsmms_android.R
-import com.afkanerd.smswithoutborders_libsmsmms.data.data.models.Contacts
+import com.afkanerd.smswithoutborders_libsmsmms.data.Contacts
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.filterContacts
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getPhonebookContacts
 

@@ -5,7 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.provider.Telephony
 import android.text.TextUtils
-import com.afkanerd.smswithoutborders_libsmsmms.data.data.models.MmsParser
+import com.afkanerd.smswithoutborders_libsmsmms.data.MmsParser
 import com.android.mms.transaction.DownloadManager
 import com.android.mms.transaction.PushReceiver
 import com.google.android.mms.MmsException

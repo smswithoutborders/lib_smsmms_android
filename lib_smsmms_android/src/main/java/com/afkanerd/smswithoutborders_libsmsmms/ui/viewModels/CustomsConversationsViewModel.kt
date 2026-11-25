@@ -7,6 +7,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.afkanerd.smswithoutborders_libsmsmms.data.entities.Conversations
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 interface CustomConversationServices {
     fun sendSms(
@@ -22,43 +24,52 @@ interface CustomConversationServices {
 }
 
 open class CustomsConversationsViewModel : ViewModel(), CustomConversationServices {
-    var rememberMenuExpanded by mutableStateOf(false)
+    private var _rememberMenuExpanded = MutableStateFlow(false)
+    var rememberMenuExpanded = _rememberMenuExpanded.asStateFlow()
         private set
 
-    var anythingTrigger by mutableStateOf(false)
+    private var _triggerRequested = MutableStateFlow(false)
+    var triggerRequested = _triggerRequested.asStateFlow()
         private set
 
-    var address: String? by mutableStateOf(null)
+    private var _address = MutableStateFlow<String?>(null)
+    var address = _address.asStateFlow()
         private set
 
-    var subscriptionId: Long? by mutableStateOf(null)
+    private var _subscriptionId = MutableStateFlow<Long?>(null)
+    var subscriptionId = _subscriptionId.asStateFlow()
         private set
 
-    var threadId: Int? by mutableStateOf(null)
+    private var _threadId = MutableStateFlow(-1)
+    var threadId = _threadId.asStateFlow()
         private set
 
-    var isSecured: Boolean by mutableStateOf(false)
+    private var _isSecured = MutableStateFlow(false)
+    var isSecured = _isSecured.asStateFlow()
         private set
-
-    fun setIsSecured(isSecured: Boolean) {
-        this.isSecured = isSecured
-    }
 
     fun setConversationThreadId(threadId: Int) {
-        this.threadId = threadId
+        _threadId.value = threadId
     }
 
     fun setConversationAddress(address: String) {
-        this.address = address
+        _address.value = address
     }
 
     fun setConversationSubscriptionId(subscriptionId: Long?) {
-        this.subscriptionId = subscriptionId
+        _subscriptionId.value = subscriptionId
     }
 
-    fun setModal(show: Boolean) {
-        anythingTrigger = show
-        rememberMenuExpanded = !show
+    fun triggerAnything(state: Boolean) {
+        _triggerRequested.value = state
+    }
+
+    fun setRememberMenuExpanded(state: Boolean) {
+        _rememberMenuExpanded.value = state
+    }
+
+    fun setIsSecured(state: Boolean) {
+        _isSecured.value = state
     }
 
     override fun sendSms(

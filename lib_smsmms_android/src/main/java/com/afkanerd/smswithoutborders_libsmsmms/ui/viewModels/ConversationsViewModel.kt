@@ -12,11 +12,10 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import androidx.paging.insertFooterItem
 import androidx.paging.map
 import com.afkanerd.lib_smsmms_android.R
-import com.afkanerd.smswithoutborders_libsmsmms.data.data.models.DateTimeUtils
-import com.afkanerd.smswithoutborders_libsmsmms.data.data.models.SmsMmsNatives
+import com.afkanerd.smswithoutborders_libsmsmms.data.DateTimeUtils
+import com.afkanerd.smswithoutborders_libsmsmms.data.SmsMmsNatives
 import com.afkanerd.smswithoutborders_libsmsmms.data.entities.Conversations
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getDatabase
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getSubscriptionName
@@ -28,25 +27,18 @@ import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.settingsGetKe
 import com.afkanerd.smswithoutborders_libsmsmms.ui.components.ConvenientMethods.deriveMetaDate
 import com.afkanerd.smswithoutborders_libsmsmms.ui.components.ConversationType
 import com.afkanerd.smswithoutborders_libsmsmms.ui.components.getConversationType
-import com.afkanerd.smswithoutborders_libsmsmms.ui.navigation.ImageViewScreenNav
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.concurrent.atomic.AtomicInteger
-import kotlin.collections.toMutableList
-import kotlin.concurrent.thread
 
 class ConversationsViewModel : ViewModel(),  CustomConversationServices {
     private val _isMuted = MutableStateFlow(false) // default

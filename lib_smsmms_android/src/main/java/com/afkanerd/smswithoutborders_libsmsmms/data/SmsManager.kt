@@ -1,4 +1,4 @@
-package com.afkanerd.smswithoutborders_libsmsmms.data.data.models
+package com.afkanerd.smswithoutborders_libsmsmms.data
 
 import android.content.Context
 import android.os.Bundle
