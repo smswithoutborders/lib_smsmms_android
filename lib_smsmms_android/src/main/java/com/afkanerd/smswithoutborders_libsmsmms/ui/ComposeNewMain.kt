@@ -88,6 +88,7 @@ fun ContactAvatar(
 @Composable
 fun ComposeNewMessage(
     navController: NavController,
+    conversationsViewModel: ConversationsViewModel,
     text: String? = null,
     subscriptionId: Long? = null,
     _items: List<Contacts>? = null
@@ -160,12 +161,13 @@ fun ComposeNewMessage(
                     onClick = {
                         val threadId = context.getThreadId(contact.address.getAddress)
                         if(!text.isNullOrEmpty() && subscriptionId != null) {
-                            SmsManager(ConversationsViewModel()).sendSms(
+                            conversationsViewModel.sendSms(
                                 context = context,
                                 text = text,
-                                address = contact.address.getAddress,
+                                address = contact.address,
                                 subscriptionId = subscriptionId,
-                                threadId = threadId
+                                threadId = threadId,
+                                data = null
                             ) {
                                 CoroutineScope(Dispatchers.Main).launch {
                                     navController.navigate(ConversationsScreenNav(
@@ -242,6 +244,7 @@ fun PreviewComposeMessage() {
     }
     ComposeNewMessage(
         navController = rememberNavController(),
+        conversationsViewModel = remember{ ConversationsViewModel () },
         _items = contacts
     )
 }

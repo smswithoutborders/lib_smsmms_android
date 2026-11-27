@@ -192,7 +192,6 @@ fun ConversationsMainLayout(
         return
     }
 
-    val smsManager = SmsManager(customsConversationsViewModel ?: conversationsViewModel)
     val context = LocalContext.current
     val inPreviewMode = LocalInspectionMode.current
     val lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current
@@ -563,7 +562,7 @@ fun ConversationsMainLayout(
                                 context,
                                 it,
                                 text = typingText,
-                                address = addresses.getFullE164Address,
+                                address = addresses,
                                 subscriptionId = subscriptionId,
                                 threadId = threadId,
                                 filename = context.getFileNameFromUri(it)
@@ -574,13 +573,14 @@ fun ConversationsMainLayout(
                             typingText = ""
                         },
                         smsSendCallback = {
-                            smsManager.sendSms(
+                            conversationsViewModel.sendSms(
                                 context,
                                 text = typingText,
-                                address = addresses.getFullE164Address,
+                                address = addresses,
                                 subscriptionId = subscriptionId,
                                 threadId = threadId,
-                                data = null
+                                data = null,
+                                bundle = null
                             ){}
                             typingText = ""
                         },
@@ -729,7 +729,7 @@ fun ConversationsMainLayout(
                                     context,
                                     uri,
                                     text = conversation.mms_text ?: conversation.sms?.body ?: "",
-                                    address = address,
+                                    address = addresses,
                                     subscriptionId = subscriptionId,
                                     threadId = threadId,
                                     filename = context.getFileNameFromUri(uri)
@@ -739,10 +739,10 @@ fun ConversationsMainLayout(
                                 typingMmsImage = null
                                 typingText = ""
                             } else {
-                                smsManager.sendSms(
+                                conversationsViewModel.sendSms(
                                     context,
                                     text = conversation.sms?.body!!,
-                                    address = conversation.sms?.address!!,
+                                    address = addresses,
                                     subscriptionId = conversation.sms?.sub_id!!,
                                     threadId = conversation.sms?.thread_id!!,
                                     data = null

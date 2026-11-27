@@ -14,15 +14,15 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
 import com.afkanerd.lib_smsmms_android.R
+import com.afkanerd.smswithoutborders_libsmsmms.data.Addresses
 import com.afkanerd.smswithoutborders_libsmsmms.data.DateTimeUtils
+import com.afkanerd.smswithoutborders_libsmsmms.data.SmsManager
 import com.afkanerd.smswithoutborders_libsmsmms.data.SmsMmsNatives
 import com.afkanerd.smswithoutborders_libsmsmms.data.entities.Conversations
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getDatabase
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getSubscriptionName
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.isDefault
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.isDualSim
-import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.sendMms
-import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.sendSms
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.settingsGetKeepMessagesArchived
 import com.afkanerd.smswithoutborders_libsmsmms.ui.components.ConvenientMethods.deriveMetaDate
 import com.afkanerd.smswithoutborders_libsmsmms.ui.components.ConversationType
@@ -40,7 +40,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class ConversationsViewModel : ViewModel(),  CustomConversationServices {
+class ConversationsViewModel : ViewModel() {
     private val _isMuted = MutableStateFlow(false) // default
     val isMuted: StateFlow<Boolean> = _isMuted
 
@@ -318,69 +318,67 @@ class ConversationsViewModel : ViewModel(),  CustomConversationServices {
         context: Context,
         uri: Uri,
         text: String,
-        address: String,
+        address: Addresses,
         subscriptionId: Long,
         threadId: Int,
         filename: String,
         mimeType: String,
         callback: (Conversations?) -> Unit
     ) {
-        viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                try {
-                    context.sendMms(
-                        contentUri = uri,
-                        text = text,
-                        address = address,
-                        threadId = threadId,
-                        subscriptionId = subscriptionId,
-                        filename = filename,
-                        mimeType = mimeType
-                    ).let { conversation ->
-                        callback(conversation)
-                    }
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                    withContext(Dispatchers.Main) {
-                        Toast.makeText(context,
-                            context.getString(R.string.something_went_wrong_with_sending),
-                            Toast.LENGTH_LONG).show()
-                    }
+        viewModelScope.launch(Dispatchers.IO) {
+            val smsManager = SmsManager(context)
+            try {
+                smsManager.sendMms(
+                    contentUri = uri,
+                    text = text,
+                    addresses = address,
+                    threadId = threadId,
+                    subscriptionId = subscriptionId,
+                    filename = filename,
+                    mimeType = mimeType
+                ).let { conversation ->
+                    callback(conversation)
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(context,
+                        context.getString(R.string.something_went_wrong_with_sending),
+                        Toast.LENGTH_LONG).show()
                 }
             }
         }
     }
 
-    override fun sendSms(
+    fun sendSms(
         context: Context,
         text: String,
-        address: String,
+        address: Addresses,
         subscriptionId: Long,
         threadId: Int,
         data: ByteArray?,
-        bundle: Bundle,
+        bundle: Bundle? = null,
         callback: (Conversations?) -> Unit
     ) {
-        viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                try {
-                    context.sendSms(
-                        text = text,
-                        address = address,
-                        threadId = threadId,
-                        subscriptionId = subscriptionId,
-                        data = data,
-                        bundle = bundle
-                    )?.let { conversation ->
-                        callback(conversation)
-                    }
-                } catch(e: Exception) {
-                    e.printStackTrace()
-                    withContext(Dispatchers.Main) {
-                        Toast.makeText(context,
-                            context.getString(R.string.something_went_wrong_with_sending),
-                            Toast.LENGTH_LONG).show()
-                    }
+        viewModelScope.launch(Dispatchers.IO) {
+            val smsManager = SmsManager(context)
+            try {
+                smsManager.sendSms(
+                    text = text,
+                    address = address,
+                    threadId = threadId,
+                    subscriptionId = subscriptionId,
+                    data = data,
+                    bundle = bundle
+                )?.let { conversation ->
+                    callback(conversation)
+                }
+            } catch(e: Exception) {
+                e.printStackTrace()
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(context,
+                        context.getString(R.string.something_went_wrong_with_sending),
+                        Toast.LENGTH_LONG).show()
                 }
             }
         }

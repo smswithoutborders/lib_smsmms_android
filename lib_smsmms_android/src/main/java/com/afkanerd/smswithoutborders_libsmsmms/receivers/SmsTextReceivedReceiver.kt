@@ -6,12 +6,11 @@ import android.content.Context
 import android.content.Intent
 import android.provider.Telephony
 import androidx.core.net.toUri
+import com.afkanerd.smswithoutborders_libsmsmms.data.SmsManager
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.NotificationTxType
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getDatabase
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.isSecondaryUser
-import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.registerIncomingSms
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.sendNotificationBroadcast
-import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.updateSms
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -27,6 +26,8 @@ class SmsTextReceivedReceiver : BroadcastReceiver() {
     }
 
     override fun onReceive(context: Context, intent: Intent) {
+        val smsManager = SmsManager(context)
+
         when (intent.action) {
             Telephony.Sms.Intents.SMS_DELIVER_ACTION, Telephony.Sms.Intents.SMS_RECEIVED_ACTION -> {
                 if (resultCode == Activity.RESULT_OK) {
@@ -35,7 +36,7 @@ class SmsTextReceivedReceiver : BroadcastReceiver() {
                         return
                     }
                     CoroutineScope(Dispatchers.IO).launch {
-                        val conversation = context.registerIncomingSms(intent)
+                        val conversation = smsManager.registerIncomingSms(intent)
                         context.getDatabase().threadsDao()?.get(conversation.sms?.thread_id!!)?.let {
                             if(!it.isMute) context.sendNotificationBroadcast(
                                 conversation, type = NotificationTxType.TEXT)
@@ -60,7 +61,7 @@ class SmsTextReceivedReceiver : BroadcastReceiver() {
                                 conversation.sms?.error_code = resultCode
                             }
                             try {
-                                context.updateSms(uri!!, conversation)
+                                smsManager.updateSms(uri!!, conversation)
                                 if(conversation.sms?.status == Telephony.Sms.STATUS_FAILED)
                                     context.sendNotificationBroadcast(
                                         conversation,
@@ -89,7 +90,7 @@ class SmsTextReceivedReceiver : BroadcastReceiver() {
                                 conversation.sms?.error_code = resultCode
                             }
                             try {
-                                context.updateSms(uri!!, conversation)
+                                smsManager.updateSms(uri!!, conversation)
                                 if(conversation.sms?.status == Telephony.Sms.STATUS_FAILED)
                                     context.sendNotificationBroadcast(
                                         conversation,

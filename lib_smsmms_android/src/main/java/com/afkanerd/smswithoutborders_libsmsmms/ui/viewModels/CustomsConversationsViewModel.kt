@@ -8,20 +8,7 @@ import com.afkanerd.smswithoutborders_libsmsmms.data.entities.Conversations
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-interface CustomConversationServices {
-    fun sendSms(
-        context: Context,
-        text: String,
-        address: String,
-        subscriptionId: Long,
-        threadId: Int,
-        data: ByteArray? = null,
-        bundle: Bundle = Bundle(),
-        callback: (Conversations?) -> Unit
-    )
-}
-
-open class CustomsConversationsViewModel : ViewModel(), CustomConversationServices {
+open class CustomsConversationsViewModel : ViewModel() {
     private var _rememberMenuExpanded = MutableStateFlow(false)
     var rememberMenuExpanded = _rememberMenuExpanded.asStateFlow()
         private set
@@ -68,27 +55,5 @@ open class CustomsConversationsViewModel : ViewModel(), CustomConversationServic
 
     fun setIsSecured(state: Boolean) {
         _isSecured.value = state
-    }
-
-    override fun sendSms(
-        context: Context,
-        text: String,
-        address: String,
-        subscriptionId: Long,
-        threadId: Int,
-        data: ByteArray?,
-        bundle: Bundle,
-        callback: (Conversations?) -> Unit
-    ) {
-        ConversationsViewModel().sendSms(
-            context = context,
-            text = text,
-            address = address,
-            subscriptionId = subscriptionId,
-            threadId = threadId,
-            data = data,
-            callback = callback,
-            bundle = bundle
-        )
     }
 }

@@ -16,9 +16,9 @@ import androidx.paging.cachedIn
 import androidx.paging.map
 import com.afkanerd.smswithoutborders_libsmsmms.data.DatabaseImpl
 import com.afkanerd.smswithoutborders_libsmsmms.data.DateTimeUtils
+import com.afkanerd.smswithoutborders_libsmsmms.data.SmsManager
 import com.afkanerd.smswithoutborders_libsmsmms.data.entities.Threads
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.blockContact
-import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.deleteSmsThreads
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getDatabase
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.isDefault
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.isNumberBlocked
@@ -189,13 +189,12 @@ open class ThreadsViewModel: ViewModel() {
     }
 
     fun deleteThreads(context: Context, threads: List<Threads>) {
-        viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                context.getDatabase().threadsDao()?.delete(threads)
-                if(context.settingsGetDeleteSystem) {
-                    context.deleteSmsThreads(threads
-                        .map { it.threadId.toString() }.toTypedArray())
-                }
+        viewModelScope.launch(Dispatchers.IO) {
+            val smsManager = SmsManager(context)
+            context.getDatabase().threadsDao()?.delete(threads)
+            if(context.settingsGetDeleteSystem) {
+                smsManager.deleteSmsThreads(threads
+                    .map { it.threadId.toString() }.toTypedArray())
             }
         }
     }
@@ -240,28 +239,25 @@ open class ThreadsViewModel: ViewModel() {
         context: Context,
         completeCallback: () -> Unit,
     ) {
-        viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                _messageLoadingUiState.value = true
-
-                try {
-                    val threads = context.loadRawThreads()
-                    threads.forEach { thread ->
-                        val conversations = context
-                            .loadRawSmsMmsDb(thread.first, thread.second)
-                        context.getDatabase().conversationsDao()
-                            ?.insertAllThreads(conversations, thread.second)
-                        _messageLoadingUiState.value = false
-                        _secondaryLoadingUiState.value = true
-                    }
+        viewModelScope.launch(Dispatchers.IO) {
+            _messageLoadingUiState.value = true
+            try {
+                val threads = context.loadRawThreads()
+                threads.forEach { thread ->
+                    val conversations = context
+                        .loadRawSmsMmsDb(thread.first, thread.second)
+                    context.getDatabase().conversationsDao()
+                        ?.insertAllThreads(conversations, thread.second)
                     _messageLoadingUiState.value = false
-                } catch(e: Exception) {
-                    e.printStackTrace()
-                } finally {
-                    _secondaryLoadingUiState.value = false
-                    withContext(Dispatchers.Main) {
-                        completeCallback()
-                    }
+                    _secondaryLoadingUiState.value = true
+                }
+                _messageLoadingUiState.value = false
+            } catch(e: Exception) {
+                e.printStackTrace()
+            } finally {
+                _secondaryLoadingUiState.value = false
+                withContext(Dispatchers.Main) {
+                    completeCallback()
                 }
             }
         }

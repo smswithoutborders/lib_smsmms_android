@@ -3,9 +3,9 @@ package com.afkanerd.smswithoutborders_libsmsmms.receivers
 import android.content.Context
 import android.net.Uri
 import com.afkanerd.smswithoutborders_libsmsmms.data.MmsParser
+import com.afkanerd.smswithoutborders_libsmsmms.data.SmsManager
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.NotificationTxType
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getDatabase
-import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.insertSms
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.sendNotificationBroadcast
 import com.klinker.android.send_message.MmsReceivedReceiver
 import kotlinx.coroutines.CoroutineScope
@@ -34,7 +34,7 @@ class MmsReceivedReceiverImpl: MmsReceivedReceiver() {
                 if(cursor.moveToFirst()) {
                     MmsParser.parse(context, cursor)?.let{ conversation ->
                         CoroutineScope(Dispatchers.IO).launch {
-                            context.insertSms(conversation)
+                            SmsManager(context).insertSms(conversation)
                             context.getDatabase().threadsDao()?.get(conversation.sms?.thread_id!!)
                                 ?.let {
                                     if(!it.isMute)

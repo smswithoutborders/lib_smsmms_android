@@ -5,9 +5,9 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.provider.Telephony
+import com.afkanerd.smswithoutborders_libsmsmms.data.SmsManager
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.NotificationTxType
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.getDatabase
-import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.registerIncomingSms
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.sendNotificationBroadcast
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -22,7 +22,7 @@ class SmsDataReceivedReceiver : BroadcastReceiver() {
         if(intent.action == Telephony.Sms.Intents.DATA_SMS_RECEIVED_ACTION) {
             if (resultCode == Activity.RESULT_OK) {
                 CoroutineScope(Dispatchers.IO).launch {
-                    val conversation = context.registerIncomingSms(intent, true)
+                    val conversation = SmsManager(context).registerIncomingSms(intent, true)
                     context.getDatabase().threadsDao()?.get(conversation.sms?.thread_id!!)?.let {
                         if(!it.isMute) context.sendNotificationBroadcast(
                             conversation, type = NotificationTxType.DATA)

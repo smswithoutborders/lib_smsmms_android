@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import androidx.core.app.RemoteInput
+import com.afkanerd.smswithoutborders_libsmsmms.data.Addresses
 import com.afkanerd.smswithoutborders_libsmsmms.data.SmsManager
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.NotificationTxType
 import com.afkanerd.smswithoutborders_libsmsmms.extensions.context.cancelNotification
@@ -18,6 +19,7 @@ import kotlinx.coroutines.launch
 import java.lang.Exception
 
 class SmsMmsActionsImpl : BroadcastReceiver() {
+    val conversationsViewModel = ConversationsViewModel()
     companion object {
         const val NOTIFICATION_REPLY_ACTION_KEY = "NOTIFICATION_REPLY_ACTION_KEY"
 
@@ -39,12 +41,11 @@ class SmsMmsActionsImpl : BroadcastReceiver() {
             NOTIFICATION_REPLY_ACTION_INTENT_ACTION -> {
                 val remoteInput = RemoteInput.getResultsFromIntent(intent)
                 if (remoteInput != null) {
-                    val address = intent.getStringExtra("address")
+                    val address = intent.getStringExtra("address") ?: throw Exception("No address found")
                     val threadId = intent.getIntExtra("thread_id", -1)
 
                     val subId = context.getDefaultSimSubscription()!!
-                    val subscriptionId = intent.getLongExtra("sub_id",
-                        subId.toLong())
+                    val subscriptionId = intent.getLongExtra("sub_id", subId)
 
                     val reply = remoteInput.getCharSequence(NOTIFICATION_REPLY_ACTION_KEY)
                     if (reply == null || reply.toString().isEmpty()) return
@@ -66,12 +67,14 @@ class SmsMmsActionsImpl : BroadcastReceiver() {
                     } else {
                         CoroutineScope(Dispatchers.IO).launch {
                             try {
-                                SmsManager(ConversationsViewModel()).sendSms(
+                                conversationsViewModel.sendSms(
                                     context = context,
                                     text = reply.toString(),
-                                    address = address!!,
+                                    address = Addresses.build(context, address),
                                     subscriptionId = subscriptionId,
                                     threadId = threadId,
+                                    data = null,
+                                    bundle = null,
                                 ){ conversation ->
                                     conversation?.let {
                                         context.sendNotificationBroadcast(

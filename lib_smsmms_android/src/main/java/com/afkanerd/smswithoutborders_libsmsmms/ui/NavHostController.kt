@@ -245,6 +245,7 @@ fun NavHostControllerInstance(
                         navController = navController,
                         text = composeDetailsScreen.text,
                         subscriptionId = composeDetailsScreen.subscriptionId,
+                        conversationsViewModel = conversationsViewModel
                     )
                 }
 
